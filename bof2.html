@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css?family=Press+Start+2P" rel="stylesheet">
+    <script src="skript/Globals.js"></script>
+    <script src="skript/startup.js"></script>
+    <script src="skript/sprite.js"></script>
+
+    <style>
+        canvas {
+            background-image: url('assets/background.png');
+            background-size: cover;
+            display: block;
+        }
+
+        body {
+            background: black;
+            margin: 0px;
+            -ms-interpolation-mode: nearest-neighbor;
+            image-rendering: -webkit-optimize-contrast;
+            image-rendering: -webkit-crisp-edges;
+            image-rendering: -moz-crisp-edges;
+            image-rendering: -o-crisp-edges;
+            image-rendering: pixelated;
+            font-family: 'Press Start 2P', cursive;
+        }
+
+        #titleScreen {
+            width: 100px;
+            height: 100px;
+            position: absolute;
+            left: 50%;
+            /* position the left edge of the element at the middle of the parent */
+            transform: translateX(-50%);
+            background-image: url('assets/ui/titleScreen.png');
+            background-size: cover;
+            display: block;
+        }
+    </style>
+</head>
+
+<body>
+    <center>
+        <canvas id="canvas"></canvas>
+    </center>
+</body>
+
+</html>
