@@ -8,10 +8,11 @@
     <script src="skript/Globals.js"></script>
     <script src="skript/startup.js"></script>
     <script src="skript/sprite.js"></script>
+    <script src="skript/game.js"></script>
 
     <style>
         canvas {
-            background-image: url('assets/background.png');
+            background-image: url('bilder/background.png');
             background-size: cover;
             display: block;
         }
@@ -35,7 +36,7 @@
             left: 50%;
             /* position the left edge of the element at the middle of the parent */
             transform: translateX(-50%);
-            background-image: url('assets/ui/titleScreen.png');
+            background-image: url('bilder/ui/titleScreen.png');
             background-size: cover;
             display: block;
         }
@@ -44,7 +45,11 @@
 
 <body>
     <center>
-        <canvas id="canvas"></canvas>
+        <canvas id="canvas">
+
+        </canvas>
+        <button onclick="startGame()">Click me</button>
+
     </center>
 </body>
 

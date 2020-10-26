@@ -11,30 +11,27 @@ class Game {
         this.sprites = [
             new Sprite(80, 150, "soldier")
         ];
+        this.killStatus = undefined;
+
+        this.lastTimestamp = Date.now();
     }
 
     start() {
-        ctx.fillStyle("white")
+        ctx.fillStyle = "white";
+        ctx.textAlign = "center";
+        ctx.font = 20 * S + "px 'Press Start 2P'";
+        ctx.fillText("Laddar...", 160 * S, 100 * S);
+        let self = this;
+        window.setTimeout(function () {
+            self.tick();
+        }, 1000)
     }
 
     tick() {
-        if (this.killStatus == "KILL") return;
-        ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
-        let lastTickLength = Date.now() - this.lastTimestamp;
-        this.tickLengthArray.push(lastTickLength);
-        if (this.tickLengthArray.length > 30) {
-            this.tickLengthArray.splice(0, 1);
-        }
+        console.log("hej")
 
-        let timeSum = 0;
-        for (let i = 0; i < this.tickLengthArray.length; i++) {
-            timeSum += this.tickLengthArray[i];
-        }
-        let timeAverage = timeSum / 30;
-        let fps = 1000 / timeAverage;
-        if (fps < 30) {
-            fps = 30;
-        }
-        fpsCoefficient = 144 / fps;
+
+        //draw stuff
     }
+
 }

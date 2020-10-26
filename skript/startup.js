@@ -65,3 +65,9 @@ function loadImages() {
 function showTitleScreen() {
     titleScreen.style.zIndex = "1";
 }
+
+
+function startGame() {
+    game = new Game();
+    game.start()
+}
