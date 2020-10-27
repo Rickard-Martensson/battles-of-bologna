@@ -32,4 +32,6 @@ var BILD_MAPP = [
     ["buttonD", "./bilder/ui/singleplayerButton.png"],
     ["buttonE", "./bilder/ui/trainingActiveButton.png"],
     ["buttonF", "./bilder/ui/trainingButton.png"],
+    ["soldier", "./bilder/soldier.png"],
+    ["archer", "./bilder/archer.png"],
 ];

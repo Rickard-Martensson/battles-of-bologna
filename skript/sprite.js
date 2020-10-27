@@ -16,7 +16,7 @@
 
 
 
-class sprite {
+class sprite2 {
     constructor(x, y, imageName) {
         this.pos = { x: x, y: y }
         this.imageName = imageName;
@@ -34,11 +34,11 @@ class sprite {
     draw() {
         // let frame = this.getFrame();
 
-        ctx.drawImage(url("./bilder/ball.png"), 100, 100)
+        // ctx.drawImage(url("./bilder/ball.png"), 100, 100)
     }
 }
 
 
 function ritabild() {
-    ctx.drawImage(url("./bilder/ball.png"), 100, 100)
+    // ctx.drawImage(url("./bilder/ball.png"), 100, 100)
 };

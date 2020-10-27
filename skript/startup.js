@@ -1,6 +1,9 @@
 var canvas;
 var ctx;
 var titleScreen;
+var Images = {};
+
+var fpsCoefficient = 1;
 
 
 
@@ -47,19 +50,20 @@ function resizeCanvas() {
 
 
 
-var bilderLaddade = 0;
+var imagesLoaded = 0;
 function loadImages() {
     for (let i = 0; i < IMAGE_DIRECTORY.length; i++) {
         loadImage(IMAGE_DIRECTORY[i][0], IMAGE_DIRECTORY[i][1]);
     }
 }
 
-function loadImages() {
-    bilderLaddade++;
-    if (bilderLaddade >= IMAGE_DIRECTORY.length) {
-        closeLoadingScreen();
-        showTitleScreen();
-    }
+function loadImage(name, src) {
+    var img = new Image();   // Create new img element
+    img.addEventListener('load', function () {
+        Images[name] = img;
+        imageLoaded();
+    }, false);
+    img.src = src; // Set source path   
 }
 
 function showTitleScreen() {
