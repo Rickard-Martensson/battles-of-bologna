@@ -18,6 +18,7 @@ window.onload = function () {
     resizeCanvas();
 
     window.onresize = function () { resizeCanvas(); ritabild() };
+    loadImages();
 
 }
 
@@ -26,6 +27,12 @@ window.onload = function () {
 function getCanvas() {
     canvas = document.getElementById("canvas");
     ctx = canvas.getContext("2d");
+    ctx.imageSmoothingEnabled = false;
+
+    ctx.translate(0.5, 0.5);
+    ctx.webkitImageSmoothingEnabled = false;
+    ctx.mozImageSmoothingEnabled = false;
+    ctx.imageSmoothingEnabled = false;
 };
 
 var S;
@@ -61,10 +68,10 @@ function loadImage(name, src) {
     var img = new Image();   // Create new img element
     img.addEventListener('load', function () {
         Images[name] = img;
-        imageLoaded();
     }, false);
     img.src = src; // Set source path   
 }
+
 
 function showTitleScreen() {
     titleScreen.style.zIndex = "1";

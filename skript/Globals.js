@@ -1,37 +1,13 @@
-var BILD_MAPP2 = [
-    ["ballImage", "./bilder/ball.png"],
-    ["jumperBlueImage", "./bilder/jumperblue.png"],
-    ["jumperGreenImage", "./bilder/jumpergreen.png"],
-    ["foreground", "./bilder/backgroundSecondLayer.png"],
-    ["clouds", "./bilder/clouds.png"],
-    ["smoke", "./bilder/smoke.png"],
-    ["exitButton", "./bilder/ExitButton.png"],
-    ["winScreen", "./bilder/winScreen.png"],
-    ["foregroundReal", "./bilder/background1v1.png"],
-    ["buttonA", "./bilder/ui/multiplayerActiveButton.png"],
-    ["buttonB", "./bilder/ui/multiplayerButton.png"],
-    ["buttonC", "./bilder/ui/singleplayerActiveButton.png"],
-    ["buttonD", "./bilder/ui/singleplayerButton.png"],
-    ["buttonE", "./bilder/ui/trainingActiveButton.png"],
-    ["buttonF", "./bilder/ui/trainingButton.png"],
+var IMAGE_DIRECTORY = [
+    ["soldier", "./bilder/entities/soldier.png"],
+    ["archer", "./bilder/archer.png"],
+    ["image_not_found", "./bilder/ui/wtf.png"]
 ];
 
-var BILD_MAPP = [
-    ["ballImage", "./bilder/ball.png"],
-    ["jumperBlueImage", "./bilder/jumperblue.png"],
-    ["jumperGreenImage", "./bilder/jumpergreen.png"],
-    ["foreground", "./bilder/backgroundSecondLayer.png"],
-    ["clouds", "./bilder/clouds.png"],
-    ["smoke", "./bilder/smoke.png"],
-    ["exitButton", "./bilder/ExitButton.png"],
-    ["winScreen", "./bilder/winScreen.png"],
-    ["foregroundReal", "./bilder/background1v1.png"],
-    ["buttonA", "./bilder/ui/multiplayerActiveButton.png"],
-    ["buttonB", "./bilder/ui/multiplayerButton.png"],
-    ["buttonC", "./bilder/ui/singleplayerActiveButton.png"],
-    ["buttonD", "./bilder/ui/singleplayerButton.png"],
-    ["buttonE", "./bilder/ui/trainingActiveButton.png"],
-    ["buttonF", "./bilder/ui/trainingButton.png"],
-    ["soldier", "./bilder/soldier.png"],
-    ["archer", "./bilder/archer.png"],
-];
+
+var STATS = {
+    soldier: { hp: 10, dmg: 3, atkspeed: 0.5, speed: 5 },
+    archer: { hp: 8, dmg: 2, atkspeed: 1, speed: 2 }
+}
+
+const SPRITE_SIZE = 160;

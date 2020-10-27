@@ -1,10 +1,12 @@
 const bild = document.getElementById('');
-const SPRITE_SIZE = 160;
 
 
 
-var image = new Image();
-image.src = "./bilder/jumperblue.png";
+
+var image2 = new Image();
+image2.src = "./bilder/jumperblue.png";
+var image3 = new Image();
+image3.src = "./bilder/entities/soldier.png";
 
 class Animation {
     constructor(frame_set, delay) {
@@ -16,18 +18,43 @@ class Animation {
     }
 }
 
+class Animation2 {
+    constructor(frames, delays) { //frame indexes, how many ms per fram
+        this.frames = frames;
+        this.delays = delays;
+    }
+}
+
+class Entity {
+    constructor(name, x, y) {
+        this.name = name;
+        this.pos = { x: x, y: y };
+        var animation = new Animation()
+        this.sprite = new Sprite(this.pos.x, this.pos.y, this.name, "anim")
+        this.hp = 0;
+        this.speed
+    }
+
+    move() {
+        this.pos.x += STATS.soldier.speed * fpsCoefficient / 1000;
+    }
+}
 
 class Sprite {
-    constructor(x, y, name) {
+    constructor(x, y, name, image, animation) {
         this.pos = { x: x, y: y };
-        this.name = name;
+        this.imageName = name;
         this.animation = new Animation(0, 0)
         this.frameDelay = 0;
         this.currentFrame = 0;
 
 
-        this.DRAW_SIZE = 160;
-        this.FRAME_RATE = 15;
+        this.DRAW_SIZE = 24;
+        this.FRAME_RATE = 100;
+    }
+
+    move() {
+        this.pos.x += STATS.soldier.speed * fpsCoefficient / 100;
     }
 
     getFrame() {
@@ -46,24 +73,30 @@ class Sprite {
 
         // return Math.floor(Math.random() * 4)
 
-        return this.currentFrame + 1;
+        return this.currentFrame;
 
     }
 
 
     draw() {
-        console.log(this.name)
+        //console.log(this.name)
         let frame = this.getFrame()
-        let imageSize = 160
-        let leftOrRight = 10
+        let imageSize = 24
+        let leftOrRight = 0
+        console.log(frame)
 
-        ctx.drawImage(image,
-            imageSize * frame, 0,
-            imageSize, imageSize,
+        ctx.imageSmoothingEnabled = false;  //fett viktig rad
+        ctx.drawImage(Images["soldier"],
+            imageSize * frame,
+            imageSize * leftOrRight,
+            imageSize,
+            imageSize,
 
-            this.pos.x, this.pos.y,
-            this.DRAW_SIZE, this.DRAW_SIZE
-        )
+            (this.pos.x - this.DRAW_SIZE / 2) * S,
+            (this.pos.y - this.DRAW_SIZE / 2) * S,
+            this.DRAW_SIZE * S,
+            this.DRAW_SIZE * S
+        );
 
 
         // ctx.drawImage(image,
@@ -88,15 +121,19 @@ class Sprite {
 
 class Engine {
     constructor() {
+        this.entityarray = []
+    }
 
+    addEntity(x) {
+        this.entityarray.push(x)
     }
 }
 
 class Game {
     constructor() {
         this.sprites = [
-            new Sprite(80, 150, "soldier"),
-            new Sprite(240, 150, "archer")
+            new Sprite(80, 150, "soldier", "anim"),
+            new Sprite(240, 150, "archer", "anim")
         ];
         this.killStatus = undefined;
 
@@ -144,16 +181,19 @@ class Game {
         //draw stuff
         this.drawSprites()
 
+        //stuff to do at the end
         this.lastTimestamp = Date.now();
         window.requestAnimationFrame(this.tick.bind(this)); //calls itself
 
 
-    }
+    };
 
     drawSprites() {
 
         for (var i in this.sprites) {
             this.sprites[i].draw()
+            console.log("hej")
+            this.sprites[i].move()
         }
     }
 
