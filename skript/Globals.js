@@ -1,7 +1,8 @@
 var IMAGE_DIRECTORY = [
     ["soldier", "./bilder/entities/soldier.png"],
     ["archer", "./bilder/archer.png"],
-    ["image_not_found", "./bilder/ui/wtf.png"]
+    ["image_not_found", "./bilder/ui/wtf.png"],
+    ["exitButton", "./bilder/ui/exitbutton.png"]
 ];
 
 

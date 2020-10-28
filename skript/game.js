@@ -181,4 +181,8 @@ class Game {
         }
     }
 
+    drawButton() {
+        ctx.drawImage(Images.exitButton)
+    }
+
 }
