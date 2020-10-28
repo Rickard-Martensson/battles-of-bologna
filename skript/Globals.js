@@ -2,7 +2,8 @@ var IMAGE_DIRECTORY = [
     ["soldier", "./bilder/entities/soldier.png"],
     ["archer", "./bilder/archer.png"],
     ["image_not_found", "./bilder/ui/wtf.png"],
-    ["exitButton", "./bilder/ui/exitbutton.png"]
+    ["exitButton", "./bilder/ui/ExitButton.png"],
+    ["button1", "./bilder/ui/button1.png"],
 ];
 
 
@@ -13,5 +14,9 @@ var STATS = {
     block: { hp: 20, dmg: 0, atkspeed: 0, speed: 0 }
 
 }
+
+var BUTTON_LAYOUT = [
+
+]
 
 const SPRITE_SIZE = 160;

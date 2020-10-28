@@ -115,9 +115,9 @@ class Engine {
 class Game {
     constructor() {
         this.sprites = [
-            new Sprite(80, 150, "soldier", "anim"),
-            new Sprite(240, 150, "archer", "anim"),
-            new Sprite(200, 150, "block", "anm"),
+            new Sprite(80, 100, "soldier", "anim"),
+            new Sprite(240, 100, "archer", "anim"),
+            new Sprite(200, 100, "block", "anm"),
         ];
         this.killStatus = undefined;
 
@@ -164,6 +164,7 @@ class Game {
 
         //draw stuff
         this.drawSprites()
+        this.drawButton();
 
         //stuff to do at the end
         this.lastTimestamp = Date.now();
@@ -178,11 +179,44 @@ class Game {
             this.sprites[i].draw()
             this.sprites[i].move()
             this.sprites[i].canAttack(this);
+
         }
     }
 
     drawButton() {
-        ctx.drawImage(Images.exitButton)
+        // console.log(Images)
+
+        var draw_S = 30;
+        ctx.drawImage(Images.button1,
+            0 * 0,
+            0 * 0,
+            34,
+            34,
+            (20 - draw_S / 2) * S,
+            (160 - draw_S / 2) * S,
+            draw_S * S,
+            draw_S * S
+        )
+        ctx.drawImage(Images.button1,
+            0 * 0,
+            0 * 0,
+            34,
+            34,
+            (50 - draw_S / 2) * S,
+            (160 - draw_S / 2) * S,
+            draw_S * S,
+            draw_S * S
+        )
+        ctx.drawImage(Images.button1,
+            0 * 0,
+            0 * 0,
+            34,
+            34,
+            (80 - draw_S / 2) * S,
+            (160 - draw_S / 2) * S,
+            draw_S * S,
+            draw_S * S
+        )
     }
 
 }
