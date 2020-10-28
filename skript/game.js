@@ -25,44 +25,49 @@ class Animation2 {
     }
 }
 
-class Entity {
-    constructor(name, x, y) {
-        this.name = name;
-        this.pos = { x: x, y: y };
-        var animation = new Animation()
-        this.sprite = new Sprite(this.pos.x, this.pos.y, this.name, "anim")
-        this.hp = 0;
-        this.speed
-    }
-
-    move() {
-        this.pos.x += STATS.soldier.speed * fpsCoefficient / 1000;
-    }
-}
-
 class Sprite {
-    constructor(x, y, name, image, animation) {
+    constructor(x, y, name, animation) {
         this.pos = { x: x, y: y };
         this.imageName = name;
         this.animation = new Animation(0, 0)
         this.frameDelay = 0;
         this.currentFrame = 0;
 
+        this.team = "red";
+
+        this.name = name
+        if (this.name in STATS) {
+            this.hp = STATS[this.name].hp;
+            this.atkspeed = STATS[this.name].atkspeed;
+            this.dmg = STATS[this.name].dmg;
+            this.speed = STATS[this.name].speed;
+        }
 
         this.DRAW_SIZE = 24;
-        this.FRAME_RATE = 100;
+        this.FRAME_RATE = 20;
     }
 
     move() {
-        this.pos.x += STATS.soldier.speed * fpsCoefficient / 100;
+        this.pos.x -= this.speed * fpsCoefficient / 100;
+    }
+
+    canAttack(game) {
+        var xpos1 = this.pos.x;
+        for (var i in game.sprites) {
+            if (Math.abs(game.sprites[i].pos.x - this.pos.x) < 5) {
+                if (game.sprites[i] != this) {
+                    console.log("BONK");
+                }
+
+            }
+        }
     }
 
     getFrame() {
-
         this.frameDelay -= fpsCoefficient;
         if (this.frameDelay <= 0) {
             this.currentFrame += 1;
-            if (this.currentFrame > 3) {
+            if (this.currentFrame > 7) {
                 this.currentFrame = 0;
             }
             this.frameDelay = this.FRAME_RATE
@@ -70,20 +75,15 @@ class Sprite {
         else {
             this.frameDelay--;
         }
-
-        // return Math.floor(Math.random() * 4)
-
         return this.currentFrame;
-
     }
-
 
     draw() {
         //console.log(this.name)
         let frame = this.getFrame()
         let imageSize = 24
-        let leftOrRight = 0
-        console.log(frame)
+        let leftOrRight = 1
+        //console.log(frame)
 
         ctx.imageSmoothingEnabled = false;  //fett viktig rad
         ctx.drawImage(Images["soldier"],
@@ -98,34 +98,17 @@ class Sprite {
             this.DRAW_SIZE * S
         );
 
-
-        // ctx.drawImage(image,
-
-        //     //Source Coordinates
-        //     frame * imageSize,
-        //     leftOrRight * imageSize,
-        //     imageSize,
-        //     imageSize,
-
-        //     //Draw Coordinates
-        //     (this.pos.x - this.DRAW_SIZE / 2) * S,
-        //     (this.pos.y - this.DRAW_SIZE / 2 - this.DRAW_OFFSET_Y) * S,
-        //     this.DRAW_SIZE * S,
-        //     this.DRAW_SIZE * S
-
-        // )
-
     }
 }
 
 
 class Engine {
     constructor() {
-        this.entityarray = []
+        this.spriteBoxes = []
     }
 
     addEntity(x) {
-        this.entityarray.push(x)
+        this.spriteBoxes.push(x)
     }
 }
 
@@ -133,7 +116,8 @@ class Game {
     constructor() {
         this.sprites = [
             new Sprite(80, 150, "soldier", "anim"),
-            new Sprite(240, 150, "archer", "anim")
+            new Sprite(240, 150, "archer", "anim"),
+            new Sprite(200, 150, "block", "anm"),
         ];
         this.killStatus = undefined;
 
@@ -192,8 +176,8 @@ class Game {
 
         for (var i in this.sprites) {
             this.sprites[i].draw()
-            console.log("hej")
             this.sprites[i].move()
+            this.sprites[i].canAttack(this);
         }
     }
 

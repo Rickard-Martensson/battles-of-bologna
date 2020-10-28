@@ -10,49 +10,17 @@
     <script src="skript/sprite.js"></script>
     <script src="skript/game.js"></script>
 
-    <style>
-        canvas {
-            background-image: url('bilder/background.png');
-            background-size: cover;
-            display: block;
-        }
+    <link rel="stylesheet" href="css.css">
 
-        body {
-            background: black;
-            margin: 0px;
-            -ms-interpolation-mode: nearest-neighbor;
-            image-rendering: -webkit-optimize-contrast;
-            image-rendering: -webkit-crisp-edges;
-            image-rendering: -moz-crisp-edges;
-            image-rendering: -o-crisp-edges;
-            image-rendering: pixelated;
-            image-rendering: crisp-edges;
-            font-family: 'Press Start 2P', cursive;
-
-            image-rendering: optimizeSpeed;
-            image-rendering: -moz-crisp-edges;
-            image-rendering: -webkit-optimize-contrast;
-            image-rendering: -o-crisp-edges;
-            image-rendering: optimize-contrast;
-            -ms-interpolation-mode: nearest-neighbor;
-        }
-
-        #titleScreen {
-            width: 100px;
-            height: 100px;
-            position: absolute;
-            left: 50%;
-            /* position the left edge of the element at the middle of the parent */
-            transform: translateX(-50%);
-            background-image: url('bilder/ui/titleScreen.png');
-            background-size: cover;
-            display: block;
-        }
-    </style>
 </head>
 
 <body>
     <center>
+        <div id="titleScreen">
+            <div class="buttonContainer noselect">
+                <span id="button1" class="button" onclick="clickButton()"><span>Play</span></span>
+            </div>
+        </div>
         <canvas id="canvas">
 
         </canvas>
