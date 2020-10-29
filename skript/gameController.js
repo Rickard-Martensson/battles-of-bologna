@@ -2,6 +2,12 @@
 
 function activateGameController() {
 
+    document.onkeydown = function (e) {
+        if (e.repeat) { return };
+        var key = e.key.toLowerCase();
+        game.buttonAction(BUTTON_DICT[key]);
+    }
+
     document.onmousemove = function (e) {
         game.mousePos = getMousePos(canvas, e);
     }

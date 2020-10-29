@@ -9,11 +9,31 @@ var image3 = new Image();
 image3.src = "./bilder/entities/soldier.png";
 
 class Animation {
-    constructor(row, size, array) {
-        this.row = row;
+    constructor(size, row, frames, frameRate, isALoop) {
         this.size = size;
-        this.array = array;
+        this.row = row;
+        this.frames = frames;
+        this.frameRate = frameRate;
+        this.isALoop = isALoop;
     }
+
+    getFrameCount() {
+        return this.frames;
+    }
+
+    getFrameRate() {
+        return this.frameRate;
+    }
+
+    getRow() {
+        return this.row;
+    }
+
+    getIfLoop() {
+        return this.isALoop;
+    }
+
+
 
 
 }
@@ -21,16 +41,22 @@ class Animation {
 class Sprite {
     constructor(x, y, name, animations, team) {
         this.pos = { x: x, y: y };
-        this.imageName = name;
-        this.animation = {
-            idle: new Animation(0, 32, [(0, 1), (1, 0.5), (2, 0.5), (3, 0.5)]),
-            walk: new Animation(0, 0),
-            attack: new Animation(0, 0),
+        this.name = name
+        this.imageName = this.name;
+        this.animations = {
+            idle: new Animation(32, 0, 8, 60, true),
+            walk: new Animation(32, 1, 8, 20, true),
+            attack: new Animation(32, 2, 7, 20, false),
         };
-        this.frameDelay = 0;
+        this.frameDelay = 20;    //how many ms left until next frame
         this.currentFrame = 0;
 
         this.direction = 1
+
+
+
+
+
         this.team = team;
         if (this.team == "red") {
             this.direction = -1
@@ -39,49 +65,122 @@ class Sprite {
             this.direction = 1
         }
 
-        this.name = name
+
         if (this.name in STATS) {
             this.hp = STATS[this.name].hp;
-            this.atkspeed = STATS[this.name].atkspeed;
+            this.atkSpeed = STATS[this.name].atkSpeed;
+            this.atkDelay = STATS[this.name].atkDelay;
             this.dmg = STATS[this.name].dmg;
+            this.meleRange = STATS[this.name].meleRange;
             this.speed = STATS[this.name].speed;
+            this.img = STATS[this.name].img;
+            this.imageSize = STATS[this.name].imageSize;
         }
+        else { console.log("unknown sprite") };
 
-        this.isWalking = true;
-        this.isAttacking = false;
-        this.isIdle = false;
+        this.currentAnimation = "walk";
+        this.currentSpeed = this.speed
 
         this.DRAW_SIZE = 24;
         this.FRAME_RATE = 20;
+        this._last0frame = Date.now();  //not important
+
+        this.lastAtkTime = Date.now();
+        this.delayAtkTime = null;
+
+        this.lastDmgdTime = Date.now();
+        this.invincible = false;
     }
 
     move() {
-        this.pos.x += this.direction * this.speed * fpsCoefficient / 100;
+        this.pos.x += this.direction * this.currentSpeed * fpsCoefficient / 100;
     }
 
-    canAttack(game) {
-        var xpos1 = this.pos.x;
-        for (var i in game.sprites) {
-            if (Math.abs(game.sprites[i].pos.x - this.pos.x) < 5) {
-                if (game.sprites[i] != this) {
-                    console.log("BONK");
-                }
+    attack(victim) {
+        this.currentSpeed = 0;
 
+        if (Date.now() - this.lastAtkTime > this.atkSpeed) {
+            if (this.delayAtkTime === null) {
+                this.currentAnimation = "attack"
+                this.delayAtkTime = Date.now();
+                this.currentFrame = 0
+            }
+            else if (Date.now() - this.delayAtkTime > this.atkDelay) {
+                this.lastAtkTime = Date.now()
+                //this.currentFrame = 1
+                victim.takeDmg(this.dmg)
+                this.delayAtkTime = null;
             }
         }
+
+        //console.log(Date.now() - this.lastAtkTime, this.atkSpeed * 1000)
+
+
+
+
+
+
+    }
+
+    isIdle(bool) {
+        if (bool) {
+            this.currentAnimation = "idle"
+            this.currentSpeed = 0;
+        }
+        else {
+            this.currentAnimation = "walk"
+            this.currentSpeed = this.speed;
+        }
+
+    }
+
+    takeDmg(dmg) {
+        this.hp -= dmg
+        this.invincible = false; //fixa sen
+        this.lastDmgdTime = Date.now()
+        if (this.hp < 0) {
+            var victimIndex = game.sprites.indexOf(this);
+            victimIndex > -1 ? game.sprites.splice(victimIndex, 1) : false
+        }
+    }
+
+    canMove(game) {
+        var myAtkPos = this.pos.x + (this.meleRange * this.direction / 2);
+        for (var i in game.sprites) {
+            if (game.sprites[i] != this) {
+                if (Math.abs(game.sprites[i].pos.x - myAtkPos) + .1 < this.meleRange / 2) {
+                    if (game.sprites[i].team != this.team) {
+                        this.attack(game.sprites[i])
+                    }
+                    else if (game.sprites[i].team == this.team) {
+                        this.isIdle(true)
+                    }
+                    return;
+
+                }
+            }
+        }
+        this.isIdle(false)
     }
 
     getFrame() {
+        var currAnim = this.animations[this.currentAnimation];
         this.frameDelay -= fpsCoefficient;
         if (this.frameDelay <= 0) {
             this.currentFrame += 1;
-            if (this.currentFrame > 7) {
+            if (this.currentFrame > currAnim.getFrameCount() - 1) {
+                console.log("tid per frame:", (Date.now() - this._last0frame) / currAnim.getFrameCount());
                 this.currentFrame = 0;
+                if (!currAnim.getIfLoop()) {
+                    this.currentAnimation = "idle"
+                }
+                this._last0frame = Date.now()
             }
-            this.frameDelay = this.FRAME_RATE
+            this.frameDelay = this.animations[this.currentAnimation].getFrameRate();
         }
         else {
-            this.frameDelay--;
+
+            //this.frameDelay--;
         }
         return this.currentFrame;
     }
@@ -89,22 +188,26 @@ class Sprite {
     draw() {
         //console.log(this.name)
         let frame = this.getFrame()
-        let imageSize = 32
-        let leftOrRight = 1
+        let animation = this.animations[this.currentAnimation].getRow()
         //console.log(frame)
 
         ctx.imageSmoothingEnabled = false;  //fett viktig rad
-        ctx.drawImage(Images["soldier"],
-            imageSize * frame,
-            imageSize,
-            imageSize,
-            imageSize,
+
+        if (Date.now() - this.lastDmgdTime < INVINCIBLE_DELAY) {
+            ctx.globalAlpha = 0.6;
+        }
+        ctx.drawImage(Images[this.img],
+            this.imageSize * frame,
+            this.imageSize * animation,
+            this.imageSize,
+            this.imageSize,
 
             (this.pos.x - this.DRAW_SIZE / 2) * S,
             (this.pos.y - this.DRAW_SIZE / 2) * S,
             this.DRAW_SIZE * S,
             this.DRAW_SIZE * S
         );
+        ctx.globalAlpha = 1;
 
     }
 }
@@ -116,10 +219,11 @@ class Game {
     constructor() {
         this.sprites = [
             new Sprite(80, 100, "soldier", "anim", "red"),
-            new Sprite(240, 100, "archer", "anim", "red"),
-            new Sprite(200, 100, "block", "anm", "red"),
+            //new Sprite(240, 100, "soldier", "anim", "red"),
+            //new Sprite(200, 100, "block", "anm", "red"),
         ];
         this.killStatus = undefined;
+        this.activeButtons = {};
 
         this.mousePos = { x: 0, y: 0 };
 
@@ -144,6 +248,7 @@ class Game {
         ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
 
         let lastTickLength = Date.now() - this.lastTimestamp;
+        this.lastTimestamp = Date.now();
         this.tickLengthArray.push(lastTickLength);
         if (this.tickLengthArray.length > 30) {
             this.tickLengthArray.splice(0, 1);
@@ -177,15 +282,15 @@ class Game {
     };
 
     //sprites
-    addSprite(x, y, name, anim) {
-        this.sprites.push(new Sprite(x, y, name, anim))
+    addSprite(x, y, name, anim, team) {
+        this.sprites.push(new Sprite(x, y, name, anim, team))
     }
     drawSprites() {
 
         for (var i in this.sprites) {
             this.sprites[i].draw()
             this.sprites[i].move()
-            this.sprites[i].canAttack(this);
+            this.sprites[i].canMove(this);
 
         }
     }
@@ -194,14 +299,31 @@ class Game {
         var buttonPressed = this.checkMouseWithinButton();
         if (buttonPressed != -1) {
             console.log(buttonPressed)
-
-            if (buttonPressed == 1) {
-                this.addSprite(300, 100, "soldier", "anim", "blue");
-            }
-
+            this.buttonAction(buttonPressed)
 
             //vem  anser stud en autin bil vid en olycka .skiljer sig svaren åt sinsemellan de som har körkort och de som inte har de. beror tycker studenterna och beror svaren på med eller utan skrivbord
         }
+    }
+
+    buttonAction(id) {
+        var team = "none"
+        if (id <= 5) {
+            team = "blue"
+        }
+        else if (id >= 6) {
+            team = "red"
+        }
+        if (id == 0) {
+            this.addSprite(BASE_POS[team].x, BASE_POS[team].y, "soldier", "anim", team);
+        }
+
+        if (id == 8) {
+            this.addSprite(BASE_POS[team].x, BASE_POS[team].y, "soldier", "anim", team);
+        }
+
+        this.activeButtons[id] = Date.now();
+
+
     }
 
     checkMouseWithinButton() {
@@ -221,6 +343,15 @@ class Game {
                 frame = 1
             }
 
+            if (index in this.activeButtons) {
+                //console.log("tjiho")
+                frame = 1
+                if (Date.now() - this.activeButtons[index] > BUTTON_DELAY) {
+                    delete this.activeButtons[index]
+                }
+            }
+            //console.log(this.activeButtons[index].time)
+
             ctx.drawImage(Images.button1,
                 34 * frame,
                 0 * 0,
@@ -232,19 +363,7 @@ class Game {
                 BUTTON_SIZE * S
             );
         }
-        // BUTTON_LAYOUT.forEach(function (item, index) {
-        //     //console.log(item, index);
-        //     ctx.drawImage(Images.button1,
-        //         0 * 0,
-        //         0 * 0,
-        //         34,
-        //         34,
-        //         (item.x - BUTTON_SIZE / 2) * S,
-        //         (item.y - BUTTON_SIZE / 2) * S,
-        //         BUTTON_SIZE * S,
-        //         BUTTON_SIZE * S
-        //     );
-        // });
+
     }
 
     debugEveryTick() {
