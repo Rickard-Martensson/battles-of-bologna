@@ -16,7 +16,21 @@ var STATS = {
 }
 
 var BUTTON_LAYOUT = [
+    { x: 15, y: 135 },
+    { x: 45, y: 135 },
+    { x: 75, y: 135 },
+    { x: 15, y: 165 },
+    { x: 45, y: 165 },
+    { x: 75, y: 165 },
+
+    { x: 245, y: 135 },
+    { x: 275, y: 135 },
+    { x: 305, y: 135 },
+    { x: 245, y: 165 },
+    { x: 275, y: 165 },
+    { x: 305, y: 165 },
 
 ]
 
-const SPRITE_SIZE = 160;
+const BUTTON_SIZE = 30;
+const SPRITE_SIZE = 80;

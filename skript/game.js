@@ -9,31 +9,35 @@ var image3 = new Image();
 image3.src = "./bilder/entities/soldier.png";
 
 class Animation {
-    constructor(frame_set, delay) {
-        this.count = 0;
-        this.delay = delay;
-        this.frame = 0;
-        this.frame_index = 0;
-        this.frame_set = frame_set;
+    constructor(row, size, array) {
+        this.row = row;
+        this.size = size;
+        this.array = array;
     }
-}
 
-class Animation2 {
-    constructor(frames, delays) { //frame indexes, how many ms per fram
-        this.frames = frames;
-        this.delays = delays;
-    }
+
 }
 
 class Sprite {
-    constructor(x, y, name, animation) {
+    constructor(x, y, name, animations, team) {
         this.pos = { x: x, y: y };
         this.imageName = name;
-        this.animation = new Animation(0, 0)
+        this.animation = {
+            idle: new Animation(0, 32, [(0, 1), (1, 0.5), (2, 0.5), (3, 0.5)]),
+            walk: new Animation(0, 0),
+            attack: new Animation(0, 0),
+        };
         this.frameDelay = 0;
         this.currentFrame = 0;
 
-        this.team = "red";
+        this.direction = 1
+        this.team = team;
+        if (this.team == "red") {
+            this.direction = -1
+        }
+        else if (this.team == "blue") {
+            this.direction = 1
+        }
 
         this.name = name
         if (this.name in STATS) {
@@ -43,12 +47,16 @@ class Sprite {
             this.speed = STATS[this.name].speed;
         }
 
+        this.isWalking = true;
+        this.isAttacking = false;
+        this.isIdle = false;
+
         this.DRAW_SIZE = 24;
         this.FRAME_RATE = 20;
     }
 
     move() {
-        this.pos.x -= this.speed * fpsCoefficient / 100;
+        this.pos.x += this.direction * this.speed * fpsCoefficient / 100;
     }
 
     canAttack(game) {
@@ -81,14 +89,14 @@ class Sprite {
     draw() {
         //console.log(this.name)
         let frame = this.getFrame()
-        let imageSize = 24
+        let imageSize = 32
         let leftOrRight = 1
         //console.log(frame)
 
         ctx.imageSmoothingEnabled = false;  //fett viktig rad
         ctx.drawImage(Images["soldier"],
             imageSize * frame,
-            imageSize * leftOrRight,
+            imageSize,
             imageSize,
             imageSize,
 
@@ -102,24 +110,18 @@ class Sprite {
 }
 
 
-class Engine {
-    constructor() {
-        this.spriteBoxes = []
-    }
 
-    addEntity(x) {
-        this.spriteBoxes.push(x)
-    }
-}
 
 class Game {
     constructor() {
         this.sprites = [
-            new Sprite(80, 100, "soldier", "anim"),
-            new Sprite(240, 100, "archer", "anim"),
-            new Sprite(200, 100, "block", "anm"),
+            new Sprite(80, 100, "soldier", "anim", "red"),
+            new Sprite(240, 100, "archer", "anim", "red"),
+            new Sprite(200, 100, "block", "anm", "red"),
         ];
         this.killStatus = undefined;
+
+        this.mousePos = { x: 0, y: 0 };
 
         this.lastTimestamp = Date.now();
         this.tickLengthArray = [];
@@ -165,6 +167,7 @@ class Game {
         //draw stuff
         this.drawSprites()
         this.drawButton();
+        this.debugEveryTick();
 
         //stuff to do at the end
         this.lastTimestamp = Date.now();
@@ -173,6 +176,10 @@ class Game {
 
     };
 
+    //sprites
+    addSprite(x, y, name, anim) {
+        this.sprites.push(new Sprite(x, y, name, anim))
+    }
     drawSprites() {
 
         for (var i in this.sprites) {
@@ -182,41 +189,66 @@ class Game {
 
         }
     }
+    mouseClicked() {
+        //this.addSprite(300, 100, "soldier", "anim");
+        var buttonPressed = this.checkMouseWithinButton();
+        if (buttonPressed != -1) {
+            console.log(buttonPressed)
 
+            if (buttonPressed == 1) {
+                this.addSprite(300, 100, "soldier", "anim", "blue");
+            }
+
+
+            //vem  anser stud en autin bil vid en olycka .skiljer sig svaren åt sinsemellan de som har körkort och de som inte har de. beror tycker studenterna och beror svaren på med eller utan skrivbord
+        }
+    }
+
+    checkMouseWithinButton() {
+        for (const [index, item] of BUTTON_LAYOUT.entries()) {
+            if (Math.abs(item.x * S - this.mousePos.x) < BUTTON_SIZE && Math.abs(item.y * S - this.mousePos.y) < BUTTON_SIZE) {
+                // console.log(index)
+                return index;
+            }
+        }
+        return -1;
+    }
     drawButton() {
         // console.log(Images)
+        for (const [index, item] of BUTTON_LAYOUT.entries()) {
+            var frame = 0;
+            if (this.checkMouseWithinButton() == index) {
+                frame = 1
+            }
 
-        var draw_S = 30;
-        ctx.drawImage(Images.button1,
-            0 * 0,
-            0 * 0,
-            34,
-            34,
-            (20 - draw_S / 2) * S,
-            (160 - draw_S / 2) * S,
-            draw_S * S,
-            draw_S * S
-        )
-        ctx.drawImage(Images.button1,
-            0 * 0,
-            0 * 0,
-            34,
-            34,
-            (50 - draw_S / 2) * S,
-            (160 - draw_S / 2) * S,
-            draw_S * S,
-            draw_S * S
-        )
-        ctx.drawImage(Images.button1,
-            0 * 0,
-            0 * 0,
-            34,
-            34,
-            (80 - draw_S / 2) * S,
-            (160 - draw_S / 2) * S,
-            draw_S * S,
-            draw_S * S
-        )
+            ctx.drawImage(Images.button1,
+                34 * frame,
+                0 * 0,
+                34,
+                34,
+                (item.x - BUTTON_SIZE / 2) * S,
+                (item.y - BUTTON_SIZE / 2) * S,
+                BUTTON_SIZE * S,
+                BUTTON_SIZE * S
+            );
+        }
+        // BUTTON_LAYOUT.forEach(function (item, index) {
+        //     //console.log(item, index);
+        //     ctx.drawImage(Images.button1,
+        //         0 * 0,
+        //         0 * 0,
+        //         34,
+        //         34,
+        //         (item.x - BUTTON_SIZE / 2) * S,
+        //         (item.y - BUTTON_SIZE / 2) * S,
+        //         BUTTON_SIZE * S,
+        //         BUTTON_SIZE * S
+        //     );
+        // });
+    }
+
+    debugEveryTick() {
+        // console.log(this.mousePos.x + ";" + this.mousePos.y);
     }
 
 }

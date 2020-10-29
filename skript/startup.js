@@ -7,7 +7,7 @@ var fpsCoefficient = 1;
 
 var aspectRatio = { width: 16, height: 9 }
 
-
+var game;
 
 
 
@@ -121,6 +121,7 @@ function startGame() {
     hideTitleScreen()
     game = new Game();
     game.start()
+    activateGameController()
 }
 
 
