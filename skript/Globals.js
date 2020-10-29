@@ -1,6 +1,8 @@
 var IMAGE_DIRECTORY = [
-    ["soldier_img", "./bilder/entities/soldier.png"],
-    ["archer", "./bilder/archer.png"],
+    ["soldier_img", "./bilder/sprites/soldier.png"],
+    ["archer_img", "./bilder/sprites/archer.png"],
+    ["soldier_img_blue", "./bilder/sprites/soldier_blue.png"],
+    ["archer_img_blue", "./bilder/sprites/archer_blue.png"],
     ["image_not_found", "./bilder/ui/wtf.png"],
     ["exitButton", "./bilder/ui/ExitButton.png"],
     ["button1", "./bilder/ui/button1.png"],
@@ -9,11 +11,12 @@ var IMAGE_DIRECTORY = [
 
 var STATS = {
     soldier: { hp: 10, dmg: 3, meleRange: 15, atkSpeed: 1200, atkDelay: 450, speed: 5, img: "soldier_img", imageSize: 32 },    //atkSpeed = 7*40/1000
-    archer: { hp: 8, dmg: 2, meleRange: 10, atkSpeed: 1, atkDelay: 0.2, speed: 6, img: "soldier_img", imageSize: 32 },
+    archer: { hp: 8, dmg: 2, meleRange: 15, atkSpeed: 1500, atkDelay: 1050, speed: 5, img: "archer_img", imageSize: 32 },
     mage: { hp: 6, dmg: 8, meleRange: 10, atkSpeed: 1, atkDelay: 0.2, speed: 2, img: "soldier_img", imageSize: 32 },
     block: { hp: 20, dmg: 0, meleRange: 10, atkSpeed: 0, atkDelay: 0.2, speed: 0, img: "soldier_img", imageSize: 32 }
 
 }
+
 
 var BUTTON_LAYOUT = [
     { x: 15, y: 135, key: "q" },

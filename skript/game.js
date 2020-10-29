@@ -52,19 +52,7 @@ class Sprite {
         this.currentFrame = 0;
 
         this.direction = 1
-
-
-
-
-
         this.team = team;
-        if (this.team == "red") {
-            this.direction = -1
-        }
-        else if (this.team == "blue") {
-            this.direction = 1
-        }
-
 
         if (this.name in STATS) {
             this.hp = STATS[this.name].hp;
@@ -77,6 +65,13 @@ class Sprite {
             this.imageSize = STATS[this.name].imageSize;
         }
         else { console.log("unknown sprite") };
+        if (this.team == "red") {
+            this.direction = -1
+        }
+        else if (this.team == "blue") {
+            this.direction = 1
+            this.img += "_blue"
+        }
 
         this.currentAnimation = "walk";
         this.currentSpeed = this.speed
@@ -112,14 +107,6 @@ class Sprite {
                 this.delayAtkTime = null;
             }
         }
-
-        //console.log(Date.now() - this.lastAtkTime, this.atkSpeed * 1000)
-
-
-
-
-
-
     }
 
     isIdle(bool) {
@@ -131,16 +118,17 @@ class Sprite {
             this.currentAnimation = "walk"
             this.currentSpeed = this.speed;
         }
-
     }
 
     takeDmg(dmg) {
         this.hp -= dmg
         this.invincible = false; //fixa sen
         this.lastDmgdTime = Date.now()
+    }
+
+    checkDead(index) {
         if (this.hp < 0) {
-            var victimIndex = game.sprites.indexOf(this);
-            victimIndex > -1 ? game.sprites.splice(victimIndex, 1) : false
+            index > -1 ? game.sprites.splice(index, 1) : false
         }
     }
 
@@ -169,7 +157,7 @@ class Sprite {
         if (this.frameDelay <= 0) {
             this.currentFrame += 1;
             if (this.currentFrame > currAnim.getFrameCount() - 1) {
-                console.log("tid per frame:", (Date.now() - this._last0frame) / currAnim.getFrameCount());
+                // console.log("tid per frame:", (Date.now() - this._last0frame) / currAnim.getFrameCount());
                 this.currentFrame = 0;
                 if (!currAnim.getIfLoop()) {
                     this.currentAnimation = "idle"
@@ -268,18 +256,28 @@ class Game {
 
         fpsCoefficient = 144 / fps;
 
-
         //draw stuff
         this.drawSprites()
-        this.drawButton();
+        this.drawButtons();
         this.debugEveryTick();
+        this.drawUI(fps);
 
         //stuff to do at the end
         this.lastTimestamp = Date.now();
         window.requestAnimationFrame(this.tick.bind(this)); //calls itself
 
 
-    };
+    }
+
+    shootProjectile() {
+
+    }
+    drawUI(fps) {
+        ctx.textAlign = "center";
+        ctx.fillStyle = "#ffffff";
+        ctx.font = 5 * S + "px 'Press Start 2P'";
+        ctx.fillText(Math.floor(fps), 160 * S, 20 * S);
+    }
 
     //sprites
     addSprite(x, y, name, anim, team) {
@@ -288,9 +286,10 @@ class Game {
     drawSprites() {
 
         for (var i in this.sprites) {
-            this.sprites[i].draw()
-            this.sprites[i].move()
             this.sprites[i].canMove(this);
+            this.sprites[i].move()
+            this.sprites[i].draw()
+            this.sprites[i].checkDead(i)
 
         }
     }
@@ -316,6 +315,13 @@ class Game {
         if (id == 0) {
             this.addSprite(BASE_POS[team].x, BASE_POS[team].y, "soldier", "anim", team);
         }
+        if (id == 1) {
+            this.addSprite(BASE_POS[team].x, BASE_POS[team].y, "archer", "anim", team);
+        }
+
+        if (id == 7) {
+            this.addSprite(BASE_POS[team].x, BASE_POS[team].y, "archer", "anim", team);
+        }
 
         if (id == 8) {
             this.addSprite(BASE_POS[team].x, BASE_POS[team].y, "soldier", "anim", team);
@@ -335,7 +341,7 @@ class Game {
         }
         return -1;
     }
-    drawButton() {
+    drawButtons() {
         // console.log(Images)
         for (const [index, item] of BUTTON_LAYOUT.entries()) {
             var frame = 0;
