@@ -10,10 +10,10 @@ var IMAGE_DIRECTORY = [
 
 
 var STATS = {
-    soldier: { hp: 10, dmg: 3, meleRange: 15, atkSpeed: 1200, atkDelay: 450, speed: 5, img: "soldier_img", imageSize: 32 },    //atkSpeed = 7*40/1000
-    archer: { hp: 8, dmg: 2, meleRange: 15, atkSpeed: 1500, atkDelay: 1050, speed: 5, img: "archer_img", imageSize: 32 },
-    mage: { hp: 6, dmg: 8, meleRange: 10, atkSpeed: 1, atkDelay: 0.2, speed: 2, img: "soldier_img", imageSize: 32 },
-    block: { hp: 20, dmg: 0, meleRange: 10, atkSpeed: 0, atkDelay: 0.2, speed: 0, img: "soldier_img", imageSize: 32 }
+    soldier: { hp: 10, dmg: 3, meleRange: 15, range: 0, atkSpeed: 1200, atkDelay: 450, speed: 5, cost: 15, img: "soldier_img", imageSize: 32, size: 7 },    //range: 0, atkSpeed = 7*40/1000
+    archer: { hp: 8, dmg: 2, meleRange: 15, range: 10, atkSpeed: 1500, atkDelay: 950, speed: 5, cost: 15, img: "archer_img", imageSize: 32, size: 7 },
+    mage: { hp: 6, dmg: 8, meleRange: 10, range: 0, atkSpeed: 1, atkDelay: 0.2, speed: 2, cost: 15, img: "soldier_img", imageSize: 32, size: 7 },
+    block: { hp: 20, dmg: 0, meleRange: 10, range: 0, atkSpeed: 0, atkDelay: 0.2, speed: 0, cost: 15, img: "soldier_img", imageSize: 32, size: 7 }
 
 }
 
@@ -51,7 +51,15 @@ var BUTTON_DICT = {
 
 
 const BASE_POS = { red: { x: 300, y: 100 }, blue: { x: 20, y: 100 } }
+const UI_POS = { blue: { x: 20, y: 20 }, red: { x: 300, y: 20 } }
 const BUTTON_SIZE = 30;
 const SPRITE_SIZE = 80;
 const BUTTON_DELAY = 100;
 const INVINCIBLE_DELAY = 200;
+const GRAVITY = 50;
+const START_TIME = Date.now();
+const HEIGHT = 100;
+const DRAW_NEAREST_NEIGHBOUR = false;
+
+//===Gameplay===\\
+const GOLD_INTERVAL = 15;

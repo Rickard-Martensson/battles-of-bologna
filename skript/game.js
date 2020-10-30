@@ -60,9 +60,12 @@ class Sprite {
             this.atkDelay = STATS[this.name].atkDelay;
             this.dmg = STATS[this.name].dmg;
             this.meleRange = STATS[this.name].meleRange;
+            this.range = STATS[this.name].range;
             this.speed = STATS[this.name].speed;
             this.img = STATS[this.name].img;
             this.imageSize = STATS[this.name].imageSize;
+            this.size = STATS[this.name].size;
+            this.cost = STATS[this.name].cost;
         }
         else { console.log("unknown sprite") };
         if (this.team == "red") {
@@ -80,10 +83,10 @@ class Sprite {
         this.FRAME_RATE = 20;
         this._last0frame = Date.now();  //not important
 
-        this.lastAtkTime = Date.now();
+        this.lastAtkTime = START_TIME
         this.delayAtkTime = null;
 
-        this.lastDmgdTime = Date.now();
+        this.lastDmgdTime = START_TIME
         this.invincible = false;
     }
 
@@ -101,18 +104,30 @@ class Sprite {
                 this.currentFrame = 0
             }
             else if (Date.now() - this.delayAtkTime > this.atkDelay) {
-                this.lastAtkTime = Date.now()
-                //this.currentFrame = 1
-                victim.takeDmg(this.dmg)
+                this.lastAtkTime = Date.now();
                 this.delayAtkTime = null;
+                if (this.range > 0) {
+                    game.shootProjectile(this.pos.x, this.pos.y, 30 * this.direction, -40, this.team, this.dmg)
+                }
+                else { victim.takeDmg(this.dmg) }
+
             }
+        }
+        else {
+            this.currentAnimation = "idle"
         }
     }
 
     isIdle(bool) {
         if (bool) {
-            this.currentAnimation = "idle"
-            this.currentSpeed = 0;
+            if (this.range > 0) {
+                this.attack(self)
+                this.currentSpeed = 0;
+            }
+            else {
+                this.currentAnimation = "idle"
+                this.currentSpeed = 0;
+            }
         }
         else {
             this.currentAnimation = "walk"
@@ -179,7 +194,7 @@ class Sprite {
         let animation = this.animations[this.currentAnimation].getRow()
         //console.log(frame)
 
-        ctx.imageSmoothingEnabled = false;  //fett viktig rad
+        if (DRAW_NEAREST_NEIGHBOUR) { ctx.imageSmoothingEnabled = false } // viktig
 
         if (Date.now() - this.lastDmgdTime < INVINCIBLE_DELAY) {
             ctx.globalAlpha = 0.6;
@@ -200,16 +215,117 @@ class Sprite {
     }
 }
 
+class Projectile {
+    constructor(x, y, vx, vy, team, dmg) {
+        this.pos = { x: x, y: y };
+        this.vel = { x: vx, y: vy };
+        this.len = 6
+        this.size = 0.6
+        this.team = team
+        this.dead = false;
+        this.dmg = dmg
+    }
 
+    move() {
+        this.pos.x += this.vel.x * fpsCoefficient / 100;
+        this.pos.y += this.vel.y * fpsCoefficient / 100;
+        this.vel.y += GRAVITY * fpsCoefficient / 100;
+
+        //this.predictTouchDown()
+    }
+
+    checkHit(index) {
+        if (this.pos.y > HEIGHT - 25) {
+            for (var i in game.sprites) {
+                if (this.team != game.sprites[i].team) {
+                    if (dist(this.pos, game.sprites[i].pos) < game.sprites[i].size) {
+                        game.sprites[i].takeDmg(this.dmg)
+                        console.log("ouch")
+                        this.dead = true;
+                    }
+                }
+            }
+        }
+    }
+    checkDead(index) {
+        if (this.dead || this.pos.y > HEIGHT) {
+            index > -1 ? game.projectiles.splice(index, 1) : false
+        }
+    }
+
+
+    getVec() {
+        var hyp = Math.sqrt(this.vel.x * this.vel.x + this.vel.y * this.vel.y)
+        return { dx: this.vel.x / hyp, dy: this.vel.y / hyp }
+    }
+
+    predictTouchDown() {
+        var acceleration = GRAVITY / 2
+        var t_0 = (- this.vel.y + Math.sqrt(this.vel.y * this.vel.y - 4 * acceleration * (this.pos.y - 100))) / (2 * acceleration)
+        console.log(this.vel.x * t_0 + this.pos.x)
+    }
+
+    draw() {
+        ctx.fillStyle = 'white';
+        if (DRAW_NEAREST_NEIGHBOUR) { ctx.imageSmoothingEnabled = false } // viktig
+        // ctx.fillRect(this.pos.x, this.pos.y, 1 * S, 1 * S);
+        var { dx, dy } = this.getVec();
+        for (var i = 0; i <= this.len; i++) {
+            ctx.fillRect((this.pos.x - dx * i * .5) * S,
+                (this.pos.y - dy * i * .5) * S,
+                this.size * S,
+                this.size * S
+            );
+        }
+    }
+}
+
+class Player {
+    constructor(name) {
+        this.name = name
+        this.gold = 50;
+        this.goldPerTurn = 30;
+        this.team = "blue"
+    }
+
+    changeGold(amount) {
+        this.gold += amount
+    }
+
+    tryBuy(amount) {
+        if (this.gold > amount) {
+            this.changeGold(-amount);
+            return true;
+        }
+        else { return false; }
+    }
+
+    giveGoldPerTurn() {
+        this.changeGold(this.goldPerTurn);
+
+    }
+
+    logGoldAmount() {
+        console.log(this.gold, "gold")
+    }
+}
 
 
 class Game {
     constructor() {
+        this.players = {
+            blue: new Player("kjelle"),
+            red: new Player("bert"),
+        }
         this.sprites = [
-            new Sprite(80, 100, "soldier", "anim", "red"),
+            //new Sprite(80, 100, "soldier", "anim", "red"),
             //new Sprite(240, 100, "soldier", "anim", "red"),
             //new Sprite(200, 100, "block", "anm", "red"),
+            //new Sprite(300, 100, "soldier", "anim", "red"),
         ];
+        this.projectiles = [
+            new Projectile(80, 100, 20, -40),
+        ]
         this.killStatus = undefined;
         this.activeButtons = {};
 
@@ -217,6 +333,8 @@ class Game {
 
         this.lastTimestamp = Date.now();
         this.tickLengthArray = [];
+        this.startTime = Date.now();
+        this.timeSinceLastGold = Date.now();
     }
 
     start() {
@@ -228,6 +346,7 @@ class Game {
 
         window.setTimeout(function () {
             self.tick();
+
         }, 1000)
     }
 
@@ -261,22 +380,50 @@ class Game {
         this.drawButtons();
         this.debugEveryTick();
         this.drawUI(fps);
+        this.drawProjectiles();
+        this.giveGold();
+
 
         //stuff to do at the end
-        this.lastTimestamp = Date.now();
+        //this.lastTimestamp = Date.now();
         window.requestAnimationFrame(this.tick.bind(this)); //calls itself
-
-
     }
 
-    shootProjectile() {
+    getMillisecondsPlayed() {
+        let currentTime = new Date();
+        let getMillisecondsPassed = currentTime - this.startTime;
+        return getMillisecondsPassed;
+    }
+
+    giveGold() {
+        if (Date.now() - this.timeSinceLastGold > GOLD_INTERVAL * 1000) {
+            this.timeSinceLastGold = Date.now();
+            for (var playerName in this.players) {
+                this.players[playerName].giveGoldPerTurn()
+            }
+
+        }
+    }
+    shootProjectile(x, y, vx, vy, team, dmg) {
+        this.projectiles.push(new Projectile(x, y, vx, vy, team, dmg))
 
     }
     drawUI(fps) {
         ctx.textAlign = "center";
         ctx.fillStyle = "#ffffff";
         ctx.font = 5 * S + "px 'Press Start 2P'";
-        ctx.fillText(Math.floor(fps), 160 * S, 20 * S);
+        ctx.fillText(Math.floor(GOLD_INTERVAL + 1 + (this.timeSinceLastGold - Date.now()) / 1000), 160 * S, 20 * S)
+        ctx.fillText(Math.floor(fps), 300 * S, 40 * S);
+
+        for (var playerName in this.players) {
+            let player_gold = this.players[playerName].gold
+            ctx.fillText(Math.floor(player_gold), UI_POS[playerName].x * S, UI_POS[playerName].y * S);
+
+        }
+        // let gold_blue = this.players.blue.gold
+        // let gold_red = this.players.red.gold
+
+
     }
 
     //sprites
@@ -293,6 +440,15 @@ class Game {
 
         }
     }
+    drawProjectiles() {
+
+        for (var i in this.projectiles) {
+            this.projectiles[i].move()
+            this.projectiles[i].draw()
+            this.projectiles[i].checkHit(this, i)
+            this.projectiles[i].checkDead(i)
+        }
+    }
     mouseClicked() {
         //this.addSprite(300, 100, "soldier", "anim");
         var buttonPressed = this.checkMouseWithinButton();
@@ -304,8 +460,14 @@ class Game {
         }
     }
 
+    buyUnit(unitName, team) {
+        if (this.players[team].tryBuy(15)) {
+            this.addSprite(BASE_POS[team].x, BASE_POS[team].y, unitName, "anim", team);
+        }
+    }
+
     buttonAction(id) {
-        var team = "none"
+        let team = "none"
         if (id <= 5) {
             team = "blue"
         }
@@ -313,18 +475,18 @@ class Game {
             team = "red"
         }
         if (id == 0) {
-            this.addSprite(BASE_POS[team].x, BASE_POS[team].y, "soldier", "anim", team);
+            this.buyUnit("soldier", team);
         }
         if (id == 1) {
-            this.addSprite(BASE_POS[team].x, BASE_POS[team].y, "archer", "anim", team);
+            this.buyUnit("archer", team);
         }
 
         if (id == 7) {
-            this.addSprite(BASE_POS[team].x, BASE_POS[team].y, "archer", "anim", team);
+            this.buyUnit("archer", team);
         }
 
         if (id == 8) {
-            this.addSprite(BASE_POS[team].x, BASE_POS[team].y, "soldier", "anim", team);
+            this.buyUnit("soldier", team);
         }
 
         this.activeButtons[id] = Date.now();
