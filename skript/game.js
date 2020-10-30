@@ -32,10 +32,6 @@ class Animation {
     getIfLoop() {
         return this.isALoop;
     }
-
-
-
-
 }
 
 class Sprite {
@@ -114,7 +110,7 @@ class Sprite {
             }
         }
         else {
-            this.currentAnimation = "idle"
+            //this.currentAnimation = "idle"
         }
     }
 
@@ -286,6 +282,8 @@ class Player {
         this.gold = 50;
         this.goldPerTurn = 30;
         this.team = "blue"
+        this.currentFolder = 1;
+        this.race = "human"
     }
 
     changeGold(amount) {
@@ -317,6 +315,10 @@ class Game {
             blue: new Player("kjelle"),
             red: new Player("bert"),
         }
+        this.players2 = [
+            new Player("kjelle"),
+            new Player("bert"),
+        ]
         this.sprites = [
             //new Sprite(80, 100, "soldier", "anim", "red"),
             //new Sprite(240, 100, "soldier", "anim", "red"),
@@ -378,7 +380,6 @@ class Game {
         //draw stuff
         this.drawSprites()
         this.drawButtons();
-        this.debugEveryTick();
         this.drawUI(fps);
         this.drawProjectiles();
         this.giveGold();
@@ -398,8 +399,8 @@ class Game {
     giveGold() {
         if (Date.now() - this.timeSinceLastGold > GOLD_INTERVAL * 1000) {
             this.timeSinceLastGold = Date.now();
-            for (var playerName in this.players) {
-                this.players[playerName].giveGoldPerTurn()
+            for (var i in this.players2) {
+                this.players2[i].giveGoldPerTurn()
             }
 
         }
@@ -413,13 +414,30 @@ class Game {
         ctx.fillStyle = "#ffffff";
         ctx.font = 5 * S + "px 'Press Start 2P'";
         ctx.fillText(Math.floor(GOLD_INTERVAL + 1 + (this.timeSinceLastGold - Date.now()) / 1000), 160 * S, 20 * S)
-        ctx.fillText(Math.floor(fps), 300 * S, 40 * S);
+        ctx.fillText(Math.floor(fps), 300 * S, 60 * S);
 
-        for (var playerName in this.players) {
-            let player_gold = this.players[playerName].gold
-            ctx.fillText(Math.floor(player_gold), UI_POS[playerName].x * S, UI_POS[playerName].y * S);
+        for (var key in this.players2) {
+            var player = this.players2[key]
+            ctx.fillText(Math.floor(player.gold),
+                (UI_POS.gold.x + key * (GAME_WIDTH - 2 * UI_POS.gold.x)) * S,
+                UI_POS.gold.y * S
+            );
+
+            ctx.fillText(Math.floor(player.goldPerTurn),
+                (UI_POS.goldPerTurn.x + key * (GAME_WIDTH - 2 * UI_POS.goldPerTurn.x)) * S,
+                UI_POS.goldPerTurn.y * S
+            );
+
 
         }
+
+
+        // for (var playerName in this.players) {
+        //     let player_gold = this.players[playerName].gold
+        //     console.log(index)
+        //     ctx.fillText(Math.floor(player_gold), UI_POS[gold].x * S, UI_POS[gold].y * S);
+        //     ctx.fillText(Math.floor(player_gold), UI_POS[goldPerTurn].x * S, UI_POS[goldPerTurn].y * S);
+        // }
         // let gold_blue = this.players.blue.gold
         // let gold_red = this.players.red.gold
 
@@ -431,17 +449,14 @@ class Game {
         this.sprites.push(new Sprite(x, y, name, anim, team))
     }
     drawSprites() {
-
         for (var i in this.sprites) {
             this.sprites[i].canMove(this);
             this.sprites[i].move()
             this.sprites[i].draw()
             this.sprites[i].checkDead(i)
-
         }
     }
     drawProjectiles() {
-
         for (var i in this.projectiles) {
             this.projectiles[i].move()
             this.projectiles[i].draw()
@@ -455,7 +470,6 @@ class Game {
         if (buttonPressed != -1) {
             console.log(buttonPressed)
             this.buttonAction(buttonPressed)
-
             //vem  anser stud en autin bil vid en olycka .skiljer sig svaren åt sinsemellan de som har körkort och de som inte har de. beror tycker studenterna och beror svaren på med eller utan skrivbord
         }
     }
@@ -467,31 +481,15 @@ class Game {
     }
 
     buttonAction(id) {
-        let team = "none"
-        if (id <= 5) {
-            team = "blue"
-        }
-        else if (id >= 6) {
-            team = "red"
-        }
-        if (id == 0) {
-            this.buyUnit("soldier", team);
-        }
-        if (id == 1) {
-            this.buyUnit("archer", team);
-        }
+        var team;
+        let team_id = Math.floor(id / NUMBER_OF_BUTTONS);
 
-        if (id == 7) {
-            this.buyUnit("archer", team);
-        }
+        if (team_id == 0) { team = "blue" }
+        else if (team_id == 1) { team = "red" }
 
-        if (id == 8) {
-            this.buyUnit("soldier", team);
-        }
-
+        var mod_id = id % NUMBER_OF_BUTTONS
+        this.buyUnit(BUTTON_BUY3[1][mod_id], team);
         this.activeButtons[id] = Date.now();
-
-
     }
 
     checkMouseWithinButton() {
@@ -504,38 +502,49 @@ class Game {
         return -1;
     }
     drawButtons() {
-        // console.log(Images)
         for (const [index, item] of BUTTON_LAYOUT.entries()) {
+            let mod_id = index % NUMBER_OF_BUTTONS
+            let team = Math.floor(index / NUMBER_OF_BUTTONS);
+
             var frame = 0;
+            var currentFolder;
+            var currentButton;
+            if (team == 0) {
+                currentFolder = this.players.blue.currentFolder;
+                currentButton = BUTTON_BUY3[currentFolder][index]
+            }
+
             if (this.checkMouseWithinButton() == index) {
                 frame = 1
             }
-
             if (index in this.activeButtons) {
-                //console.log("tjiho")
                 frame = 1
                 if (Date.now() - this.activeButtons[index] > BUTTON_DELAY) {
                     delete this.activeButtons[index]
                 }
             }
-            //console.log(this.activeButtons[index].time)
 
-            ctx.drawImage(Images.button1,
-                34 * frame,
-                0 * 0,
-                34,
-                34,
-                (item.x - BUTTON_SIZE / 2) * S,
-                (item.y - BUTTON_SIZE / 2) * S,
-                BUTTON_SIZE * S,
-                BUTTON_SIZE * S
-            );
+            if (currentButton !== null) {
+                ctx.drawImage(Images.button1,
+                    34 * frame,
+                    0 * 0,
+                    34,
+                    34,
+                    (item.x - BUTTON_SIZE / 2) * S,
+                    (item.y - BUTTON_SIZE / 2) * S,
+                    BUTTON_SIZE * S,
+                    BUTTON_SIZE * S
+                );
+
+                ctx.textAlign = "center";
+                ctx.fillStyle = "#ffffff";
+                ctx.font = 3 * S + "px 'Press Start 2P'";
+                ctx.fillText(currentButton,
+                    (item.x) * S,
+                    (item.y - 5) * S,
+                );
+            }
+
         }
-
     }
-
-    debugEveryTick() {
-        // console.log(this.mousePos.x + ";" + this.mousePos.y);
-    }
-
 }
