@@ -64,12 +64,12 @@ class Sprite {
             this.cost = STATS[this.name].cost;
         }
         else { console.log("unknown sprite") };
-        if (this.team == "red") {
-            this.direction = -1
-        }
-        else if (this.team == "blue") {
-            this.direction = 1
+        if (this.team == 0) {
+            this.direction = 1;
             this.img += "_blue"
+        }
+        else if (this.team == 1) {
+            this.direction = -1
         }
 
         this.currentAnimation = "walk";
@@ -281,8 +281,8 @@ class Player {
         this.name = name
         this.gold = 50;
         this.goldPerTurn = 30;
-        this.team = "blue"
-        this.currentFolder = 1;
+        this.team = 0; //0 = blue
+        this.currentFolder = 0;
         this.race = "human"
     }
 
@@ -306,16 +306,16 @@ class Player {
     logGoldAmount() {
         console.log(this.gold, "gold")
     }
+
+    changeFolder(folder) {
+        this.currentFolder = folder;
+    }
 }
 
 
 class Game {
     constructor() {
-        this.players = {
-            blue: new Player("kjelle"),
-            red: new Player("bert"),
-        }
-        this.players2 = [
+        this.players = [
             new Player("kjelle"),
             new Player("bert"),
         ]
@@ -399,8 +399,8 @@ class Game {
     giveGold() {
         if (Date.now() - this.timeSinceLastGold > GOLD_INTERVAL * 1000) {
             this.timeSinceLastGold = Date.now();
-            for (var i in this.players2) {
-                this.players2[i].giveGoldPerTurn()
+            for (var i in this.players) {
+                this.players[i].giveGoldPerTurn()
             }
 
         }
@@ -416,8 +416,8 @@ class Game {
         ctx.fillText(Math.floor(GOLD_INTERVAL + 1 + (this.timeSinceLastGold - Date.now()) / 1000), 160 * S, 20 * S)
         ctx.fillText(Math.floor(fps), 300 * S, 60 * S);
 
-        for (var key in this.players2) {
-            var player = this.players2[key]
+        for (var key in this.players) {
+            var player = this.players[key]
             ctx.fillText(Math.floor(player.gold),
                 (UI_POS.gold.x + key * (GAME_WIDTH - 2 * UI_POS.gold.x)) * S,
                 UI_POS.gold.y * S
@@ -430,17 +430,6 @@ class Game {
 
 
         }
-
-
-        // for (var playerName in this.players) {
-        //     let player_gold = this.players[playerName].gold
-        //     console.log(index)
-        //     ctx.fillText(Math.floor(player_gold), UI_POS[gold].x * S, UI_POS[gold].y * S);
-        //     ctx.fillText(Math.floor(player_gold), UI_POS[goldPerTurn].x * S, UI_POS[goldPerTurn].y * S);
-        // }
-        // let gold_blue = this.players.blue.gold
-        // let gold_red = this.players.red.gold
-
 
     }
 
@@ -480,22 +469,33 @@ class Game {
         }
     }
 
+
+
     buttonAction(id) {
-        var team;
-        let team_id = Math.floor(id / NUMBER_OF_BUTTONS);
+        let team = Math.floor(id / NUMBER_OF_BUTTONS);
+        let curFolder = this.players[team].currentFolder;
 
-        if (team_id == 0) { team = "blue" }
-        else if (team_id == 1) { team = "red" }
+        var mod_id = id % NUMBER_OF_BUTTONS;
+        let btnAction = BTN_FOLDER[curFolder][mod_id]
 
-        var mod_id = id % NUMBER_OF_BUTTONS
-        this.buyUnit(BUTTON_BUY3[1][mod_id], team);
+        console.log(btnAction, typeof btnAction, "btnaction")
+        if (btnAction === null) {   //typeof null === 'object'
+            console.log("how the fuck did you press a non-existent button")
+        }
+        else if (typeof btnAction === 'number') {
+            this.players[team].changeFolder(btnAction)
+        }
+        else if (typeof btnAction === 'string') {
+            console.log(typeof btnAction)
+            this.buyUnit(BTN_FOLDER[curFolder][mod_id], team);
+        }
         this.activeButtons[id] = Date.now();
+
     }
 
     checkMouseWithinButton() {
         for (const [index, item] of BUTTON_LAYOUT.entries()) {
             if (Math.abs(item.x * S - this.mousePos.x) < BUTTON_SIZE && Math.abs(item.y * S - this.mousePos.y) < BUTTON_SIZE) {
-                // console.log(index)
                 return index;
             }
         }
@@ -507,12 +507,11 @@ class Game {
             let team = Math.floor(index / NUMBER_OF_BUTTONS);
 
             var frame = 0;
-            var currentFolder;
+            var curFolder;
             var currentButton;
-            if (team == 0) {
-                currentFolder = this.players.blue.currentFolder;
-                currentButton = BUTTON_BUY3[currentFolder][index]
-            }
+
+            curFolder = this.players[team].currentFolder;
+            currentButton = BTN_FOLDER[curFolder][mod_id]
 
             if (this.checkMouseWithinButton() == index) {
                 frame = 1

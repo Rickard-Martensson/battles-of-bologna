@@ -49,16 +49,7 @@ const BUTTON_DICT = {
     j: 11,
 }
 
-const BUTTON_BUY = {
-    0: "soldier",
-    1: "archer",
-    2: "soldier",
-    3: "soldier",
-    4: null,
-    5: null,
-}
-
-const BUTTON_BUY3 = {
+const BTN_FOLDER = {
     0: {
         0: null,
         1: null,
@@ -73,12 +64,28 @@ const BUTTON_BUY3 = {
         2: "soldier",
         3: "soldier",
         4: "soldier",
-        5: "soldier",
+        5: 0,
+    },
+    2: {
+        0: "soldier",
+        1: "archer",
+        2: "soldier",
+        3: "soldier",
+        4: "soldier",
+        5: 0,
+    },
+    3: {
+        0: "soldier",
+        1: "archer",
+        2: "soldier",
+        3: "soldier",
+        4: "soldier",
+        5: 0,
     }
 
 }
 
-const BASE_POS = { red: { x: 300, y: 100 }, blue: { x: 20, y: 100 } }
+const BASE_POS = [{ x: 20, y: 100 }, { x: 300, y: 100 }]
 const UI_POS = { gold: { x: 20, y: 20 }, goldPerTurn: { x: 20, y: 30 } }
 const BUTTON_SIZE = 30;
 const SPRITE_SIZE = 80;
@@ -87,7 +94,7 @@ const INVINCIBLE_DELAY = 200;
 const GRAVITY = 50;
 const START_TIME = Date.now();
 const HEIGHT = 100;
-const DRAW_NEAREST_NEIGHBOUR = false;
+const DRAW_NEAREST_NEIGHBOUR = true;
 const NUMBER_OF_BUTTONS = 6;
 const GAME_WIDTH = 320;
 
