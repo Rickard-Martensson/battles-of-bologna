@@ -1,13 +1,5 @@
 const bild = document.getElementById('');
 
-
-
-
-var image2 = new Image();
-image2.src = "./bilder/jumperblue.png";
-var image3 = new Image();
-image3.src = "./bilder/entities/soldier.png";
-
 class Animation {
     constructor(size, row, frames, frameRate, isALoop) {
         this.size = size;
@@ -62,6 +54,9 @@ class Sprite {
             this.imageSize = STATS[this.name].imageSize;
             this.size = STATS[this.name].size;
             this.cost = STATS[this.name].cost;
+            this.row = STATS[this.name].row;
+
+            this.abilities = new Set(UNIQE[this.name]);
         }
         else { console.log("unknown sprite") };
         if (this.team == 0) {
@@ -74,6 +69,7 @@ class Sprite {
 
         this.currentAnimation = "walk";
         this.currentSpeed = this.speed
+        this.isMoving = true
 
         this.DRAW_SIZE = 24;
         this.FRAME_RATE = 20;
@@ -92,6 +88,7 @@ class Sprite {
 
     attack(victim) {
         this.currentSpeed = 0;
+        this.isMoving = false
 
         if (Date.now() - this.lastAtkTime > this.atkSpeed) {
             if (this.delayAtkTime === null) {
@@ -119,15 +116,19 @@ class Sprite {
             if (this.range > 0) {
                 this.attack(self)
                 this.currentSpeed = 0;
+                this.isMoving = false
             }
             else {
                 this.currentAnimation = "idle"
                 this.currentSpeed = 0;
+                this.isMoving = false
             }
         }
         else {
             this.currentAnimation = "walk"
             this.currentSpeed = this.speed;
+            this.isMoving = true;
+            this.delayAtkTime = null;
         }
     }
 
@@ -145,21 +146,38 @@ class Sprite {
 
     canMove(game) {
         var myAtkPos = this.pos.x + (this.meleRange * this.direction / 2);
-        for (var i in game.sprites) {
-            if (game.sprites[i] != this) {
-                if (Math.abs(game.sprites[i].pos.x - myAtkPos) + .1 < this.meleRange / 2) {
-                    if (game.sprites[i].team != this.team) {
-                        this.attack(game.sprites[i])
-                    }
-                    else if (game.sprites[i].team == this.team) {
-                        this.isIdle(true)
-                    }
-                    return;
+        let distToNext = game.distToNextSprite(this)
+        console.log(distToNext.len, this.meleRange + 1, "kachow")
+        if (distToNext.len < this.meleRange + 1) {
+            console.log("yea")
+            this.currentSpeed = distToNext.sprite.currentSpeed;
 
+        }
+        else { this.currentSpeed = this.speed }
+        for (var i in game.sprites) {
+            let loopSprite = game.sprites[i]
+            if (loopSprite != this) {
+                if (Math.abs(loopSprite.pos.x - myAtkPos) + .1 < this.meleRange / 2) {
+                    if (loopSprite.row == this.row) {
+                        if (loopSprite.team != this.team) {
+                            this.attack(loopSprite)
+                        }
+                        else if (loopSprite.team == this.team) {
+                            this.isIdle(true)
+                        }
+                        return;
+
+                    }
+                    else if (this.abilities.has("changeRow")) {
+                        if (loopSprite.team != this.team) {
+                            this.row = 0;
+                        }
+                        //if this.DRAW_SIZE
+                    }
                 }
             }
         }
-        this.isIdle(false)
+        //this.isIdle(false)
     }
 
     getFrame() {
@@ -236,7 +254,6 @@ class Projectile {
                 if (this.team != game.sprites[i].team) {
                     if (dist(this.pos, game.sprites[i].pos) < game.sprites[i].size) {
                         game.sprites[i].takeDmg(this.dmg)
-                        console.log("ouch")
                         this.dead = true;
                     }
                 }
@@ -326,7 +343,7 @@ class Game {
             //new Sprite(300, 100, "soldier", "anim", "red"),
         ];
         this.projectiles = [
-            new Projectile(80, 100, 20, -40),
+            //new Projectile(80, 100, 20, -40),
         ]
         this.killStatus = undefined;
         this.activeButtons = {};
@@ -433,16 +450,42 @@ class Game {
 
     }
 
-    //sprites
+    distToNextSprite(sprite) {
+        let bestCandidate = null;
+        let bestCanLen = Infinity;
+        let spriteDir = sprite.direction
+        for (var i in this.sprites) {
+            let loopSprite = this.sprites[i]
+            if (sprite.team == loopSprite.team) {   //jafan
+                //console.log(spriteDir * sprite.pos.x, spriteDir * loopSprite.pos.x, "comp")
+                if (spriteDir * sprite.pos.x < spriteDir * loopSprite.pos.x) {
+                    let loopDist = Math.abs(sprite.pos.x - loopSprite.pos.x)
+                    //console.log(loopDist, "loopDist")
+                    if (loopDist < bestCanLen) {
+                        bestCanLen = loopDist
+                        bestCandidate = loopSprite
+                    }
+                }
+            }
+
+        }
+        return ({ sprite: bestCandidate, len: bestCanLen });
+        //console.log(bestCanLen)
+    }
+
+    //===sprites===\\
     addSprite(x, y, name, anim, team) {
         this.sprites.push(new Sprite(x, y, name, anim, team))
     }
     drawSprites() {
         for (var i in this.sprites) {
+            let hej = this.distToNextSprite(this.sprites[i])
+            //console.log(hej.sprite, hej.len, "yo")
             this.sprites[i].canMove(this);
             this.sprites[i].move()
             this.sprites[i].draw()
             this.sprites[i].checkDead(i)
+
         }
     }
     drawProjectiles() {
@@ -457,37 +500,47 @@ class Game {
         //this.addSprite(300, 100, "soldier", "anim");
         var buttonPressed = this.checkMouseWithinButton();
         if (buttonPressed != -1) {
-            console.log(buttonPressed)
             this.buttonAction(buttonPressed)
             //vem  anser stud en autin bil vid en olycka .skiljer sig svaren åt sinsemellan de som har körkort och de som inte har de. beror tycker studenterna och beror svaren på med eller utan skrivbord
         }
     }
 
     buyUnit(unitName, team) {
-        if (this.players[team].tryBuy(15)) {
+        if (this.players[team].tryBuy(STATS[unitName].cost)) {
             this.addSprite(BASE_POS[team].x, BASE_POS[team].y, unitName, "anim", team);
         }
     }
-
-
+    buyUpgrade(upgradeName, player) {
+        if (upgradeName == "upgGold") {
+            let cost = this.players[player].goldPerTurn + UPGRADES["upgGold"].costIncrease;
+            console.log(cost)
+            if (this.players[player].tryBuy(cost)) {
+                console.log("tja")
+                this.players[player].goldPerTurn += UPGRADES["upgGold"].goldIncrease;
+            }
+        }
+    }
 
     buttonAction(id) {
         let team = Math.floor(id / NUMBER_OF_BUTTONS);
         let curFolder = this.players[team].currentFolder;
 
         var mod_id = id % NUMBER_OF_BUTTONS;
-        let btnAction = BTN_FOLDER[curFolder][mod_id]
+        let btnAction = BTN_FOLDER[curFolder][mod_id].action;
+        let btnData = BTN_FOLDER[curFolder][mod_id].data;
 
-        console.log(btnAction, typeof btnAction, "btnaction")
-        if (btnAction === null) {   //typeof null === 'object'
+        if (btnAction == "hidden") {   //typeof null === 'object'
             console.log("how the fuck did you press a non-existent button")
         }
-        else if (typeof btnAction === 'number') {
-            this.players[team].changeFolder(btnAction)
+        else if (btnAction == 'folder') {
+            this.players[team].changeFolder(btnData)
         }
-        else if (typeof btnAction === 'string') {
-            console.log(typeof btnAction)
-            this.buyUnit(BTN_FOLDER[curFolder][mod_id], team);
+        else if (btnAction === 'buyUnit') {
+            this.buyUnit(btnData, team);
+        }
+        else if (btnAction === 'upgrade') {
+            console.log(btnData, team)
+            this.buyUpgrade(btnData, team);
         }
         this.activeButtons[id] = Date.now();
 
@@ -507,11 +560,12 @@ class Game {
             let team = Math.floor(index / NUMBER_OF_BUTTONS);
 
             var frame = 0;
-            var curFolder;
-            var currentButton;
 
-            curFolder = this.players[team].currentFolder;
-            currentButton = BTN_FOLDER[curFolder][mod_id]
+            let curFolder = this.players[team].currentFolder;
+            let btnAction = BTN_FOLDER[curFolder][mod_id].action
+            let btnText = BTN_FOLDER[curFolder][mod_id].txt
+            let btnImg = BTN_FOLDER[curFolder][mod_id].img
+
 
             if (this.checkMouseWithinButton() == index) {
                 frame = 1
@@ -523,7 +577,9 @@ class Game {
                 }
             }
 
-            if (currentButton !== null) {
+            if (DRAW_NEAREST_NEIGHBOUR) { ctx.imageSmoothingEnabled = false }
+
+            if (btnAction != "hidden") {
                 ctx.drawImage(Images.button1,
                     34 * frame,
                     0 * 0,
@@ -535,10 +591,21 @@ class Game {
                     BUTTON_SIZE * S
                 );
 
+                ctx.drawImage(Images[btnImg],
+                    32 * 0, //frame
+                    0 * 0,
+                    32,
+                    32,
+                    (item.x - ICON_SIZE / 2) * S,
+                    (item.y + 5 - ICON_SIZE / 2) * S,
+                    ICON_SIZE * S,
+                    ICON_SIZE * S
+                );
+
                 ctx.textAlign = "center";
                 ctx.fillStyle = "#ffffff";
                 ctx.font = 3 * S + "px 'Press Start 2P'";
-                ctx.fillText(currentButton,
+                ctx.fillText(btnText,
                     (item.x) * S,
                     (item.y - 5) * S,
                 );

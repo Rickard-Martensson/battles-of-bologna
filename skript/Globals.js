@@ -9,12 +9,22 @@ var IMAGE_DIRECTORY = [
 ];
 
 
-var STATS = {
-    soldier: { hp: 10, dmg: 3, meleRange: 15, range: 0, atkSpeed: 1200, atkDelay: 450, speed: 5, cost: 15, img: "soldier_img", imageSize: 32, size: 7 },    //range: 0, atkSpeed = 7*40/1000
-    archer: { hp: 8, dmg: 2, meleRange: 15, range: 10, atkSpeed: 1500, atkDelay: 900, speed: 5, cost: 15, img: "archer_img", imageSize: 32, size: 7 },
-    mage: { hp: 6, dmg: 8, meleRange: 10, range: 0, atkSpeed: 1, atkDelay: 0.2, speed: 2, cost: 15, img: "soldier_img", imageSize: 32, size: 7 },
-    block: { hp: 20, dmg: 0, meleRange: 10, range: 0, atkSpeed: 0, atkDelay: 0.2, speed: 0, cost: 15, img: "soldier_img", imageSize: 32, size: 7 }
+const STATS = {
+    soldier: { hp: 10, dmg: 3, meleRange: 15, range: 0, atkSpeed: 1200, atkDelay: 450, speed: 5, cost: 15, row: 0, img: "soldier_img", imageSize: 32, size: 7 },    //range: 0, atkSpeed = 7*40/1000
+    archer: { hp: 8, dmg: 2, meleRange: 15, range: 10, atkSpeed: 1500, atkDelay: 900, speed: 5, cost: 10, row: 0, img: "archer_img", imageSize: 32, size: 7 },
+    knight: { hp: 15, dmg: 3, meleRange: 15, range: 0, atkSpeed: 1200, atkDelay: 450, speed: 10, cost: 30, row: 1, img: "soldier_img", imageSize: 32, size: 7 },
+    sprinter: { hp: 6, dmg: 2, meleRange: 15, range: 0, atkSpeed: 1000, atkDelay: 500, speed: 10, cost: 15, row: 0, img: "archer_img", imageSize: 32, size: 7 },
+    block: { hp: 20, dmg: 0, meleRange: 10, range: 0, atkSpeed: 0, atkDelay: 0.2, speed: 0, cost: 15, row: 0, img: "soldier_img", imageSize: 32, size: 7 }
+}
 
+const UNIQE = {
+    knight: ["coolShoes", "changeRow"],
+}
+
+
+
+const UPGRADES = {
+    upgGold: { goldIncrease: 5, costIncrease: 5 }
 }
 
 
@@ -51,51 +61,53 @@ const BUTTON_DICT = {
 
 const BTN_FOLDER = {
     0: {
-        0: null,
-        1: null,
-        2: null,
-        3: 1,
-        4: 2,
-        5: 3,
+        0: { txt: "", action: "hidden", data: -1, img: null },
+        1: { txt: "", action: "hidden", data: -1, img: null },
+        2: { txt: "", action: "hidden", data: -1, img: null },
+        3: { txt: "units", action: "folder", data: 1, img: "soldier_img" },
+        4: { txt: "upgrades", action: "folder", data: 2, img: "soldier_img" },
+        5: { txt: "abilities", action: "folder", data: 3, img: "soldier_img" },
     },
     1: {
-        0: "soldier",
-        1: "archer",
-        2: "soldier",
-        3: "soldier",
-        4: "soldier",
-        5: 0,
+        0: { txt: "soldier", action: "buyUnit", data: "soldier", img: "soldier_img" },
+        1: { txt: "archer", action: "buyUnit", data: "archer", img: "archer_img" },
+        2: { txt: "knight", action: "buyUnit", data: "knight", img: "soldier_img" },
+        3: { txt: "sprinter", action: "buyUnit", data: "sprinter", img: "archer_img" },
+        4: { txt: "soldier", action: "wip", data: -1, img: "soldier_img" },
+        5: { txt: "back", action: "folder", data: 0, img: "soldier_img" },
     },
     2: {
-        0: "soldier",
-        1: "archer",
-        2: "soldier",
-        3: "soldier",
-        4: "soldier",
-        5: 0,
+        0: { txt: "upgrade gold", action: "upgrade", data: "upgGold", img: "soldier_img" },
+        1: { txt: "archer", action: "wip", data: -1, img: "archer_img" },
+        2: { txt: "soldier", action: "wip", data: -1, img: "soldier_img" },
+        3: { txt: "soldier", action: "wip", data: -1, img: "soldier_img" },
+        4: { txt: "soldier", action: "wip", data: -1, img: "soldier_img" },
+        5: { txt: "back", action: "folder", data: 0, img: "soldier_img" },
     },
     3: {
-        0: "soldier",
-        1: "archer",
-        2: "soldier",
-        3: "soldier",
-        4: "soldier",
-        5: 0,
-    }
+        0: { txt: "soldier", action: "wip", data: -1, img: "soldier_img" },
+        1: { txt: "archer", action: "wip", data: -1, img: "archer_img" },
+        2: { txt: "soldier", action: "wip", data: -1, img: "soldier_img" },
+        3: { txt: "soldier", action: "wip", data: -1, img: "soldier_img" },
+        4: { txt: "soldier", action: "wip", data: -1, img: "soldier_img" },
+        5: { txt: "back", action: "folder", data: 0, img: "soldier_img" },
+    },
 
 }
 
 const BASE_POS = [{ x: 20, y: 100 }, { x: 300, y: 100 }]
 const UI_POS = { gold: { x: 20, y: 20 }, goldPerTurn: { x: 20, y: 30 } }
 const BUTTON_SIZE = 30;
+const ICON_SIZE = 20;
 const SPRITE_SIZE = 80;
 const BUTTON_DELAY = 100;
+const NUMBER_OF_BUTTONS = 6;
 const INVINCIBLE_DELAY = 200;
 const GRAVITY = 50;
 const START_TIME = Date.now();
 const HEIGHT = 100;
 const DRAW_NEAREST_NEIGHBOUR = true;
-const NUMBER_OF_BUTTONS = 6;
+
 const GAME_WIDTH = 320;
 
 //===Gameplay===\\
