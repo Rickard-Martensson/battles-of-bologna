@@ -26,3 +26,25 @@
         //     );
 
         // });
+
+
+            // isIdle(bool) {
+    //     if (bool) {
+    //         if (this.range > 0) {
+    //             this.attack(self)
+    //             this.currentSpeed = 0;
+    //             this.isMoving = false
+    //         }
+    //         else {
+    //             this.currentAnimation = "idle"
+    //             this.currentSpeed = 0;
+    //             this.isMoving = false
+    //         }
+    //     }
+    //     else {
+    //         this.currentAnimation = "walk"
+    //         this.currentSpeed = this.speed;
+    //         this.isMoving = true;
+    //         this.delayAtkTime = null;
+    //     }
+    // }

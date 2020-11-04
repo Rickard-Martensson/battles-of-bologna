@@ -112,3 +112,5 @@ const GAME_WIDTH = 320;
 
 //===Gameplay===\\
 const GOLD_INTERVAL = 15;
+const PERSONAL_SPACE = 1;
+const MELE_RANGE_BUFFER = 0.1;
