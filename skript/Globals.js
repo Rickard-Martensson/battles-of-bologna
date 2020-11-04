@@ -6,13 +6,15 @@ var IMAGE_DIRECTORY = [
     ["image_not_found", "./bilder/ui/wtf.png"],
     ["exitButton", "./bilder/ui/ExitButton.png"],
     ["button1", "./bilder/ui/button1.png"],
+    ["castle_img", "./bilder/sprites/castle.png"],
+    ["castle_img_blue", "./bilder/sprites/castle_blue.png"],
 ];
 
 
 const STATS = {
     soldier: { hp: 10, dmg: 3, meleRange: 15, range: 0, atkSpeed: 1200, atkDelay: 450, speed: 5, cost: 15, row: 0, img: "soldier_img", imageSize: 32, size: 7 },    //range: 0, atkSpeed = 7*40/1000
-    archer: { hp: 8, dmg: 2, meleRange: 15, range: 10, atkSpeed: 1500, atkDelay: 900, speed: 5, cost: 10, row: 0, img: "archer_img", imageSize: 32, size: 7 },
-    knight: { hp: 15, dmg: 3, meleRange: 15, range: 0, atkSpeed: 1200, atkDelay: 450, speed: 10, cost: 30, row: 1, img: "soldier_img", imageSize: 32, size: 7 },
+    archer: { hp: 8, dmg: 2, meleRange: 15, range: 10, atkSpeed: 2000, atkDelay: 950, speed: 5, cost: 10, row: 0, img: "archer_img", imageSize: 32, size: 7 },
+    knight: { hp: 20, dmg: 2, meleRange: 15, range: 0, atkSpeed: 1200, atkDelay: 450, speed: 10, cost: 30, row: 1, img: "soldier_img", imageSize: 32, size: 7 },
     sprinter: { hp: 6, dmg: 2, meleRange: 15, range: 0, atkSpeed: 1000, atkDelay: 500, speed: 10, cost: 15, row: 0, img: "archer_img", imageSize: 32, size: 7 },
     block: { hp: 20, dmg: 0, meleRange: 10, range: 0, atkSpeed: 0, atkDelay: 0.2, speed: 0, cost: 15, row: 0, img: "soldier_img", imageSize: 32, size: 7 }
 }
@@ -107,6 +109,7 @@ const GRAVITY = 50;
 const START_TIME = Date.now();
 const HEIGHT = 100;
 const DRAW_NEAREST_NEIGHBOUR = true;
+const ROW_OFFSET = 1;
 
 const GAME_WIDTH = 320;
 

@@ -48,3 +48,39 @@
     //         this.delayAtkTime = null;
     //     }
     // }
+
+
+        // canMove(game) {
+    //     var myAtkPos = this.pos.x + (this.meleRange * this.direction / 2);
+    //     let distToNext = game.distToNextSprite(this)
+    //     console.log(distToNext.len, this.meleRange + 1, "kachow")
+    //     if (distToNext.len < this.meleRange + 1) {
+    //         console.log("yea")
+    //         this.currentSpeed = distToNext.sprite.currentSpeed;
+    //     }
+    //     else { this.currentSpeed = this.speed }
+    //     for (var i in game.sprites) {
+    //         let loopSprite = game.sprites[i]
+    //         if (loopSprite != this) {
+    //             if (Math.abs(loopSprite.pos.x - myAtkPos) + .1 < this.meleRange / 2) {
+    //                 if (loopSprite.row == this.row) {
+    //                     if (loopSprite.team != this.team) {
+    //                         this.attack(loopSprite)
+    //                     }
+    //                     else if (loopSprite.team == this.team) {
+    //                         this.isIdle(true)
+    //                     }
+    //                     return;
+
+    //                 }
+    //                 else if (this.abilities.has("changeRow")) {
+    //                     if (loopSprite.team != this.team) {
+    //                         this.row = 0;
+    //                     }
+    //                     //if this.DRAW_SIZE
+    //                 }
+    //             }
+    //         }
+    //     }
+    //     //this.isIdle(false)
+    // }

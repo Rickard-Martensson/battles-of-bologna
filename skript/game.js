@@ -143,6 +143,10 @@ class Game {
         this.projectiles = [
             //new Projectile(80, 100, 20, -40),
         ]
+        this.buildings = [
+            new Building(0, 100, "castle", 0),
+            new Building(320, 100, "castle", 0),
+        ]
         this.killStatus = undefined;
         this.activeButtons = {};
 
@@ -231,6 +235,11 @@ class Game {
         ctx.fillText(Math.floor(GOLD_INTERVAL + 1 + (this.timeSinceLastGold - Date.now()) / 1000), 160 * S, 20 * S)
         ctx.fillText(Math.floor(fps), 300 * S, 60 * S);
 
+        for (var key in this.buildings) {
+            var building = this.buildings[key];
+            building.draw()
+        }
+
         for (var key in this.players) {
             var player = this.players[key]
             ctx.fillText(Math.floor(player.gold),
@@ -303,7 +312,7 @@ class Game {
         for (var i in this.sprites) {
             let hej = this.distToNextSprite(this.sprites[i])
             //console.log(hej.sprite, hej.len, "yo")
-            this.sprites[i].canMove2(this);
+            this.sprites[i].canMove(this);
             this.sprites[i].move()
             this.sprites[i].draw()
             this.sprites[i].checkDead(i)
