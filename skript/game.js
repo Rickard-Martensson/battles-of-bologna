@@ -98,7 +98,8 @@ class Player {
         this.goldPerTurn = 30;
         this.team = 0; //0 = blue
         this.currentFolder = 0;
-        this.race = "human"
+        this.race = "human";
+        this.hp = 100;
     }
 
     changeGold(amount) {
@@ -125,6 +126,12 @@ class Player {
     changeFolder(folder) {
         this.currentFolder = folder;
     }
+
+    attackCastle(unitHealth) {
+        this.goldPerTurn += -1
+        //ändra andra spelarens gpt
+        this.hp -= unitHealth
+    }
 }
 
 
@@ -144,8 +151,8 @@ class Game {
             //new Projectile(80, 100, 20, -40),
         ]
         this.buildings = [
-            new Building(0, 100, "castle", 0),
-            new Building(320, 100, "castle", 0),
+            new Building(-20, 90, "castle", 0),
+            new Building(292, 90, "castle", 1),
         ]
         this.killStatus = undefined;
         this.activeButtons = {};
@@ -235,10 +242,6 @@ class Game {
         ctx.fillText(Math.floor(GOLD_INTERVAL + 1 + (this.timeSinceLastGold - Date.now()) / 1000), 160 * S, 20 * S)
         ctx.fillText(Math.floor(fps), 300 * S, 60 * S);
 
-        for (var key in this.buildings) {
-            var building = this.buildings[key];
-            building.draw()
-        }
 
         for (var key in this.players) {
             var player = this.players[key]
@@ -318,6 +321,12 @@ class Game {
             this.sprites[i].checkDead(i)
 
         }
+        for (var key in this.buildings) {
+            let building = this.buildings[key];
+            //building.draw()
+        }
+
+
     }
     drawProjectiles() {
         for (var i in this.projectiles) {

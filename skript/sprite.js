@@ -4,7 +4,7 @@ class Building {
         this.name = name;
         this.team = team
         this.imageSize = 40;
-        this.img = this.name
+        this.img = this.name + "_img"
         if (this.team == 0) {
             this.img += "_blue"
         };
@@ -29,16 +29,17 @@ class Building {
         //     this.DRAW_SIZE * S
         // );
         // ctx.globalAlpha = 1;
+        console.log
 
-        ctx.drawImage(Images["castle_img"],
-            40,
-            40,
-            40,
-            40,
-            100,
-            100,
-            48,
-            48
+        ctx.drawImage(Images[this.img],
+            0,
+            0,
+            this.imageSize,
+            this.imageSize,
+            this.pos.x * S,
+            (this.pos.y - 20) * S,
+            48 * S,
+            48 * S
 
             // (this.pos.x - this.DRAW_SIZE / 2) * S,
             // (this.pos.y - this.DRAW_SIZE / 2) * S,
@@ -150,6 +151,12 @@ class Sprite {
     checkDead(index) {
         if (this.hp <= 0) {
             index > -1 ? game.sprites.splice(index, 1) : false  //magic code that kicks sprite from sprite-array
+        }
+    }
+
+    checkIfAtEnemyCastle(game, players) {
+        if (this.pos.x < 5) {
+            pass //remove gold, add gold
         }
     }
 

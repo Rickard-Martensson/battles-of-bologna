@@ -13,7 +13,7 @@ var IMAGE_DIRECTORY = [
 
 const STATS = {
     soldier: { hp: 10, dmg: 3, meleRange: 15, range: 0, atkSpeed: 1200, atkDelay: 450, speed: 5, cost: 15, row: 0, img: "soldier_img", imageSize: 32, size: 7 },    //range: 0, atkSpeed = 7*40/1000
-    archer: { hp: 8, dmg: 2, meleRange: 15, range: 10, atkSpeed: 2000, atkDelay: 950, speed: 5, cost: 10, row: 0, img: "archer_img", imageSize: 32, size: 7 },
+    archer: { hp: 8, dmg: 2, meleRange: 15, range: 10, atkSpeed: 2000, atkDelay: 1000, speed: 5, cost: 10, row: 0, img: "archer_img", imageSize: 32, size: 7 },
     knight: { hp: 20, dmg: 2, meleRange: 15, range: 0, atkSpeed: 1200, atkDelay: 450, speed: 10, cost: 30, row: 1, img: "soldier_img", imageSize: 32, size: 7 },
     sprinter: { hp: 6, dmg: 2, meleRange: 15, range: 0, atkSpeed: 1000, atkDelay: 500, speed: 10, cost: 15, row: 0, img: "archer_img", imageSize: 32, size: 7 },
     block: { hp: 20, dmg: 0, meleRange: 10, range: 0, atkSpeed: 0, atkDelay: 0.2, speed: 0, cost: 15, row: 0, img: "soldier_img", imageSize: 32, size: 7 }
@@ -108,7 +108,7 @@ const INVINCIBLE_DELAY = 200;
 const GRAVITY = 50;
 const START_TIME = Date.now();
 const HEIGHT = 100;
-const DRAW_NEAREST_NEIGHBOUR = true;
+const DRAW_NEAREST_NEIGHBOUR = false;
 const ROW_OFFSET = 1;
 
 const GAME_WIDTH = 320;
