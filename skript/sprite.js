@@ -154,9 +154,17 @@ class Sprite {
         }
     }
 
-    checkIfAtEnemyCastle(game, players) {
-        if (this.pos.x < 5) {
-            pass //remove gold, add gold
+    checkIfAtEnemyCastle(game) {
+        let enemyPlayer = this.getOtherTeam()
+        let enemyBasePos = BASE_POS[enemyPlayer].x
+        let factor = (2 * this.team - 1) //-1 if team:0, 1 if team:1.
+
+        if (this.pos.x * factor < enemyBasePos * factor) { // -100 < -40 //prolog inte imperativt
+            game.players[enemyPlayer].attackCastle(50)
+            game.players[this.team].changeGoldPerTurn(1)
+            console.log("attack")
+            this.hp = 0
+            //remove gold, add gold
         }
     }
 
@@ -170,6 +178,9 @@ class Sprite {
 
     setState(state, speed, txt) {
         //if (this.name == "archer") { console.log(state, txt) }
+        if (speed == 0 && state == "walk") {
+            state = "idle"
+        }
         if (state == "walk") {
             this.currentSpeed = this.speed
             this.state = "walk"

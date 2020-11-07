@@ -102,8 +102,16 @@ class Player {
         this.hp = 100;
     }
 
+    takeDmg(dmg) {
+        this.hp -= dmg
+    }
+
     changeGold(amount) {
         this.gold += amount
+    }
+
+    changeGoldPerTurn(amount) {
+        this.goldPerTurn += amount
     }
 
     tryBuy(amount) {
@@ -128,7 +136,7 @@ class Player {
     }
 
     attackCastle(unitHealth) {
-        this.goldPerTurn += -1
+        this.goldPerTurn -= 1
         //ändra andra spelarens gpt
         this.hp -= unitHealth
     }
@@ -318,6 +326,7 @@ class Game {
             this.sprites[i].canMove(this);
             this.sprites[i].move()
             this.sprites[i].draw()
+            this.sprites[i].checkIfAtEnemyCastle(this)
             this.sprites[i].checkDead(i)
 
         }
