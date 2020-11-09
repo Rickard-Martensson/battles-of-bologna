@@ -1,11 +1,11 @@
 //==========================================================================================================================================================================================================================================================================================================================================================================
 
 var IMAGE_DIRECTORY = [
-    ["soldier_img", "./bilder/sprites/soldier.png"],
-    ["archer_img", "./bilder/sprites/archer.png"],
+    ["soldier_img", "./bilder/sprites/soldier2.png"],
+    ["archer_img", "./bilder/sprites/archer2.png"],
     ["knight_img", "./bilder/sprites/knight.png"],
-    ["soldier_img_blue", "./bilder/sprites/soldier_blue.png"],
-    ["archer_img_blue", "./bilder/sprites/archer_blue.png"],
+    ["soldier_img_blue", "./bilder/sprites/soldier_blue2.png"],
+    ["archer_img_blue", "./bilder/sprites/archer_blue2.png"],
     ["knight_img_blue", "./bilder/sprites/knight_blue.png"],
     ["image_not_found", "./bilder/ui/wtf.png"],
     ["exitButton", "./bilder/ui/ExitButton.png"],
@@ -17,6 +17,50 @@ var IMAGE_DIRECTORY = [
     ["background_night", "./bilder/background_1_night.png"],
     ["cloud_img", "./bilder/sprites/clouds.png"]
 ];
+
+
+const BASE_POS = [{ x: 20, y: 100 }, { x: 300, y: 100 }]
+const UI_POS = { gold: { x: 20, y: 20 }, goldPerTurn: { x: 20, y: 30 } }
+const BUTTON_SIZE = 30;
+const ICON_SIZE = 20;
+const SPRITE_SIZE = 80;
+const BUTTON_DELAY = 100;
+const NUMBER_OF_BUTTONS = 6;
+const INVINCIBLE_DELAY = 200;
+const GRAVITY = 50;
+const START_TIME = Date.now();
+const HEIGHT = 100;
+const ROW_OFFSET = 1;
+
+const GAME_WIDTH = 320;
+
+//===Gameplay===\\
+const GOLD_INTERVAL = 15;
+const PERSONAL_SPACE = 1;
+const MELE_RANGE_BUFFER = 0.1;
+const RANGE_RANDOMNESS = 0.5
+
+//===DAY NIGHT ===\\
+const MAXDARKNESS = 0.5
+const DUSK_TIME = 0.1
+const NIGHT_TIME = 0.55
+const CYCLE_TIME = 30
+const NIGHT_BRIGHTNESS = 1.0;
+var UNIT_DARKNESS = 'brightness(100%)';
+var LAST_DRAWN_DARKNESS = 'brightness(100%)';
+const DEFAULT_DARKNESS = 'brightness(100%)';
+
+
+//=== clouds ===\\
+const CLOUD_RATE = 0.00125
+const CLOUD_SPEED = 0.05
+const CLOUD_HEIGHT = 35
+
+//===PERFORMACE===\\\
+const GRAPHICS_LEVEL = 0 //0 is fast, 3 is fancy
+const DRAW_NEAREST_NEIGHBOUR = true;
+
+
 
 class Animation {
     //size of each square, how many rows down in spritesheet, number of frames, frameRate, isAloop(false on atk animations)
@@ -140,43 +184,3 @@ const BTN_FOLDER = {
 
 }
 
-const BASE_POS = [{ x: 20, y: 100 }, { x: 300, y: 100 }]
-const UI_POS = { gold: { x: 20, y: 20 }, goldPerTurn: { x: 20, y: 30 } }
-const BUTTON_SIZE = 30;
-const ICON_SIZE = 20;
-const SPRITE_SIZE = 80;
-const BUTTON_DELAY = 100;
-const NUMBER_OF_BUTTONS = 6;
-const INVINCIBLE_DELAY = 200;
-const GRAVITY = 50;
-const START_TIME = Date.now();
-const HEIGHT = 100;
-const ROW_OFFSET = 1;
-
-const GAME_WIDTH = 320;
-
-//===Gameplay===\\
-const GOLD_INTERVAL = 15;
-const PERSONAL_SPACE = 1;
-const MELE_RANGE_BUFFER = 0.1;
-const RANGE_RANDOMNESS = 0.5
-
-//===DAY NIGHT ===\\
-const MAXDARKNESS = 0.5
-const DUSK_TIME = 0.1
-const NIGHT_TIME = 0.55
-const CYCLE_TIME = 30
-const NIGHT_BRIGHTNESS = 1.0;
-var UNIT_DARKNESS = 'brightness(100%)';
-var LAST_DRAWN_DARKNESS = 'brightness(100%)';
-const DEFAULT_DARKNESS = 'brightness(100%)';
-
-
-//=== clouds ===\\
-const CLOUD_RATE = 0.00125
-const CLOUD_SPEED = 0.05
-const CLOUD_HEIGHT = 35
-
-//===PERFORMACE===\\\
-const GRAPHICS_LEVEL = 3 //0 is fast, 3 is fancy
-const DRAW_NEAREST_NEIGHBOUR = true;

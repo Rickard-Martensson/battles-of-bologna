@@ -315,7 +315,7 @@ class Game {
         window.setTimeout(function () {
             self.tick();
 
-        }, 1000)
+        }, 1500)
     }
 
     drawScenery() {
@@ -354,13 +354,13 @@ class Game {
         //draw stuff
         this.changeBackground(Date.now() - this.startTime);
         if (GRAPHICS_LEVEL != 0) { ctx.filter = UNIT_DARKNESS; };
-        this.drawScenery();
         if (DRAW_NEAREST_NEIGHBOUR) { ctx.imageSmoothingEnabled = false } // viktig
-        if (GRAPHICS_LEVEL == 1) { ctx.filter = DEFAULT_DARKNESS; };
         this.drawSprites();
-        if (GRAPHICS_LEVEL == 2) { ctx.filter = DEFAULT_DARKNESS; };
+        this.drawScenery();
+        if (GRAPHICS_LEVEL == 1) { ctx.filter = DEFAULT_DARKNESS; };
         this.drawProjectiles();
-        if (GRAPHICS_LEVEL == 3) { ctx.filter = DEFAULT_DARKNESS; };
+        if (GRAPHICS_LEVEL == 2) { ctx.filter = DEFAULT_DARKNESS; };
+        if (DRAW_NEAREST_NEIGHBOUR) { ctx.imageSmoothingEnabled = true } // viktig
         this.drawButtons();
         this.drawUI(fps);
         this.giveGold();
