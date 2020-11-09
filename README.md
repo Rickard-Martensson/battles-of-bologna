@@ -1,6 +1,6 @@
 # battles of bologna
- A small real time strategy game that you can play in the browser
+ A small real time strategy game that you can play in the browser :)
  
-![](bilder/trash/BoB ingame.png)
+ preview:
+![](bilder/trash/bob_ingame.png)
 
-hej
