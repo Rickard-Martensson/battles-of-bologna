@@ -1,0 +1,22 @@
+function takepicture() {
+
+var context = canvas.getContext('2d');
+var b = document.getElementById('txtBrightness').value;
+if (width && height) {
+canvas.width = width;
+canvas.height = height;
+context.filter = 'brightness(' + b + '%)';
+context.drawImage(video, 0, 0, width, height);
+
+var data = canvas.toDataURL();
+//photo.setAttribute('src', data);
+
+//alert(data);
+document.getElementById('Image').value = data;
+//$("#Image").val(data);
+
+$("#form1").submit();
+} else {
+clearphoto();
+}
+}

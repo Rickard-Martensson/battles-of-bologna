@@ -140,8 +140,6 @@ class Sprite {
         }
     }
 
-
-
     takeDmg(dmg) {
         this.hp -= dmg
         this.invincible = false; //fixa sen
@@ -173,8 +171,6 @@ class Sprite {
         else if (this.team == 1) { return 0; }
         return -1;
     }
-
-
 
     setState(state, speed, txt) {
         //if (this.name == "archer") { console.log(state, txt) }
@@ -290,6 +286,7 @@ class Sprite {
         if (Date.now() - this.lastDmgdTime < INVINCIBLE_DELAY) {
             ctx.globalAlpha = 0.6;
         }
+        ctx.filter = UNITDARKNESS;
         ctx.drawImage(Images[this.img],
             this.imageSize * frame,
             this.imageSize * animation,
@@ -301,6 +298,7 @@ class Sprite {
             this.DRAW_SIZE * S,
             this.DRAW_SIZE * S
         );
+        ctx.filter = 'brightness(100%)';
         ctx.globalAlpha = 1;
 
     }

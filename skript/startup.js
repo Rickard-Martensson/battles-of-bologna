@@ -1,4 +1,7 @@
 var canvas;
+var background1;
+var background2;
+
 var ctx;
 var titleScreen;
 var Images = {};
@@ -17,10 +20,12 @@ var game;
 
 window.onload = function () {
     getCanvas();
+    getBackgrounds();
     resizeCanvas();
     resizeTitleScreen();
+    resizeBackgrounds();
 
-    window.onresize = function () { resizeCanvas(); resizeTitleScreen() };
+    window.onresize = function () { resizeCanvas(); resizeTitleScreen(); };
     loadImages();
     loadStats();
 
@@ -38,6 +43,42 @@ function getCanvas() {
     ctx.mozImageSmoothingEnabled = false;
     ctx.imageSmoothingEnabled = false;
 };
+
+function getBackgrounds() {
+    background2 = document.getElementById("bg2");
+    background1 = document.getElementById("bg1");
+}
+
+
+
+function resizeBackgrounds() {
+    var screenHeight = window.innerHeight;
+    var screenWidth = window.innerWidth;
+
+    if (screenHeight / aspectRatio.height * aspectRatio.width < screenWidth) {
+        background1.style.width = screenHeight / aspectRatio.height * aspectRatio.width + "px";
+        background1.style.height = screenHeight + "px";
+        document.body.style.fontSize = screenHeight / 45 + "px";
+    }
+    else {
+        background1.style.width = screenWidth + "px";
+        background1.style.height = screenWidth / aspectRatio.width * aspectRatio.height + "px";
+        document.body.style.fontSize = screenWidth / 80 + "px";
+    }
+
+    if (screenHeight / aspectRatio.height * aspectRatio.width < screenWidth) {
+        background2.style.width = screenHeight / aspectRatio.height * aspectRatio.width + "px";
+        background2.style.height = screenHeight + "px";
+        document.body.style.fontSize = screenHeight / 45 + "px";
+    }
+    else {
+        background2.style.width = screenWidth + "px";
+        background2.style.height = screenWidth / aspectRatio.width * aspectRatio.height + "px";
+        document.body.style.fontSize = screenWidth / 80 + "px";
+    }
+}
+
+
 
 var S;
 function resizeCanvas() {
@@ -77,11 +118,11 @@ function resizeTitleScreen() {
 
 function showTitleScreen() {
     titleScreen.style.zIndex = "1";
-    canvas.style.zIndex = "-1";
+    canvas.style.zIndex = "-10";
 }
 
 function hideTitleScreen() {
-    titleScreen.style.zIndex = "-1";
+    titleScreen.style.zIndex = "-10";
     canvas.style.zIndex = "1";
 }
 

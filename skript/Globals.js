@@ -8,8 +8,10 @@ var IMAGE_DIRECTORY = [
     ["button1", "./bilder/ui/button1.png"],
     ["castle_img", "./bilder/sprites/castle.png"],
     ["castle_img_blue", "./bilder/sprites/castle_blue.png"],
+    ["background_day", "./bilder/background_1_day.png"],
+    ["background_dusk", "./bilder/background_1_dusk.png"],
+    ["background_night", "./bilder/background_1_night.png"],
 ];
-
 
 const STATS = {
     soldier: { hp: 10, dmg: 3, meleRange: 15, range: 0, atkSpeed: 1200, atkDelay: 450, speed: 5, cost: 15, row: 0, img: "soldier_img", imageSize: 32, size: 7 },    //range: 0, atkSpeed = 7*40/1000
@@ -87,7 +89,7 @@ const BTN_FOLDER = {
         5: { txt: "back", action: "folder", data: 0, img: "soldier_img" },
     },
     3: {
-        0: { txt: "soldier", action: "wip", data: -1, img: "soldier_img" },
+        0: { txt: "Arrows", action: "ability", data: "arrows", cooldown: 3, img: "soldier_img" },
         1: { txt: "archer", action: "wip", data: -1, img: "archer_img" },
         2: { txt: "soldier", action: "wip", data: -1, img: "soldier_img" },
         3: { txt: "soldier", action: "wip", data: -1, img: "soldier_img" },
@@ -117,3 +119,10 @@ const GAME_WIDTH = 320;
 const GOLD_INTERVAL = 15;
 const PERSONAL_SPACE = 1;
 const MELE_RANGE_BUFFER = 0.1;
+
+//===DAY NIGHT ===\\
+const DUSK_TIME = 0.1
+const NIGHT_TIME = 0.55
+const CYCLE_TIME = 30
+const NIGHT_BRIGHTNESS = 1.0;
+var UNITDARKNESS = 'brightness(50%)';

@@ -27,6 +27,12 @@ class Animation {
 }
 
 
+class Bakrund {
+    constructor(time) {
+        this.time;
+    }
+}
+
 class Projectile {
     constructor(x, y, vx, vy, team, dmg) {
         this.pos = { x: x, y: y };
@@ -100,6 +106,11 @@ class Player {
         this.currentFolder = 0;
         this.race = "human";
         this.hp = 100;
+        this.btnCoolDowns = []
+    }
+
+    addCooldown(folder, btnId, time) {
+        this.btnCoolDowns.push({ foldertime: time })
     }
 
     takeDmg(dmg) {
@@ -173,6 +184,54 @@ class Game {
         this.timeSinceLastGold = Date.now();
     }
 
+    // const DAY_TIME = 0
+    // const DUSK_TIME = 0.1
+    // const NIGHT_TIME = 0.6
+    // const CYCLE_TIME = 60
+
+    changeBackground(timePassed) {
+        let totalCycleTime = (CYCLE_TIME * 1000)
+        let currentTime = timePassed % totalCycleTime
+        let curRatioTime = currentTime / totalCycleTime
+        let sunSetOpacity = Math.max(getOpacityDusk(curRatioTime, NIGHT_TIME, DUSK_TIME), getOpacityDawn(curRatioTime, DUSK_TIME))
+        background1.style.opacity = sunSetOpacity
+        // console.log("curRatioTime:", curRatioTime, sunSetOpacity)
+        let unitDarkness = setUnitDarkness(curRatioTime, NIGHT_TIME, DUSK_TIME);
+
+        if (curRatioTime > NIGHT_TIME) {
+            background2.classList.add("bg-night");
+            background2.classList.remove("bg-day");
+        }
+        else {
+            background2.classList.remove("bg-night");
+            background2.classList.add("bg-day");
+        }
+
+
+        // let sunSetOpacity = getTimeRatio2(curRatioTime, NIGHT_TIME, 0.1)
+        // let sunRiseOpacity = getTimeRatio2(curRatioTime, -1, 0.1)
+
+        // if (curRatioTime > NIGHT_TIME) {
+        //     background1.classList.add("bg-night");
+        //     background1.classList.remove("bg-day");
+        // }
+        // else {
+        //     background1.classList.remove("bg-night");
+        //     background1.classList.add("bg-day");
+        // }
+        // if (sunSetOpacity > 0) {
+        //     background2.style.opacity = sunSetOpacity
+        // }
+        // if (sunRiseOpacity > 0) {
+        //     background2.style.opacity = sunRiseOpacity
+
+        // }
+    }
+
+
+
+
+
     start() {
         ctx.fillStyle = "white";
         ctx.textAlign = "center";
@@ -212,6 +271,7 @@ class Game {
         fpsCoefficient = 144 / fps;
 
         //draw stuff
+        this.changeBackground(Date.now() - this.startTime);
         this.drawSprites()
         this.drawButtons();
         this.drawUI(fps);
@@ -319,6 +379,17 @@ class Game {
     addSprite(x, y, name, anim, team) {
         this.sprites.push(new Sprite(x, y, name, anim, team))
     }
+
+    castAbility(name, team) {
+        let factor = (2 * team - 1)
+        if (name == "arrows") {
+            for (var i = 0; i < 5; i++) {
+                //console.log(BASE_POS[team].x, BASE_POS[team].y, -(20 + 5 * Math.random()) * factor, -(50 + 10 * Math.random()), team, 2);
+                this.shootProjectile(BASE_POS[team].x, BASE_POS[team].y - 20, -(50 + 40 * Math.random()) * factor, -(50 + 20 * Math.random()), team, 2);
+            }
+        }
+    }
+
     drawSprites() {
         for (var i in this.sprites) {
             let hej = this.distToNextSprite(this.sprites[i])
@@ -391,6 +462,10 @@ class Game {
             console.log(btnData, team)
             this.buyUpgrade(btnData, team);
         }
+        else if (btnAction === 'ability') {
+            console.log(btnData, team)
+            this.castAbility(btnData, team)
+        }
         this.activeButtons[id] = Date.now();
 
     }
@@ -403,6 +478,11 @@ class Game {
         }
         return -1;
     }
+
+    btnCoolDown() {
+
+    }
+
     drawButtons() {
         for (const [index, item] of BUTTON_LAYOUT.entries()) {
             let mod_id = index % NUMBER_OF_BUTTONS
