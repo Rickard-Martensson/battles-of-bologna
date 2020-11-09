@@ -287,8 +287,6 @@ class Sprite {
         let animation = this.animations[this.currentAnimation].getRow()
         //console.log(frame)
 
-        if (DRAW_NEAREST_NEIGHBOUR) { ctx.imageSmoothingEnabled = false } // viktig
-
         if (Date.now() - this.lastDmgdTime < INVINCIBLE_DELAY) {
             ctx.globalAlpha = 0.6;
             fiddledWithAlpha = true;

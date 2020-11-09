@@ -152,7 +152,7 @@ class Player {
     }
 
     tryBuy(amount) {
-        if (this.gold > amount) {
+        if (this.gold >= amount) {
             this.changeGold(-amount);
             return true;
         }
@@ -179,6 +179,41 @@ class Player {
     }
 }
 
+class Scenery {
+    constructor(x, y, name) {
+        this.pos = { x: x, y: y }
+        this.name = name
+        this.img = this.name + "_img"
+        this.imageSize = 64;
+        let images = 5
+        this.speed = CLOUD_SPEED * (1 + this.pos.y / CLOUD_HEIGHT);
+        this.id = Math.floor(images * Math.random());
+
+        this.DRAW_SIZE = 64
+    }
+
+
+    move() {
+        this.pos.x += this.speed;
+    }
+
+    draw() {
+        ctx.imageSmoothingEnabled = true
+        ctx.drawImage(Images[this.img],
+            this.imageSize * 0,
+            this.imageSize * this.id,
+            this.imageSize,
+            this.imageSize,
+
+            (this.pos.x - this.DRAW_SIZE / 2) * S,
+            (this.pos.y - this.DRAW_SIZE / 2) * S,
+            this.DRAW_SIZE * S,
+            this.DRAW_SIZE * S
+        );
+
+    }
+}
+
 
 class Game {
     constructor() {
@@ -199,6 +234,10 @@ class Game {
             new Building(32, 60, "castle", 0),
             new Building(288, 60, "castle", 1),
         ]
+        this.scenery = [
+            new Scenery(0, 40, "cloud"),
+            new Scenery(50, 0, "cloud"),
+        ]
         this.killStatus = undefined;
         this.activeButtons = {};
 
@@ -214,6 +253,14 @@ class Game {
     // const DUSK_TIME = 0.1
     // const NIGHT_TIME = 0.6
     // const CYCLE_TIME = 60
+
+    tryMakeCloud() {
+        let randNum = Math.random()
+        if (randNum < CLOUD_RATE) {
+            let yPos = 0 + Math.random() * CLOUD_HEIGHT
+            this.scenery.push(new Scenery(-64, yPos, "cloud"));
+        }
+    }
 
     changeBackground(timePassed) {
         let totalCycleTime = (CYCLE_TIME * 1000)
@@ -271,6 +318,14 @@ class Game {
         }, 1000)
     }
 
+    drawScenery() {
+        for (var key in this.scenery) {
+            let prop = this.scenery[key];
+            prop.move();
+            prop.draw();
+        }
+    }
+
     tick() {
         if (this.killStatus == "KILL") { return };
         ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
@@ -299,13 +354,17 @@ class Game {
         //draw stuff
         this.changeBackground(Date.now() - this.startTime);
         if (GRAPHICS_LEVEL != 0) { ctx.filter = UNIT_DARKNESS; };
-        this.drawSprites();
+        this.drawScenery();
+        if (DRAW_NEAREST_NEIGHBOUR) { ctx.imageSmoothingEnabled = false } // viktig
         if (GRAPHICS_LEVEL == 1) { ctx.filter = DEFAULT_DARKNESS; };
-        this.drawProjectiles();
+        this.drawSprites();
         if (GRAPHICS_LEVEL == 2) { ctx.filter = DEFAULT_DARKNESS; };
+        this.drawProjectiles();
+        if (GRAPHICS_LEVEL == 3) { ctx.filter = DEFAULT_DARKNESS; };
         this.drawButtons();
         this.drawUI(fps);
         this.giveGold();
+        this.tryMakeCloud();
 
 
         //stuff to do at the end

@@ -1,3 +1,4 @@
+const { sep } = require("path");
 
 
 
@@ -20,7 +21,6 @@ function getOpacityDawn(curTime, sunRiseDuration) {
     return (Math.max(0, Math.abs((halfDayLen - curTime) / sunRiseDuration) - (halfDayLen - sunRiseDuration) / sunRiseDuration))
 }
 
-const MAXDARKNESS = 0.5
 
 
 
@@ -30,6 +30,7 @@ function setUnitDarkness(curTime, sunSetDate, sunSetDuration) {
     let totalSunSetDuration = 2 * sunSetDuration
     let startOfSunRise = 1.0 - sunSetDuration
     let endOfSunRise = 0 + sunSetDuration
+    let sepia = ""
 
     let K = (MAXDARKNESS / 2) / sunSetDuration // 2.5. typ lutningen på sågtandskurvan som bildas
 
@@ -37,6 +38,9 @@ function setUnitDarkness(curTime, sunSetDate, sunSetDuration) {
 
     if (Math.abs(curTime - sunSetDate) < sunSetDuration) {
         unitDarkness = 1 + MAXDARKNESS * (startOfSunSet - curTime) / totalSunSetDuration
+        let duskOpacity = getOpacityDusk(curTime, sunSetDate, sunSetDuration)
+        //sepia += "sepia(" + duskOpacity * 100 * MAXDARKNESS + "%)"    //funkar sådär
+        //sepia += " saturate(" + duskOpacity * 100 * MAXDARKNESS + "%)" //funkar inte??
     }
     else if (curTime > startOfSunRise) { // större än 0.9
         unitDarkness = MAXDARKNESS + K * (curTime - startOfSunRise)
@@ -46,7 +50,7 @@ function setUnitDarkness(curTime, sunSetDate, sunSetDuration) {
     }
 
     //console.log(unitDarkness, curTime, "unitDarkness")
-    UNIT_DARKNESS = "brightness(" + unitDarkness * 100 + "%)"
+    UNIT_DARKNESS = "brightness(" + unitDarkness * 100 + "%)" + " " + sepia
 
 }
 

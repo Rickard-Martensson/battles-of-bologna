@@ -15,6 +15,7 @@ var IMAGE_DIRECTORY = [
     ["background_day", "./bilder/background_1_day.png"],
     ["background_dusk", "./bilder/background_1_dusk.png"],
     ["background_night", "./bilder/background_1_night.png"],
+    ["cloud_img", "./bilder/sprites/clouds.png"]
 ];
 
 class Animation {
@@ -150,7 +151,6 @@ const INVINCIBLE_DELAY = 200;
 const GRAVITY = 50;
 const START_TIME = Date.now();
 const HEIGHT = 100;
-const DRAW_NEAREST_NEIGHBOUR = true;
 const ROW_OFFSET = 1;
 
 const GAME_WIDTH = 320;
@@ -162,6 +162,7 @@ const MELE_RANGE_BUFFER = 0.1;
 const RANGE_RANDOMNESS = 0.5
 
 //===DAY NIGHT ===\\
+const MAXDARKNESS = 0.5
 const DUSK_TIME = 0.1
 const NIGHT_TIME = 0.55
 const CYCLE_TIME = 30
@@ -170,5 +171,12 @@ var UNIT_DARKNESS = 'brightness(100%)';
 var LAST_DRAWN_DARKNESS = 'brightness(100%)';
 const DEFAULT_DARKNESS = 'brightness(100%)';
 
+
+//=== clouds ===\\
+const CLOUD_RATE = 0.00125
+const CLOUD_SPEED = 0.05
+const CLOUD_HEIGHT = 35
+
 //===PERFORMACE===\\\
-const GRAPHICS_LEVEL = 0 //0 is fast, 2 is fancy
+const GRAPHICS_LEVEL = 3 //0 is fast, 3 is fancy
+const DRAW_NEAREST_NEIGHBOUR = true;
