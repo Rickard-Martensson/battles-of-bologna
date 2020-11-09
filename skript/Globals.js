@@ -1,4 +1,4 @@
-//==========================================================================================================================================================================================================================================================================================================================================================================
+//==========================================================================================================================================================================================================================================================================================================================================================================\\
 
 var IMAGE_DIRECTORY = [
     ["soldier_img", "./bilder/sprites/soldier2.png"],
@@ -21,44 +21,48 @@ var IMAGE_DIRECTORY = [
 
 const BASE_POS = [{ x: 20, y: 100 }, { x: 300, y: 100 }]
 const UI_POS = { gold: { x: 20, y: 20 }, goldPerTurn: { x: 20, y: 30 } }
-const BUTTON_SIZE = 30;
-const ICON_SIZE = 20;
-const SPRITE_SIZE = 80;
-const BUTTON_DELAY = 100;
-const NUMBER_OF_BUTTONS = 6;
-const INVINCIBLE_DELAY = 200;
-const GRAVITY = 50;
-const START_TIME = Date.now();
-const HEIGHT = 100;
-const ROW_OFFSET = 1;
+const BUTTON_SIZE = 30; //hur stora knapparna är
+const ICON_SIZE = 20;   //hur stora ikoner i knapparna
+const SPRITE_SIZE = 80; //vet ej
+const BUTTON_DELAY = 100;   //hur länge en knapp är 
+const NUMBER_OF_BUTTONS = 6;    //antal knappar
+const INVINCIBLE_DELAY = 200;   //hur länge en sprite är genomskinlig efter att ha blivit slagen
+const GRAVITY = 50; //projektiler
+var START_TIME = Date.now();  //när spelet startade
+const HEIGHT = 100; //vet ej
+const ROW_OFFSET = 1;   //hur många pixlar förskjuten en unit är i en ennan rad
 
-const GAME_WIDTH = 320;
+const GAME_WIDTH = 320; //hur brett spelet är
 
 //===Gameplay===\\
-const GOLD_INTERVAL = 15;
-const PERSONAL_SPACE = 1;
-const MELE_RANGE_BUFFER = 0.1;
-const RANGE_RANDOMNESS = 0.5
+const GOLD_INTERVAL = 15;   //hur ofta man får guld
+const PERSONAL_SPACE = 1;   //sprite.size + personal_space = avstånd mellan sprites
+const MELE_RANGE_BUFFER = 0.1;  //grej som fixar att endast en sprite attackerar åt gången
+const RANGE_RANDOMNESS = 0.5    //0.5 = arrows flyger mellan 100% & 150% av rangen.
 
 //===DAY NIGHT ===\\
-const MAXDARKNESS = 0.5
-const DUSK_TIME = 0.1
-const NIGHT_TIME = 0.55
-const CYCLE_TIME = 30
-const NIGHT_BRIGHTNESS = 1.0;
-var UNIT_DARKNESS = 'brightness(100%)';
-var LAST_DRAWN_DARKNESS = 'brightness(100%)';
-const DEFAULT_DARKNESS = 'brightness(100%)';
+const MAXDARKNESS = 0.5 //hur mörka sprites blir på natten. används endast i graphics_level 1+
+const DUSK_TIME = 0.1   //hur lång tid solen tar på sig att gå upp/ner 0-0.25. sätt inte till 0, utan 0.001
+const NIGHT_TIME = 0.55 //när det börjar bli natt
+const CYCLE_TIME = 30   //hur många sekunder ett dygn tar
+var UNIT_DARKNESS = 'brightness(100%)'; //när det är natt sätts den till 'brightness(50%)'
+var LAST_DRAWN_DARKNESS = 'brightness(100%)';   //här för optimering
+const DEFAULT_DARKNESS = 'brightness(100%)';    //kommer ej ihåg
+
+var DUSK_OPACITY = 0;   //används för moln, säger hur dusk-iga molnen ska va 
+var IS_NIGHT = false;   //används för moln, säger om det ska va dag eller nattmoln
 
 
 //=== clouds ===\\
-const CLOUD_RATE = 0.00125
-const CLOUD_SPEED = 0.05
-const CLOUD_HEIGHT = 35
+const CLOUD_RATE = 0.0025;  //hur ofta det kommer moln
+const CLOUD_SPEED = 0.125;   //hur snabba molnen är
+const CLOUD_HEIGHT = 35;    //hur långt ner molnen kan skapas
+const CLOUD_DIST_FACTOR = 4;      //clouds at y=CLOUD_HEIGHT are X bigger and X faster than those at y=0
 
 //===PERFORMACE===\\\
-const GRAPHICS_LEVEL = 0 //0 is fast, 3 is fancy
-const DRAW_NEAREST_NEIGHBOUR = true;
+const CLOUDS_ENABLED = true
+const GRAPHICS_LEVEL = 2 //0 is fast, 2 is fancy. 1 = shade sprites, 2 = shade projectiles & sprites.
+const DRAW_NEAREST_NEIGHBOUR = true; //blurry or pixly
 
 
 

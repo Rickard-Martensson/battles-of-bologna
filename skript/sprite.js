@@ -150,7 +150,7 @@ class Sprite {
         this.lastDmgdTime = Date.now()
     }
 
-    checkDead(index) {
+    checkDead(game, index) {
         if (this.hp <= 0) {
             index > -1 ? game.sprites.splice(index, 1) : false  //magic code that kicks sprite from sprite-array
         }

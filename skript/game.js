@@ -79,7 +79,7 @@ class Projectile {
     }
 
     checkHit(index) {
-        if (this.pos.y > HEIGHT - 25) {
+        if (this.pos.y > HEIGHT - 5) {
             for (var i in game.sprites) {
                 if (this.team != game.sprites[i].team) {
                     if (dist(this.pos, game.sprites[i].pos) < game.sprites[i].size) {
@@ -109,15 +109,16 @@ class Projectile {
     }
 
     draw() {
-        ctx.fillStyle = 'white';
-        if (DRAW_NEAREST_NEIGHBOUR) { ctx.imageSmoothingEnabled = false } // viktig
+        //if (DRAW_NEAREST_NEIGHBOUR) { ctx.imageSmoothingEnabled = false } // viktig
         var { dx, dy } = this.getVec();
-        for (var i = 0; i <= this.arrowLen; i++) {
+        let arrowLen = this.arrowLen
+        let size = this.size * S
+        for (var i = 0; i <= arrowLen; i++) {
             ctx.fillStyle = this.colors[i]
             ctx.fillRect((this.pos.x - dx * i * .5) * S,
                 (this.pos.y - dy * i * .5) * S,
-                this.size * S,
-                this.size * S
+                size,
+                size
             );
         }
     }
@@ -186,7 +187,8 @@ class Scenery {
         this.img = this.name + "_img"
         this.imageSize = 64;
         let images = 5
-        this.speed = CLOUD_SPEED * (1 + this.pos.y / CLOUD_HEIGHT);
+        this.distFactor = (1 + (CLOUD_DIST_FACTOR - 1) * this.pos.y / CLOUD_HEIGHT) / CLOUD_DIST_FACTOR;
+        this.speed = CLOUD_SPEED * this.distFactor;
         this.id = Math.floor(images * Math.random());
 
         this.DRAW_SIZE = 64
@@ -197,19 +199,38 @@ class Scenery {
         this.pos.x += this.speed;
     }
 
+    checkDead(game, key) {
+        if (this.pos.x > GAME_WIDTH + this.imageSize / 2) { game.scenery.splice(key, 1) };
+    }
+
     draw() {
         ctx.imageSmoothingEnabled = true
         ctx.drawImage(Images[this.img],
-            this.imageSize * 0,
+            this.imageSize * (IS_NIGHT * 2),
             this.imageSize * this.id,
             this.imageSize,
             this.imageSize,
 
             (this.pos.x - this.DRAW_SIZE / 2) * S,
             (this.pos.y - this.DRAW_SIZE / 2) * S,
-            this.DRAW_SIZE * S,
-            this.DRAW_SIZE * S
+            this.DRAW_SIZE * this.distFactor * S,
+            this.DRAW_SIZE * this.distFactor * S
         );
+        if (DUSK_OPACITY != 0) {
+            ctx.globalAlpha = DUSK_OPACITY
+            ctx.drawImage(Images[this.img],
+                this.imageSize * 1,
+                this.imageSize * this.id,
+                this.imageSize,
+                this.imageSize,
+
+                (this.pos.x - this.DRAW_SIZE / 2) * S,
+                (this.pos.y - this.DRAW_SIZE / 2) * S,
+                this.DRAW_SIZE * this.distFactor * S,
+                this.DRAW_SIZE * this.distFactor * S
+            );
+            ctx.globalAlpha = 1
+        }
 
     }
 }
@@ -255,10 +276,12 @@ class Game {
     // const CYCLE_TIME = 60
 
     tryMakeCloud() {
-        let randNum = Math.random()
-        if (randNum < CLOUD_RATE) {
-            let yPos = 0 + Math.random() * CLOUD_HEIGHT
-            this.scenery.push(new Scenery(-64, yPos, "cloud"));
+        if (CLOUDS_ENABLED) {
+            let randNum = Math.random()
+            if (randNum < CLOUD_RATE) {
+                let yPos = 5 + Math.random() * (CLOUD_HEIGHT - 5)
+                this.scenery.push(new Scenery(-32, yPos, "cloud"));
+            }
         }
     }
 
@@ -268,14 +291,17 @@ class Game {
         let curRatioTime = currentTime / totalCycleTime
         let sunSetOpacity = Math.max(getOpacityDusk(curRatioTime, NIGHT_TIME, DUSK_TIME), getOpacityDawn(curRatioTime, DUSK_TIME))
         background1.style.opacity = sunSetOpacity
+        DUSK_OPACITY = sunSetOpacity;
         // console.log("curRatioTime:", curRatioTime, sunSetOpacity)
         let unitDarkness = setUnitDarkness(curRatioTime, NIGHT_TIME, DUSK_TIME);
 
         if (curRatioTime > NIGHT_TIME) {
+            IS_NIGHT = 1;
             background2.classList.add("bg-night");
             background2.classList.remove("bg-day");
         }
         else {
+            IS_NIGHT = 0;
             background2.classList.remove("bg-night");
             background2.classList.add("bg-day");
         }
@@ -313,9 +339,10 @@ class Game {
         let self = this;
 
         window.setTimeout(function () {
+            START_TIME = Date.now()
             self.tick();
 
-        }, 1500)
+        }, 2000)
     }
 
     drawScenery() {
@@ -323,6 +350,7 @@ class Game {
             let prop = this.scenery[key];
             prop.move();
             prop.draw();
+            prop.checkDead(this, key);
         }
     }
 
@@ -359,7 +387,7 @@ class Game {
         this.drawScenery();
         if (GRAPHICS_LEVEL == 1) { ctx.filter = DEFAULT_DARKNESS; };
         this.drawProjectiles();
-        if (GRAPHICS_LEVEL == 2) { ctx.filter = DEFAULT_DARKNESS; };
+        if (GRAPHICS_LEVEL != 2) { ctx.filter = DEFAULT_DARKNESS; };
         if (DRAW_NEAREST_NEIGHBOUR) { ctx.imageSmoothingEnabled = true } // viktig
         this.drawButtons();
         this.drawUI(fps);
@@ -486,7 +514,7 @@ class Game {
             this.sprites[i].move()
             this.sprites[i].draw()
             this.sprites[i].checkIfAtEnemyCastle(this)
-            this.sprites[i].checkDead(i)
+            this.sprites[i].checkDead(game, i)
 
         }
         for (var key in this.buildings) {
