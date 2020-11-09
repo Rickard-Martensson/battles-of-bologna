@@ -191,7 +191,7 @@ class Scenery {
         this.speed = CLOUD_SPEED * this.distFactor;
         this.id = Math.floor(images * Math.random());
 
-        this.DRAW_SIZE = 64
+        this.DRAW_SIZE = 96
     }
 
 
@@ -216,8 +216,9 @@ class Scenery {
             this.DRAW_SIZE * this.distFactor * S,
             this.DRAW_SIZE * this.distFactor * S
         );
-        if (DUSK_OPACITY != 0) {
-            ctx.globalAlpha = DUSK_OPACITY
+        if (DUSK_OPACITY != 0 && DAY_NIGHT_ENABLED) {
+            ctx.globalAlpha = DUSK_OPACITY;
+            let drawSize = this.DRAW_SIZE * this.distFactor * S
             ctx.drawImage(Images[this.img],
                 this.imageSize * 1,
                 this.imageSize * this.id,
@@ -226,8 +227,8 @@ class Scenery {
 
                 (this.pos.x - this.DRAW_SIZE / 2) * S,
                 (this.pos.y - this.DRAW_SIZE / 2) * S,
-                this.DRAW_SIZE * this.distFactor * S,
-                this.DRAW_SIZE * this.distFactor * S
+                drawSize,
+                drawSize
             );
             ctx.globalAlpha = 1
         }
@@ -380,11 +381,11 @@ class Game {
         fpsCoefficient = 144 / fps;
 
         //draw stuff
-        this.changeBackground(Date.now() - this.startTime);
+        if (DAY_NIGHT_ENABLED) { this.changeBackground(Date.now() - this.startTime); };
         if (GRAPHICS_LEVEL != 0) { ctx.filter = UNIT_DARKNESS; };
         if (DRAW_NEAREST_NEIGHBOUR) { ctx.imageSmoothingEnabled = false } // viktig
         this.drawSprites();
-        this.drawScenery();
+        if (CLOUDS_ENABLED) { this.drawScenery(); };
         if (GRAPHICS_LEVEL == 1) { ctx.filter = DEFAULT_DARKNESS; };
         this.drawProjectiles();
         if (GRAPHICS_LEVEL != 2) { ctx.filter = DEFAULT_DARKNESS; };

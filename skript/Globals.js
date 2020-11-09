@@ -54,16 +54,16 @@ var IS_NIGHT = false;   //används för moln, säger om det ska va dag eller nat
 
 
 //=== clouds ===\\
-const CLOUD_RATE = 0.0025;  //hur ofta det kommer moln
+const CLOUD_RATE = 0.001;  //hur ofta det kommer moln
 const CLOUD_SPEED = 0.125;   //hur snabba molnen är
 const CLOUD_HEIGHT = 35;    //hur långt ner molnen kan skapas
 const CLOUD_DIST_FACTOR = 4;      //clouds at y=CLOUD_HEIGHT are X bigger and X faster than those at y=0
 
 //===PERFORMACE===\\\
-const CLOUDS_ENABLED = true
-const GRAPHICS_LEVEL = 2 //0 is fast, 2 is fancy. 1 = shade sprites, 2 = shade projectiles & sprites.
+const CLOUDS_ENABLED = false
+const GRAPHICS_LEVEL = 0 //0 is fast, 2 is fancy. 1 = shade sprites, 2 = shade projectiles & sprites.
 const DRAW_NEAREST_NEIGHBOUR = true; //blurry or pixly
-
+const DAY_NIGHT_ENABLED = false; //guess
 
 
 class Animation {
