@@ -1,55 +1,55 @@
-class Building {
-    constructor(x, y, name, team) {
-        this.pos = { x: x, y: y };
-        this.name = name;
-        this.team = team
-        this.imageSize = 40;
-        this.img = this.name + "_img"
-        if (this.team == 0) {
-            this.img += "_blue"
-        };
-        this.DRAW_SIZE = 48;
-    }
+// class Building {
+//     constructor(x, y, name, team) {
+//         this.pos = { x: x, y: y };
+//         this.name = name;
+//         this.team = team
+//         this.imageSize = 40;
+//         this.img = this.name + "_img"
+//         if (this.team == 0) {
+//             this.img += "_blue"
+//         };
+//         this.DRAW_SIZE = 48;
+//     }
 
-    draw() {
-        //console.log(this.name)
-        //console.log(frame)
+//     draw() {
+//         //console.log(this.name)
+//         //console.log(frame)
 
-        if (DRAW_NEAREST_NEIGHBOUR) { ctx.imageSmoothingEnabled = false } // viktig
+//         if (DRAW_NEAREST_NEIGHBOUR) { ctx.imageSmoothingEnabled = false } // viktig
 
-        // ctx.drawImage(Images["soldier"],
-        //     this.imageSize,
-        //     this.imageSize,
-        //     this.imageSize,
-        //     this.imageSize,
+//         // ctx.drawImage(Images["soldier"],
+//         //     this.imageSize,
+//         //     this.imageSize,
+//         //     this.imageSize,
+//         //     this.imageSize,
 
-        //     (this.pos.x - this.DRAW_SIZE / 2) * S,
-        //     (this.pos.y - this.DRAW_SIZE / 2) * S,
-        //     this.DRAW_SIZE * S,
-        //     this.DRAW_SIZE * S
-        // );
-        // ctx.globalAlpha = 1;
-        console.log
+//         //     (this.pos.x - this.DRAW_SIZE / 2) * S,
+//         //     (this.pos.y - this.DRAW_SIZE / 2) * S,
+//         //     this.DRAW_SIZE * S,
+//         //     this.DRAW_SIZE * S
+//         // );
+//         // ctx.globalAlpha = 1;
+//         console.log
 
-        ctx.drawImage(Images[this.img],
-            0,
-            0,
-            this.imageSize,
-            this.imageSize,
-            this.pos.x * S,
-            (this.pos.y - 20) * S,
-            48 * S,
-            48 * S
+//         ctx.drawImage(Images[this.img],
+//             0,
+//             0,
+//             this.imageSize,
+//             this.imageSize,
+//             this.pos.x * S,
+//             (this.pos.y - 20) * S,
+//             48 * S,
+//             48 * S
 
-            // (this.pos.x - this.DRAW_SIZE / 2) * S,
-            // (this.pos.y - this.DRAW_SIZE / 2) * S,
-            // this.DRAW_SIZE * S,
-            // this.DRAW_SIZE * S
-        );
-        ctx.globalAlpha = 1;
+//             // (this.pos.x - this.DRAW_SIZE / 2) * S,
+//             // (this.pos.y - this.DRAW_SIZE / 2) * S,
+//             // this.DRAW_SIZE * S,
+//             // this.DRAW_SIZE * S
+//         );
+//         ctx.globalAlpha = 1;
 
-    }
-}
+//     }
+// }
 
 
 class Sprite {
@@ -57,11 +57,11 @@ class Sprite {
         this.pos = { x: x, y: y };
         this.name = name
         this.imageName = this.name;
-        this.animations = {
-            idle: new Animation(32, 0, 8, 60, true),
-            walk: new Animation(32, 1, 8, 20, true),
-            attack: new Animation(32, 2, 7, 20, false),
-        };
+        // this.animations = {
+        //     idle: new Animation(32, 0, 8, 60, true),
+        //     walk: new Animation(32, 1, 8, 20, true),
+        //     attack: new Animation(32, 2, 7, 20, false),
+        // };
         this.frameDelay = 20;    //how many ms left until next frame
         this.currentFrame = 0;
 
@@ -81,8 +81,9 @@ class Sprite {
             this.size = STATS[this.name].size;
             this.cost = STATS[this.name].cost;
             this.row = STATS[this.name].row;
+            this.animations = STATS[this.name].animations;
 
-            this.abilities = new Set(UNIQE[this.name]);
+            this.abilities = new Set(UNIQE[this.name])
         }
         else { console.log("unknown sprite") };
         if (this.team == 0) {
@@ -131,7 +132,10 @@ class Sprite {
         if (timeSinceStartOfAtk > this.atkDelay && this.lastStartOfAtkCycleDate !== null) { // atks if its enough time since atkstart
             //console.log("attack 2")
             if (this.range > 0) {
-                game.shootProjectile(this.pos.x, this.pos.y - 5, 30 * this.direction, -40, this.team, this.dmg);
+                game.shootProjectile(this.pos.x, this.pos.y - 5,
+                    (this.range * (1 + RANGE_RANDOMNESS * Math.random())) * 10 * this.direction,
+                    (this.range * (1 + RANGE_RANDOMNESS * Math.random())) * -12.5,
+                    this.team, this.dmg);
             }
             else {
                 victim.takeDmg(this.dmg)
@@ -178,6 +182,7 @@ class Sprite {
             state = "idle"
         }
         if (state == "walk") {
+            this.lastStartOfAtkCycleDate = null;
             this.currentSpeed = this.speed
             this.state = "walk"
             this.currentAnimation = "walk"
@@ -203,8 +208,8 @@ class Sprite {
         let hitSpherePos = this.pos.x + (this.meleRange * this.direction / 2);
         let nextFriend = game.distToNextSprite2(this, this.team)
         let nextEnemy = game.distToNextSprite2(this, this.getOtherTeam())
-        if (nextFriend.len < nextEnemy.len) {
-            if (nextFriend.len < this.meleRange + PERSONAL_SPACE && this.row == nextFriend.sprite.row) {
+        if (nextFriend.len < nextEnemy.len && this.row == 0) {
+            if (nextFriend.len < this.meleRange + PERSONAL_SPACE && nextFriend.sprite.row == 0) {
                 //eventuellt gör en attack här ifall spriten är ranged. Ja det kommer här:
                 if (nextFriend.len < this.meleRange) {
                     //this.currentSpeed = 0
@@ -276,6 +281,7 @@ class Sprite {
     }
 
     draw() {
+        let fiddledWithAlpha = false
         //console.log(this.name)
         let frame = this.getFrame()
         let animation = this.animations[this.currentAnimation].getRow()
@@ -285,8 +291,8 @@ class Sprite {
 
         if (Date.now() - this.lastDmgdTime < INVINCIBLE_DELAY) {
             ctx.globalAlpha = 0.6;
+            fiddledWithAlpha = true;
         }
-        ctx.filter = UNITDARKNESS;
         ctx.drawImage(Images[this.img],
             this.imageSize * frame,
             this.imageSize * animation,
@@ -298,8 +304,7 @@ class Sprite {
             this.DRAW_SIZE * S,
             this.DRAW_SIZE * S
         );
-        ctx.filter = 'brightness(100%)';
-        ctx.globalAlpha = 1;
+        if (fiddledWithAlpha) { ctx.globalAlpha = 1; }
 
     }
 }

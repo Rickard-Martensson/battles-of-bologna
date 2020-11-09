@@ -46,10 +46,13 @@ function setUnitDarkness(curTime, sunSetDate, sunSetDuration) {
     }
 
     //console.log(unitDarkness, curTime, "unitDarkness")
-    UNITDARKNESS = "brightness(" + unitDarkness * 100 + "%)"
+    UNIT_DARKNESS = "brightness(" + unitDarkness * 100 + "%)"
 
 }
 
+//herregud dehär är ju fantastiskt
+//precis sånthär som jag hade i åtanke
+//säg till när du har tid o prata!
 
 class Engine {
     constructor() {

@@ -25,7 +25,7 @@ window.onload = function () {
     resizeTitleScreen();
     resizeBackgrounds();
 
-    window.onresize = function () { resizeCanvas(); resizeTitleScreen(); };
+    window.onresize = function () { resizeCanvas(); resizeTitleScreen(); resizeBackgrounds(); };
     loadImages();
     loadStats();
 

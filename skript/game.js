@@ -1,35 +1,60 @@
 const bild = document.getElementById('');
 
-class Animation {
-    constructor(size, row, frames, frameRate, isALoop) {
-        this.size = size;
-        this.row = row;
-        this.frames = frames;
-        this.frameRate = frameRate;
-        this.isALoop = isALoop;
+// class Animation {
+//     //size of each square, how many rows down in spritesheet, number of frames, frameRate, isAloop(false on atk animations)
+//     constructor(size, row, frames, frameRate, isALoop) {
+//         this.size = size;
+//         this.row = row;
+//         this.frames = frames;
+//         this.frameRate = frameRate;
+//         this.isALoop = isALoop;
+//     }
+
+//     getFrameCount() {
+//         return this.frames;
+//     }
+
+//     getFrameRate() {
+//         return this.frameRate;
+//     }
+
+//     getRow() {
+//         return this.row;
+//     }
+
+//     getIfLoop() {
+//         return this.isALoop;
+//     }
+// }
+
+class Building {
+    constructor(x, y, img, team) {
+        this.pos = { x: x, y: y };
+        this.img = img + "_img"
+        this.team = team;
+        this.imageSize = 64;
+        this.lvl = 3
+        if (this.team == 0) { this.img += "_blue" };
+
+        this.DRAW_SIZE = 64;
     }
 
-    getFrameCount() {
-        return this.frames;
+    upgradeBuildingLevel() {
+        this.lvl += 1
     }
 
-    getFrameRate() {
-        return this.frameRate;
-    }
+    draw() {
+        ctx.drawImage(Images[this.img],
+            this.imageSize * 0,
+            this.imageSize * this.lvl,
+            this.imageSize,
+            this.imageSize,
 
-    getRow() {
-        return this.row;
-    }
-
-    getIfLoop() {
-        return this.isALoop;
-    }
-}
-
-
-class Bakrund {
-    constructor(time) {
-        this.time;
+            (this.pos.x - this.DRAW_SIZE / 2) * S,
+            (this.pos.y - this.DRAW_SIZE / 2) * S,
+            this.DRAW_SIZE * S,
+            this.DRAW_SIZE * S
+        );
     }
 }
 
@@ -37,11 +62,12 @@ class Projectile {
     constructor(x, y, vx, vy, team, dmg) {
         this.pos = { x: x, y: y };
         this.vel = { x: vx, y: vy };
-        this.len = 6
+        this.arrowLen = 7
         this.size = 0.6
         this.team = team
         this.dead = false;
         this.dmg = dmg
+        this.colors = ['#DDDDDD', '#6F2B1F', '#8B3F2B', '#8B3F2B', '#8B3F2B', '#8B3F2B', '#FFFFFF']
     }
 
     move() {
@@ -85,9 +111,9 @@ class Projectile {
     draw() {
         ctx.fillStyle = 'white';
         if (DRAW_NEAREST_NEIGHBOUR) { ctx.imageSmoothingEnabled = false } // viktig
-        // ctx.fillRect(this.pos.x, this.pos.y, 1 * S, 1 * S);
         var { dx, dy } = this.getVec();
-        for (var i = 0; i <= this.len; i++) {
+        for (var i = 0; i <= this.arrowLen; i++) {
+            ctx.fillStyle = this.colors[i]
             ctx.fillRect((this.pos.x - dx * i * .5) * S,
                 (this.pos.y - dy * i * .5) * S,
                 this.size * S,
@@ -100,7 +126,7 @@ class Projectile {
 class Player {
     constructor(name) {
         this.name = name
-        this.gold = 50;
+        this.gold = 150;
         this.goldPerTurn = 30;
         this.team = 0; //0 = blue
         this.currentFolder = 0;
@@ -170,8 +196,8 @@ class Game {
             //new Projectile(80, 100, 20, -40),
         ]
         this.buildings = [
-            new Building(-20, 90, "castle", 0),
-            new Building(292, 90, "castle", 1),
+            new Building(32, 60, "castle", 0),
+            new Building(288, 60, "castle", 1),
         ]
         this.killStatus = undefined;
         this.activeButtons = {};
@@ -272,10 +298,13 @@ class Game {
 
         //draw stuff
         this.changeBackground(Date.now() - this.startTime);
-        this.drawSprites()
+        if (GRAPHICS_LEVEL != 0) { ctx.filter = UNIT_DARKNESS; };
+        this.drawSprites();
+        if (GRAPHICS_LEVEL == 1) { ctx.filter = DEFAULT_DARKNESS; };
+        this.drawProjectiles();
+        if (GRAPHICS_LEVEL == 2) { ctx.filter = DEFAULT_DARKNESS; };
         this.drawButtons();
         this.drawUI(fps);
-        this.drawProjectiles();
         this.giveGold();
 
 
@@ -403,7 +432,7 @@ class Game {
         }
         for (var key in this.buildings) {
             let building = this.buildings[key];
-            //building.draw()
+            building.draw()
         }
 
 
@@ -472,7 +501,7 @@ class Game {
 
     checkMouseWithinButton() {
         for (const [index, item] of BUTTON_LAYOUT.entries()) {
-            if (Math.abs(item.x * S - this.mousePos.x) < BUTTON_SIZE && Math.abs(item.y * S - this.mousePos.y) < BUTTON_SIZE) {
+            if (Math.abs(item.x * S - this.mousePos.x) < (BUTTON_SIZE * S) / 2 && Math.abs(item.y * S - this.mousePos.y) < (BUTTON_SIZE * S) / 2) {
                 return index;
             }
         }
@@ -494,6 +523,11 @@ class Game {
             let btnAction = BTN_FOLDER[curFolder][mod_id].action
             let btnText = BTN_FOLDER[curFolder][mod_id].txt
             let btnImg = BTN_FOLDER[curFolder][mod_id].img
+            let btnSubText = BTN_FOLDER[curFolder][mod_id].subText;
+
+            if (btnSubText === undefined) { btnSubText = "" };
+
+            if (team == 0 && btnImg != null) { btnImg += "_blue" }
 
 
             if (this.checkMouseWithinButton() == index) {
@@ -526,17 +560,21 @@ class Game {
                     32,
                     32,
                     (item.x - ICON_SIZE / 2) * S,
-                    (item.y + 5 - ICON_SIZE / 2) * S,
+                    (item.y + 1 - ICON_SIZE / 2) * S,
                     ICON_SIZE * S,
                     ICON_SIZE * S
                 );
 
                 ctx.textAlign = "center";
                 ctx.fillStyle = "#ffffff";
-                ctx.font = 3 * S + "px 'Press Start 2P'";
+                ctx.font = 2.5 * S + "px 'Press Start 2P'";
                 ctx.fillText(btnText,
                     (item.x) * S,
-                    (item.y - 5) * S,
+                    (item.y - 7) * S,
+                );
+                ctx.fillText(btnSubText,
+                    (item.x) * S,
+                    (item.y + 12) * S,
                 );
             }
 
