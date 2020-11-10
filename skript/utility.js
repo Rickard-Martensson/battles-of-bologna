@@ -17,6 +17,17 @@ function getOpacityDawn(curTime, sunRiseDuration) {
     return (Math.max(0, Math.abs((halfDayLen - curTime) / sunRiseDuration) - (halfDayLen - sunRiseDuration) / sunRiseDuration))
 }
 
+function getShadedColorCode(red, green, blue) {
+    red = Math.floor(red * UNIT_DARKNESS_NUMBER);
+    green = Math.floor(green * UNIT_DARKNESS_NUMBER);
+    blue = Math.floor(blue * UNIT_DARKNESS_NUMBER);
+    return ('rgb(' + red + ', ' + green + ', ' + blue + ')');
+}
+
+function getColorCode(red, green, blue) {
+    return ('rgb(' + red + ', ' + green + ', ' + blue + ')');
+}
+
 
 
 
@@ -47,6 +58,7 @@ function setUnitDarkness(curTime, sunSetDate, sunSetDuration) {
 
     //console.log(unitDarkness, curTime, "unitDarkness")
     UNIT_DARKNESS = "brightness(" + unitDarkness * 100 + "%)" + " " //+ sepia
+    UNIT_DARKNESS_NUMBER = unitDarkness
 
 }
 

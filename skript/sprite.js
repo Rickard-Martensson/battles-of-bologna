@@ -1,57 +1,3 @@
-// class Building {
-//     constructor(x, y, name, team) {
-//         this.pos = { x: x, y: y };
-//         this.name = name;
-//         this.team = team
-//         this.imageSize = 40;
-//         this.img = this.name + "_img"
-//         if (this.team == 0) {
-//             this.img += "_blue"
-//         };
-//         this.DRAW_SIZE = 48;
-//     }
-
-//     draw() {
-//         //console.log(this.name)
-//         //console.log(frame)
-
-//         if (DRAW_NEAREST_NEIGHBOUR) { ctx.imageSmoothingEnabled = false } // viktig
-
-//         // ctx.drawImage(Images["soldier"],
-//         //     this.imageSize,
-//         //     this.imageSize,
-//         //     this.imageSize,
-//         //     this.imageSize,
-
-//         //     (this.pos.x - this.DRAW_SIZE / 2) * S,
-//         //     (this.pos.y - this.DRAW_SIZE / 2) * S,
-//         //     this.DRAW_SIZE * S,
-//         //     this.DRAW_SIZE * S
-//         // );
-//         // ctx.globalAlpha = 1;
-//         console.log
-
-//         ctx.drawImage(Images[this.img],
-//             0,
-//             0,
-//             this.imageSize,
-//             this.imageSize,
-//             this.pos.x * S,
-//             (this.pos.y - 20) * S,
-//             48 * S,
-//             48 * S
-
-//             // (this.pos.x - this.DRAW_SIZE / 2) * S,
-//             // (this.pos.y - this.DRAW_SIZE / 2) * S,
-//             // this.DRAW_SIZE * S,
-//             // this.DRAW_SIZE * S
-//         );
-//         ctx.globalAlpha = 1;
-
-//     }
-// }
-
-
 class Sprite {
     constructor(x, y, name, animations, team) {
         this.pos = { x: x, y: y };
@@ -94,9 +40,11 @@ class Sprite {
             this.direction = -1
         }
 
-        this.currentAnimation = "walk";
+        this.currentAnimation = "idle";
         this.currentSpeed = this.speed
         this.state = "idle"
+
+        this.isWalking = false //helps to make atk anim better
 
         this.DRAW_SIZE = 24;
         this.FRAME_RATE = 20;
@@ -117,6 +65,10 @@ class Sprite {
 
     attack(victim) {
         this.currentSpeed = 0;
+        if (this.isWalking) {
+            this.isWalking = false;
+            this.currentAnimation = "idle"
+        }
         this.setState("attack", -1, "attacking");
 
         let timeSinceLastAttackCycle = Date.now() - this.lastAtkCycleDate;
@@ -176,23 +128,30 @@ class Sprite {
         return -1;
     }
 
-    setState(state, speed, txt) {
-        //if (this.name == "archer") { console.log(state, txt) }
-        if (speed == 0 && state == "walk") {
-            state = "idle"
+    setState(newState, speed, txt) {
+        //if (this.name == "archer") { console.log(newState, txt) }
+        if (speed == 0 && newState == "walk") {
+            newState = "idle";
         }
-        if (state == "walk") {
+        if (newState == "walk") {
+            this.isWalking = true;
             this.lastStartOfAtkCycleDate = null;
             this.currentSpeed = this.speed
             this.state = "walk"
             this.currentAnimation = "walk"
         }
-        else if (state == "idle") {
-            this.currentSpeed = 0
-            this.state = "idle"
-            this.currentAnimation = "idle"
+        else if (newState == "idle") {
+            if (this.range != 0) {
+                this.attack(self);
+                this.setState("attack", -1);
+            }
+            else {
+                this.currentSpeed = 0
+                this.state = "idle"
+                this.currentAnimation = "idle"
+            }
         }
-        else if (state == "attack") {
+        else if (newState == "attack") {
             this.state = "attack"
         }
         else {
@@ -201,25 +160,16 @@ class Sprite {
         if (speed != -1) {
             this.currentSpeed = speed
         }
-
     }
 
     canMove(game) {
-        let hitSpherePos = this.pos.x + (this.meleRange * this.direction / 2);
-        let nextFriend = game.distToNextSprite2(this, this.team)
-        let nextEnemy = game.distToNextSprite2(this, this.getOtherTeam())
+        let nextFriend = game.distToNextSprite(this, this.team)
+        let nextEnemy = game.distToNextSprite(this, this.getOtherTeam())
         if (nextFriend.len < nextEnemy.len && this.row == 0) {
             if (nextFriend.len < this.meleRange + PERSONAL_SPACE && nextFriend.sprite.row == 0) {
                 //eventuellt gör en attack här ifall spriten är ranged. Ja det kommer här:
                 if (nextFriend.len < this.meleRange) {
-                    //this.currentSpeed = 0
-                    if (this.range != 0) {
-                        this.attack(self)
-                        this.setState("attack", -1, "ranged stutterstep")
-                    }
-                    else {
-                        this.setState("idle", -1, "")
-                    }
+                    this.setState("idle", -1);
                 }
                 else {
                     this.setState("walk", Math.min(nextFriend.sprite.currentSpeed, this.speed), "stalk")
@@ -244,18 +194,7 @@ class Sprite {
                 this.setState("walk", -1, "movetopos")
             }
         }
-
-
-
     }
-
-
-
-
-
-
-
-
 
 
     getFrame() {

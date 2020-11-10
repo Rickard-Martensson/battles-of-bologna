@@ -49,34 +49,31 @@ function getBackgrounds() {
     background1 = document.getElementById("bg1");
 }
 
-
-
-function resizeBackgrounds() {
+function getAspectRatio() {
     var screenHeight = window.innerHeight;
     var screenWidth = window.innerWidth;
 
-    if (screenHeight / aspectRatio.height * aspectRatio.width < screenWidth) {
-        background1.style.width = screenHeight / aspectRatio.height * aspectRatio.width + "px";
-        background1.style.height = screenHeight + "px";
-        document.body.style.fontSize = screenHeight / 45 + "px";
-    }
-    else {
-        background1.style.width = screenWidth + "px";
-        background1.style.height = screenWidth / aspectRatio.width * aspectRatio.height + "px";
-        document.body.style.fontSize = screenWidth / 80 + "px";
-    }
+    let width = 0;
+    let height = 0;
 
     if (screenHeight / aspectRatio.height * aspectRatio.width < screenWidth) {
-        background2.style.width = screenHeight / aspectRatio.height * aspectRatio.width + "px";
-        background2.style.height = screenHeight + "px";
-        document.body.style.fontSize = screenHeight / 45 + "px";
+        width = (screenHeight / aspectRatio.height * aspectRatio.width) * SCREEN_SIZE + "px";
+        height = screenHeight * SCREEN_SIZE + "px";
+        document.body.style.fontSize = SCREEN_SIZE * screenHeight / 45 + "px";
     }
     else {
-        background2.style.width = screenWidth + "px";
-        background2.style.height = screenWidth / aspectRatio.width * aspectRatio.height + "px";
-        document.body.style.fontSize = screenWidth / 80 + "px";
+        width = screenWidth * SCREEN_SIZE + "px";
+        height = (screenWidth / aspectRatio.width * aspectRatio.height) * SCREEN_SIZE + "px";
+        document.body.style.fontSize = SCREEN_SIZE * screenWidth / 80 + "px";
     }
+
+    return { height: height, width: width };
 }
+
+
+const SCREEN_SIZE = 1
+
+
 
 
 
@@ -87,33 +84,34 @@ function resizeCanvas() {
     var uiSize = 0
 
     if (screenHeight / aspectRatio.height * aspectRatio.width < screenWidth) {
-        canvas.width = screenHeight / aspectRatio.height * aspectRatio.width
-        canvas.height = screenHeight * (1 - uiSize)
+        canvas.width = (screenHeight / aspectRatio.height * aspectRatio.width) * SCREEN_SIZE
+        canvas.height = (screenHeight * (1 - uiSize)) * SCREEN_SIZE
     }
     else {
-        canvas.width = screenWidth
-        canvas.height = screenWidth / aspectRatio.width * aspectRatio.height * (1 - uiSize)
+        canvas.width = screenWidth * SCREEN_SIZE
+        canvas.height = (screenWidth / aspectRatio.width * aspectRatio.height * (1 - uiSize)) * SCREEN_SIZE
     }
 
-    S = canvas.width / 320;
+    S = (canvas.width / 320);
 }
 
 function resizeTitleScreen() {
     titleScreen = document.getElementById("titleScreen");
+    let { height, width } = getAspectRatio();
+    titleScreen.style.width = width
+    titleScreen.style.height = height
+
+}
+
+function resizeBackgrounds() {
     var screenHeight = window.innerHeight;
     var screenWidth = window.innerWidth;
 
-    if (screenHeight / aspectRatio.height * aspectRatio.width < screenWidth) {
-        titleScreen.style.width = screenHeight / aspectRatio.height * aspectRatio.width + "px";
-        titleScreen.style.height = screenHeight + "px";
-        document.body.style.fontSize = screenHeight / 45 + "px";
-    }
-    else {
-        titleScreen.style.width = screenWidth + "px";
-        titleScreen.style.height = screenWidth / aspectRatio.width * aspectRatio.height + "px";
-        document.body.style.fontSize = screenWidth / 80 + "px";
-    }
-
+    let { height, width } = getAspectRatio();
+    background1.style.height = height
+    background1.style.width = width
+    background2.style.height = height
+    background2.style.width = width
 }
 
 function showTitleScreen() {

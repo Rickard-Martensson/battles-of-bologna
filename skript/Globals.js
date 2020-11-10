@@ -45,6 +45,7 @@ const MAXDARKNESS = 0.5 //hur mörka sprites blir på natten. används endast i 
 const DUSK_TIME = 0.1   //hur lång tid solen tar på sig att gå upp/ner 0-0.25. sätt inte till 0, utan 0.001
 const NIGHT_TIME = 0.55 //när det börjar bli natt
 const CYCLE_TIME = 30   //hur många sekunder ett dygn tar
+var UNIT_DARKNESS_NUMBER = 1; //samm sak som under, fast som ett tal
 var UNIT_DARKNESS = 'brightness(100%)'; //när det är natt sätts den till 'brightness(50%)'
 var LAST_DRAWN_DARKNESS = 'brightness(100%)';   //här för optimering
 const DEFAULT_DARKNESS = 'brightness(100%)';    //kommer ej ihåg
@@ -54,16 +55,19 @@ var IS_NIGHT = false;   //används för moln, säger om det ska va dag eller nat
 
 
 //=== clouds ===\\
-const CLOUD_RATE = 0.001;  //hur ofta det kommer moln
+const CLOUD_RATE = 0.00175;  //hur ofta det kommer moln
 const CLOUD_SPEED = 0.125;   //hur snabba molnen är
-const CLOUD_HEIGHT = 35;    //hur långt ner molnen kan skapas
-const CLOUD_DIST_FACTOR = 4;      //clouds at y=CLOUD_HEIGHT are X bigger and X faster than those at y=0
+const CLOUD_MIN_HEIGHT = 20;
+const CLOUD_MAX_HEIGHT = 40;    //hur långt ner molnen kan skapas
+const CLOUD_DIST_FACTOR = 5;      //clouds at y=CLOUD_HEIGHT are X bigger and X faster than those at y=0
+const CLOUD_MAX_COUNT = 4; // make an educated guess
 
 //===PERFORMACE===\\\
-const CLOUDS_ENABLED = false
+const CLOUDS_ENABLED = true
 const GRAPHICS_LEVEL = 0 //0 is fast, 2 is fancy. 1 = shade sprites, 2 = shade projectiles & sprites.
 const DRAW_NEAREST_NEIGHBOUR = true; //blurry or pixly
-const DAY_NIGHT_ENABLED = false; //guess
+const DAY_NIGHT_ENABLED = true; //guess
+const ARROW_GRAPHICS_LEVEL = 0; //0 for only white lines, 1 for texure, 2 for texture shaded by day/night
 
 
 class Animation {
@@ -110,6 +114,7 @@ const STATS = {
 
 const UNIQE = {
     knight: ["coolShoes", "changeRow"],
+    archer: ["targetfire"],
 }
 
 

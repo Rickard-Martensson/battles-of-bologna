@@ -62,12 +62,15 @@ class Projectile {
     constructor(x, y, vx, vy, team, dmg) {
         this.pos = { x: x, y: y };
         this.vel = { x: vx, y: vy };
-        this.arrowLen = 7
-        this.size = 0.6
-        this.team = team
+        this.arrowLen = [0.6, 3, 1];
+        this.arrowColors2 = ['#DDDDDD', '#8B3F2B', '#FFFFFF'];
+        this.arrowColors = [{ r: 221, g: 221, b: 221 }, { r: 129, g: 63, b: 43 }, { r: 255, g: 255, b: 255 }]
+        this.size = .6;
+        this.team = team;
         this.dead = false;
-        this.dmg = dmg
-        this.colors = ['#DDDDDD', '#6F2B1F', '#8B3F2B', '#8B3F2B', '#8B3F2B', '#8B3F2B', '#FFFFFF']
+        this.dmg = dmg;
+        // this.colors = ['#DDDDDD', '#6F2B1F', '#8B3F2B', '#8B3F2B', '#8B3F2B', '#8B3F2B', '#FFFFFF']
+        this.colors = ['#DDDDDD', '#6F2B1F', '#8B3F2B', '#8B3F2B', '#FFFFFF'];
     }
 
     move() {
@@ -109,14 +112,81 @@ class Projectile {
     }
 
     draw() {
+        let lastPos = { x: this.pos.x, y: this.pos.y }
+        let { dx, dy } = this.getVec();
+        ctx.lineWidth = this.size * S;
+        if (ARROW_GRAPHICS_LEVEL != 0) {
+            for (var i = 0; i < this.arrowLen.length; i++) {
+                ctx.beginPath();
+                if (ARROW_GRAPHICS_LEVEL > 1) { ctx.strokeStyle = getShadedColorCode(this.arrowColors[i].r, this.arrowColors[i].g, this.arrowColors[i].b) }
+                else { ctx.strokeStyle = getColorCode(this.arrowColors[i].r, this.arrowColors[i].g, this.arrowColors[i].b) };
+                // ctx.strokeStyle = this.arrowColors2[i]
+                ctx.moveTo(lastPos.x * S, lastPos.y * S);
+                let endPos = {
+                    x: lastPos.x - dx * this.arrowLen[i], y: lastPos.y - dy * this.arrowLen[i]
+                };
+                ctx.lineTo(endPos.x * S, endPos.y * S);
+                lastPos = { x: endPos.x, y: endPos.y };
+                ctx.stroke();
+            }
+        }
+        else {
+            let totArrowLen = this.arrowLen.reduce((a, b) => a + b, 0)
+            ctx.beginPath();
+            ctx.strokeStyle = "white";
+            ctx.moveTo(lastPos.x * S, lastPos.y * S);
+            let endPos = { x: lastPos.x - dx * totArrowLen, y: lastPos.y - dy * totArrowLen };
+            ctx.lineTo(endPos.x * S, endPos.y * S);
+            ctx.stroke();
+        }
+
+    }
+
+    draw2() {
+        ctx.beginPath();
+        ctx.lineWidth = "1";
+        ctx.strokeStyle = "#DDDDDD";
+        var { dx, dy } = this.getVec();
+        //console.log(dx, dy)
+        ctx.moveTo(this.pos.x * S, this.pos.y * S);
+        ctx.lineTo(
+            (this.pos.x + 1 * dx) * S,
+            (this.pos.y + 1 * dy) * S
+        );
+        ctx.strokeStyle = "#8B3F2B";
+        ctx.lineTo(
+            (this.pos.x + 4 * dx) * S,
+            (this.pos.y + 4 * dy) * S
+        );
+        ctx.lineTo(
+            (this.pos.x + 7 * dx) * S,
+            (this.pos.y + 7 * dy) * S
+        );
+        ctx.stroke();
+    }
+
+    draw3() {
+        ctx.beginPath();
+        ctx.lineWidth = "5";
+        ctx.strokeStyle = "green";
+        var { dx, dy } = this.getVec();
+        ctx.moveTo(this.pos.x, this.pos.y);
+        ctx.lineTo(this.pos.x + dx * this.len, 75 + dy * this.len);
+        ctx.stroke();
+    }
+
+    // A LOT SLOWER
+    draw4() {
         //if (DRAW_NEAREST_NEIGHBOUR) { ctx.imageSmoothingEnabled = false } // viktig
         var { dx, dy } = this.getVec();
         let arrowLen = this.arrowLen
         let size = this.size * S
+        let dY = dy * this.size
+        let dX = dx * this.size
         for (var i = 0; i <= arrowLen; i++) {
             ctx.fillStyle = this.colors[i]
-            ctx.fillRect((this.pos.x - dx * i * .5) * S,
-                (this.pos.y - dy * i * .5) * S,
+            ctx.fillRect((this.pos.x - dX * i) * S,
+                (this.pos.y - dY * i) * S,
                 size,
                 size
             );
@@ -186,12 +256,12 @@ class Scenery {
         this.name = name
         this.img = this.name + "_img"
         this.imageSize = 64;
-        let images = 5
-        this.distFactor = (1 + (CLOUD_DIST_FACTOR - 1) * this.pos.y / CLOUD_HEIGHT) / CLOUD_DIST_FACTOR;
+        let images = 8
+        this.distFactor = (1 + (CLOUD_DIST_FACTOR - 1) * this.pos.y / CLOUD_MAX_HEIGHT) / CLOUD_DIST_FACTOR;
         this.speed = CLOUD_SPEED * this.distFactor;
         this.id = Math.floor(images * Math.random());
 
-        this.DRAW_SIZE = 96
+        this.DRAW_SIZE = 64
     }
 
 
@@ -200,7 +270,7 @@ class Scenery {
     }
 
     checkDead(game, key) {
-        if (this.pos.x > GAME_WIDTH + this.imageSize / 2) { game.scenery.splice(key, 1) };
+        if (this.pos.x > GAME_WIDTH + this.imageSize / 2) { game.scenery.splice(key, 1); game.sceneryCount--; };
     }
 
     draw() {
@@ -256,9 +326,10 @@ class Game {
             new Building(32, 60, "castle", 0),
             new Building(288, 60, "castle", 1),
         ]
+        this.sceneryCount = 0;
         this.scenery = [
-            new Scenery(0, 40, "cloud"),
-            new Scenery(50, 0, "cloud"),
+            // new Scenery(0, 40, "cloud"),
+            // new Scenery(50, 0, "cloud"),
         ]
         this.killStatus = undefined;
         this.activeButtons = {};
@@ -277,12 +348,11 @@ class Game {
     // const CYCLE_TIME = 60
 
     tryMakeCloud() {
-        if (CLOUDS_ENABLED) {
-            let randNum = Math.random()
-            if (randNum < CLOUD_RATE) {
-                let yPos = 5 + Math.random() * (CLOUD_HEIGHT - 5)
-                this.scenery.push(new Scenery(-32, yPos, "cloud"));
-            }
+        let randNum = Math.random()
+        if (randNum < CLOUD_RATE) {
+            this.sceneryCount++;
+            let yPos = CLOUD_MIN_HEIGHT + Math.random() * (CLOUD_MAX_HEIGHT - CLOUD_MIN_HEIGHT)
+            this.scenery.push(new Scenery(-32, yPos, "cloud"));
         }
     }
 
@@ -393,7 +463,8 @@ class Game {
         this.drawButtons();
         this.drawUI(fps);
         this.giveGold();
-        this.tryMakeCloud();
+
+        if (CLOUDS_ENABLED && this.sceneryCount < CLOUD_MAX_COUNT) { this.tryMakeCloud(); };
 
 
         //stuff to do at the end
@@ -445,30 +516,8 @@ class Game {
 
     }
 
-    distToNextSprite(sprite) {
-        let bestCandidate = null;
-        let bestCanLen = Infinity;
-        let spriteDir = sprite.direction
-        for (var i in this.sprites) {
-            let loopSprite = this.sprites[i]
-            if (sprite.team == loopSprite.team) {   //jafan
-                //console.log(spriteDir * sprite.pos.x, spriteDir * loopSprite.pos.x, "comp")
-                if (spriteDir * sprite.pos.x < spriteDir * loopSprite.pos.x) {
-                    let loopDist = Math.abs(sprite.pos.x - loopSprite.pos.x)
-                    //console.log(loopDist, "loopDist")
-                    if (loopDist < bestCanLen) {
-                        bestCanLen = loopDist
-                        bestCandidate = loopSprite
-                    }
-                }
-            }
 
-        }
-        return ({ sprite: bestCandidate, len: bestCanLen });
-        //console.log(bestCanLen)
-    }
-
-    distToNextSprite2(sprite, team) {
+    distToNextSprite(sprite, team) {
         let bestCandidate = null;
         let bestCanLen = Infinity;
         let spriteDir = sprite.direction
@@ -509,8 +558,6 @@ class Game {
 
     drawSprites() {
         for (var i in this.sprites) {
-            let hej = this.distToNextSprite(this.sprites[i])
-            //console.log(hej.sprite, hej.len, "yo")
             this.sprites[i].canMove(this);
             this.sprites[i].move()
             this.sprites[i].draw()
