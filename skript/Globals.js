@@ -39,6 +39,9 @@ const GOLD_INTERVAL = 15;   //hur ofta man får guld
 const PERSONAL_SPACE = 1;   //sprite.size + personal_space = avstånd mellan sprites
 const MELE_RANGE_BUFFER = 0.1;  //grej som fixar att endast en sprite attackerar åt gången
 const RANGE_RANDOMNESS = 0.5    //0.5 = arrows flyger mellan 100% & 150% av rangen.
+const INVINCIBLE_DURATION = 2;
+const ARCHER_TRAJECTORY = 1.25;  //arctan av detta är vinkeln den skjuts med
+const ARCHER_TARGET_MAX_RANGE = 100 // maxrange när archers använder target fire abilityn.
 
 //===DAY NIGHT ===\\
 const MAXDARKNESS = 0.5 //hur mörka sprites blir på natten. används endast i graphics_level 1+
@@ -64,10 +67,10 @@ const CLOUD_MAX_COUNT = 4; // make an educated guess
 
 //===PERFORMACE===\\\
 const CLOUDS_ENABLED = true
-const GRAPHICS_LEVEL = 0 //0 is fast, 2 is fancy. 1 = shade sprites, 2 = shade projectiles & sprites.
+const GRAPHICS_LEVEL = 2 //0 is fast, 2 is fancy. 1 = shade sprites, 2 = shade projectiles & sprites.
 const DRAW_NEAREST_NEIGHBOUR = true; //blurry or pixly
 const DAY_NIGHT_ENABLED = true; //guess
-const ARROW_GRAPHICS_LEVEL = 0; //0 for only white lines, 1 for texure, 2 for texture shaded by day/night
+const ARROW_GRAPHICS_LEVEL = 2; //0 for only white lines, 1 for texure, 2 for texture shaded by day/night
 
 
 class Animation {
@@ -183,9 +186,9 @@ const BTN_FOLDER = {
 
     },
     3: {
-        0: { txt: "Arrows", action: "ability", data: "arrows", cooldown: 3, img: "soldier_img" },
-        1: { txt: "archer", action: "wip", data: -1, img: "archer_img" },
-        2: { txt: "soldier", action: "wip", data: -1, img: "soldier_img" },
+        0: { txt: "Arrows", action: "ability", data: "arrows", btnCooldown: 0, abilityCooldown: 0, img: "soldier_img" },
+        1: { txt: "Invincible", action: "ability", data: "invincible", btnCooldown: 0, abilityCooldown: 2, img: "soldier_img" },
+        2: { txt: "Target", action: "ability", data: "target", btnCooldown: 0, abilityCooldown: 8, img: "archer_img" },
         3: { txt: "soldier", action: "wip", data: -1, img: "soldier_img" },
         4: { txt: "soldier", action: "wip", data: -1, img: "soldier_img" },
         5: { txt: "back", action: "folder", data: 0, img: "soldier_img" },

@@ -28,8 +28,44 @@ function getColorCode(red, green, blue) {
     return ('rgb(' + red + ', ' + green + ', ' + blue + ')');
 }
 
+function predictTouchDown(pos, vel) {
+    var acceleration = GRAVITY / 2
+    var t_0 = (- vel.y + Math.sqrt(vel.y * vel.y - 4 * acceleration * (pos.y - 100))) / (2 * acceleration)
+    console.log(vel.x * t_0 + pos.x)
+}
+
+// function calcProjectilePower(curPos, targetPos, ratio) {    //only works if at the same y
+//     var acceleration = GRAVITY / 2
+//     let angle = Math.atan(ratio);
+//     let dist = Math.abs(curPos.x - targetPos)
+//     let velocity = Math.sqrt(dist * acceleration / (Math.sin(angle) * Math.cos(angle)))
+//     return velocity;
+
+// }
 
 
+var konstant = 0.01
+
+
+function calcProjectilePower(startPos, endPos, ratio) {
+    let distance = Math.abs(startPos.x - endPos.x)
+    let acceleration = GRAVITY
+    let vel_x = Math.sqrt(distance * acceleration / (2 * ratio))//also square
+    let vel_y = vel_x * ratio
+    //console.log("calcproj", distance, acceleration, vel_x, vel_y);
+    return { vel_x: vel_x, vel_y: vel_y }
+}
+
+
+function getOtherTeam(team) {
+    if (team == 0) {
+        return 1
+    }
+    else if (team == 1) {
+        return 0
+    }
+    return -1;
+}
 
 function setUnitDarkness(curTime, sunSetDate, sunSetDuration) {
     let unitDarkness = 1

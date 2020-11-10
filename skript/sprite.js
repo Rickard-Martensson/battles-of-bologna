@@ -1,3 +1,88 @@
+class Projectile {
+    constructor(x, y, vx, vy, team, dmg) {
+        this.pos = { x: x, y: y };
+        this.vel = { x: vx, y: vy };
+        this.arrowLen = [0.6, 3, 1];
+        this.arrowColors2 = ['#DDDDDD', '#8B3F2B', '#FFFFFF'];
+        this.arrowColors = [{ r: 221, g: 221, b: 221 }, { r: 129, g: 63, b: 43 }, { r: 255, g: 255, b: 255 }]
+        this.size = .6;
+        this.team = team;
+        this.dead = false;
+        this.dmg = dmg;
+        // this.colors = ['#DDDDDD', '#6F2B1F', '#8B3F2B', '#8B3F2B', '#8B3F2B', '#8B3F2B', '#FFFFFF']
+        this.colors = ['#DDDDDD', '#6F2B1F', '#8B3F2B', '#8B3F2B', '#FFFFFF'];
+    }
+
+    move() {
+        this.pos.x += this.vel.x * fpsCoefficient / 100;
+        this.pos.y += this.vel.y * fpsCoefficient / 100;
+        this.vel.y += GRAVITY * fpsCoefficient / 100;
+
+        //this.predictTouchDown()
+    }
+
+    checkHit(index) {
+        if (this.pos.y > HEIGHT - 5) {
+            for (var i in game.sprites) {
+                if (this.team != game.sprites[i].team) {
+                    if (dist(this.pos, game.sprites[i].pos) < game.sprites[i].size) {
+                        game.sprites[i].takeDmg(this.dmg)
+                        this.dead = true;
+                    }
+                }
+            }
+        }
+    }
+    checkDead(index) {
+        if (this.dead || this.pos.y > HEIGHT) {
+            index > -1 ? game.projectiles.splice(index, 1) : false
+        }
+    }
+
+
+    getVec() {
+        var hyp = Math.sqrt(this.vel.x * this.vel.x + this.vel.y * this.vel.y)
+        return { dx: this.vel.x / hyp, dy: this.vel.y / hyp }
+    }
+
+    predictTouchDown() {
+        var acceleration = GRAVITY / 2
+        var t_0 = (- this.vel.y + Math.sqrt(this.vel.y * this.vel.y - 4 * acceleration * (this.pos.y - 100))) / (2 * acceleration)
+        console.log(this.vel.x * t_0 + this.pos.x)
+    }
+
+    draw() {
+        let lastPos = { x: this.pos.x, y: this.pos.y }
+        let { dx, dy } = this.getVec();
+        ctx.lineWidth = this.size * S;
+        if (ARROW_GRAPHICS_LEVEL != 0) {
+            for (var i = 0; i < this.arrowLen.length; i++) {
+                ctx.beginPath();
+                if (ARROW_GRAPHICS_LEVEL > 1) { ctx.strokeStyle = getShadedColorCode(this.arrowColors[i].r, this.arrowColors[i].g, this.arrowColors[i].b) }
+                else { ctx.strokeStyle = getColorCode(this.arrowColors[i].r, this.arrowColors[i].g, this.arrowColors[i].b) };
+                // ctx.strokeStyle = this.arrowColors2[i]
+                ctx.moveTo(lastPos.x * S, lastPos.y * S);
+                let endPos = {
+                    x: lastPos.x - dx * this.arrowLen[i], y: lastPos.y - dy * this.arrowLen[i]
+                };
+                ctx.lineTo(endPos.x * S, endPos.y * S);
+                lastPos = { x: endPos.x, y: endPos.y };
+                ctx.stroke();
+            }
+        }
+        else {
+            let totArrowLen = this.arrowLen.reduce((a, b) => a + b, 0)
+            ctx.beginPath();
+            ctx.strokeStyle = "white";
+            ctx.moveTo(lastPos.x * S, lastPos.y * S);
+            let endPos = { x: lastPos.x - dx * totArrowLen, y: lastPos.y - dy * totArrowLen };
+            ctx.lineTo(endPos.x * S, endPos.y * S);
+            ctx.stroke();
+        }
+
+    }
+}
+
 class Sprite {
     constructor(x, y, name, animations, team) {
         this.pos = { x: x, y: y };
@@ -55,12 +140,35 @@ class Sprite {
         this.lastStartOfAtkCycleDate = null;
 
         this.lastDmgdTime = START_TIME
+        this.startInvincibleDate = null;
+        this.drawInvisible = false;
         this.invincible = false;
+
+        this.activeEffects = new Set();
     }
 
     move() {
         this.pos.x += this.direction * this.currentSpeed * fpsCoefficient / 100;
         this.state = "walk"
+    }
+
+    spriteShootProjectile() {
+        if (this.activeEffects.has("target")) {
+            let nextEnemy = game.distToNextSprite(this, this.getOtherTeam())
+            if (nextEnemy.len < 80) {
+                let { vel_x, vel_y } = calcProjectilePower(this.pos, nextEnemy.sprite.pos, ARCHER_TRAJECTORY);
+                game.shootProjectile(this.pos.x, this.pos.y - 5,
+                    vel_x * this.direction,
+                    -vel_y,
+                    this.team, this.dmg
+                )
+                return;
+            }
+        }
+        game.shootProjectile(this.pos.x, this.pos.y - 5,
+            (this.range * (1 + RANGE_RANDOMNESS * Math.random())) * 10 * this.direction,
+            (this.range * (1 + RANGE_RANDOMNESS * Math.random())) * -10 * ARCHER_TRAJECTORY,
+            this.team, this.dmg);
     }
 
     attack(victim) {
@@ -84,10 +192,7 @@ class Sprite {
         if (timeSinceStartOfAtk > this.atkDelay && this.lastStartOfAtkCycleDate !== null) { // atks if its enough time since atkstart
             //console.log("attack 2")
             if (this.range > 0) {
-                game.shootProjectile(this.pos.x, this.pos.y - 5,
-                    (this.range * (1 + RANGE_RANDOMNESS * Math.random())) * 10 * this.direction,
-                    (this.range * (1 + RANGE_RANDOMNESS * Math.random())) * -12.5,
-                    this.team, this.dmg);
+                this.spriteShootProjectile();
             }
             else {
                 victim.takeDmg(this.dmg)
@@ -97,12 +202,17 @@ class Sprite {
     }
 
     takeDmg(dmg) {
-        this.hp -= dmg
-        this.invincible = false; //fixa sen
-        this.lastDmgdTime = Date.now()
+        if (this.startInvincibleDate == null) {
+            this.hp -= dmg
+            this.invincible = false;
+            this.lastDmgdTime = Date.now()
+        }
     }
 
     checkDead(game, index) {
+        // if (Date.now() - this.startInvincibleDate > INVINCIBLE_DURATION * 1000) {
+        //     this.startInvincibleDate = null
+        // }
         if (this.hp <= 0) {
             index > -1 ? game.sprites.splice(index, 1) : false  //magic code that kicks sprite from sprite-array
         }
@@ -221,12 +331,10 @@ class Sprite {
 
     draw() {
         let fiddledWithAlpha = false
-        //console.log(this.name)
         let frame = this.getFrame()
         let animation = this.animations[this.currentAnimation].getRow()
-        //console.log(frame)
 
-        if (Date.now() - this.lastDmgdTime < INVINCIBLE_DELAY) {
+        if (this.startInvincibleDate != null || Date.now() - this.lastDmgdTime < INVINCIBLE_DELAY) {
             ctx.globalAlpha = 0.6;
             fiddledWithAlpha = true;
         }

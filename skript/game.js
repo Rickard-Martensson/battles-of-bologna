@@ -1,32 +1,5 @@
 const bild = document.getElementById('');
 
-// class Animation {
-//     //size of each square, how many rows down in spritesheet, number of frames, frameRate, isAloop(false on atk animations)
-//     constructor(size, row, frames, frameRate, isALoop) {
-//         this.size = size;
-//         this.row = row;
-//         this.frames = frames;
-//         this.frameRate = frameRate;
-//         this.isALoop = isALoop;
-//     }
-
-//     getFrameCount() {
-//         return this.frames;
-//     }
-
-//     getFrameRate() {
-//         return this.frameRate;
-//     }
-
-//     getRow() {
-//         return this.row;
-//     }
-
-//     getIfLoop() {
-//         return this.isALoop;
-//     }
-// }
-
 class Building {
     constructor(x, y, img, team) {
         this.pos = { x: x, y: y };
@@ -58,141 +31,7 @@ class Building {
     }
 }
 
-class Projectile {
-    constructor(x, y, vx, vy, team, dmg) {
-        this.pos = { x: x, y: y };
-        this.vel = { x: vx, y: vy };
-        this.arrowLen = [0.6, 3, 1];
-        this.arrowColors2 = ['#DDDDDD', '#8B3F2B', '#FFFFFF'];
-        this.arrowColors = [{ r: 221, g: 221, b: 221 }, { r: 129, g: 63, b: 43 }, { r: 255, g: 255, b: 255 }]
-        this.size = .6;
-        this.team = team;
-        this.dead = false;
-        this.dmg = dmg;
-        // this.colors = ['#DDDDDD', '#6F2B1F', '#8B3F2B', '#8B3F2B', '#8B3F2B', '#8B3F2B', '#FFFFFF']
-        this.colors = ['#DDDDDD', '#6F2B1F', '#8B3F2B', '#8B3F2B', '#FFFFFF'];
-    }
 
-    move() {
-        this.pos.x += this.vel.x * fpsCoefficient / 100;
-        this.pos.y += this.vel.y * fpsCoefficient / 100;
-        this.vel.y += GRAVITY * fpsCoefficient / 100;
-
-        //this.predictTouchDown()
-    }
-
-    checkHit(index) {
-        if (this.pos.y > HEIGHT - 5) {
-            for (var i in game.sprites) {
-                if (this.team != game.sprites[i].team) {
-                    if (dist(this.pos, game.sprites[i].pos) < game.sprites[i].size) {
-                        game.sprites[i].takeDmg(this.dmg)
-                        this.dead = true;
-                    }
-                }
-            }
-        }
-    }
-    checkDead(index) {
-        if (this.dead || this.pos.y > HEIGHT) {
-            index > -1 ? game.projectiles.splice(index, 1) : false
-        }
-    }
-
-
-    getVec() {
-        var hyp = Math.sqrt(this.vel.x * this.vel.x + this.vel.y * this.vel.y)
-        return { dx: this.vel.x / hyp, dy: this.vel.y / hyp }
-    }
-
-    predictTouchDown() {
-        var acceleration = GRAVITY / 2
-        var t_0 = (- this.vel.y + Math.sqrt(this.vel.y * this.vel.y - 4 * acceleration * (this.pos.y - 100))) / (2 * acceleration)
-        console.log(this.vel.x * t_0 + this.pos.x)
-    }
-
-    draw() {
-        let lastPos = { x: this.pos.x, y: this.pos.y }
-        let { dx, dy } = this.getVec();
-        ctx.lineWidth = this.size * S;
-        if (ARROW_GRAPHICS_LEVEL != 0) {
-            for (var i = 0; i < this.arrowLen.length; i++) {
-                ctx.beginPath();
-                if (ARROW_GRAPHICS_LEVEL > 1) { ctx.strokeStyle = getShadedColorCode(this.arrowColors[i].r, this.arrowColors[i].g, this.arrowColors[i].b) }
-                else { ctx.strokeStyle = getColorCode(this.arrowColors[i].r, this.arrowColors[i].g, this.arrowColors[i].b) };
-                // ctx.strokeStyle = this.arrowColors2[i]
-                ctx.moveTo(lastPos.x * S, lastPos.y * S);
-                let endPos = {
-                    x: lastPos.x - dx * this.arrowLen[i], y: lastPos.y - dy * this.arrowLen[i]
-                };
-                ctx.lineTo(endPos.x * S, endPos.y * S);
-                lastPos = { x: endPos.x, y: endPos.y };
-                ctx.stroke();
-            }
-        }
-        else {
-            let totArrowLen = this.arrowLen.reduce((a, b) => a + b, 0)
-            ctx.beginPath();
-            ctx.strokeStyle = "white";
-            ctx.moveTo(lastPos.x * S, lastPos.y * S);
-            let endPos = { x: lastPos.x - dx * totArrowLen, y: lastPos.y - dy * totArrowLen };
-            ctx.lineTo(endPos.x * S, endPos.y * S);
-            ctx.stroke();
-        }
-
-    }
-
-    draw2() {
-        ctx.beginPath();
-        ctx.lineWidth = "1";
-        ctx.strokeStyle = "#DDDDDD";
-        var { dx, dy } = this.getVec();
-        //console.log(dx, dy)
-        ctx.moveTo(this.pos.x * S, this.pos.y * S);
-        ctx.lineTo(
-            (this.pos.x + 1 * dx) * S,
-            (this.pos.y + 1 * dy) * S
-        );
-        ctx.strokeStyle = "#8B3F2B";
-        ctx.lineTo(
-            (this.pos.x + 4 * dx) * S,
-            (this.pos.y + 4 * dy) * S
-        );
-        ctx.lineTo(
-            (this.pos.x + 7 * dx) * S,
-            (this.pos.y + 7 * dy) * S
-        );
-        ctx.stroke();
-    }
-
-    draw3() {
-        ctx.beginPath();
-        ctx.lineWidth = "5";
-        ctx.strokeStyle = "green";
-        var { dx, dy } = this.getVec();
-        ctx.moveTo(this.pos.x, this.pos.y);
-        ctx.lineTo(this.pos.x + dx * this.len, 75 + dy * this.len);
-        ctx.stroke();
-    }
-
-    // A LOT SLOWER
-    draw4() {
-        //if (DRAW_NEAREST_NEIGHBOUR) { ctx.imageSmoothingEnabled = false } // viktig
-        var { dx, dy } = this.getVec();
-        let arrowLen = this.arrowLen
-        let size = this.size * S
-        let dY = dy * this.size
-        let dX = dx * this.size
-        for (var i = 0; i <= arrowLen; i++) {
-            ctx.fillStyle = this.colors[i]
-            ctx.fillRect((this.pos.x - dX * i) * S,
-                (this.pos.y - dY * i) * S,
-                size,
-                size
-            );
-        }
-    }
-}
 
 class Player {
     constructor(name) {
@@ -205,6 +44,8 @@ class Player {
         this.hp = 100;
         this.btnCoolDowns = []
     }
+
+
 
     addCooldown(folder, btnId, time) {
         this.btnCoolDowns.push({ foldertime: time })
@@ -331,6 +172,8 @@ class Game {
             // new Scenery(0, 40, "cloud"),
             // new Scenery(50, 0, "cloud"),
         ]
+
+        this.activeAbilites = [];
         this.killStatus = undefined;
         this.activeButtons = {};
 
@@ -342,10 +185,63 @@ class Game {
         this.timeSinceLastGold = Date.now();
     }
 
-    // const DAY_TIME = 0
-    // const DUSK_TIME = 0.1
-    // const NIGHT_TIME = 0.6
-    // const CYCLE_TIME = 60
+    checkAbilities() {
+        for (var key in this.activeAbilites) {
+            let ability = this.activeAbilites[key];
+            if (Date.now() - ability.startTime > ability.cooldown * 1000) {
+                this.disableAbility(key, ability.name, ability.team)
+            }
+        }
+    }
+
+    disableAbility(index, name, team) {
+        index > -1 ? this.activeAbilites.splice(index, 1) : false
+        if (name == "invincible") {
+            for (var key in this.sprites) {
+                let sprite = this.sprites[key];
+                if (sprite.team == team) {
+                    sprite.startInvincibleDate = null;
+                }
+            }
+        }
+        else if (name == "target") {
+            for (var key in this.sprites) {
+                let sprite = this.sprites[key]
+                if (sprite.team == team || sprite.range != 0) {
+                    sprite.activeEffects.delete("target")
+                }
+            }
+        }
+    }
+
+    castAbility(name, team, cooldown) {
+        if (cooldown != 0) {
+            this.activeAbilites.push({ name: name, startTime: Date.now(), team: team, cooldown: cooldown })
+        }
+        let factor = (2 * team - 1)
+        if (name == "arrows") {
+            for (var i = 0; i < 1; i++) {
+                //console.log(BASE_POS[team].x, BASE_POS[team].y, -(20 + 5 * Math.random()) * factor, -(50 + 10 * Math.random()), team, 2);
+                this.shootProjectile(BASE_POS[team].x, BASE_POS[team].y - 20, -(50 + 40 * Math.random()) * factor, -(50 + 20 * Math.random()), team, 2);
+            }
+        }
+        else if (name == "invincible") {
+            for (var key in this.sprites) {
+                let sprite = this.sprites[key];
+                if (sprite.team == team) {
+                    sprite.startInvincibleDate = Date.now();
+                }
+            }
+        }
+        else if (name == "target") {
+            for (var key in this.sprites) {
+                let sprite = this.sprites[key];
+                if (sprite.team == team && sprite.range != 0) {
+                    sprite.activeEffects.add("target")
+                }
+            }
+        }
+    }
 
     tryMakeCloud() {
         let randNum = Math.random()
@@ -376,31 +272,7 @@ class Game {
             background2.classList.remove("bg-night");
             background2.classList.add("bg-day");
         }
-
-
-        // let sunSetOpacity = getTimeRatio2(curRatioTime, NIGHT_TIME, 0.1)
-        // let sunRiseOpacity = getTimeRatio2(curRatioTime, -1, 0.1)
-
-        // if (curRatioTime > NIGHT_TIME) {
-        //     background1.classList.add("bg-night");
-        //     background1.classList.remove("bg-day");
-        // }
-        // else {
-        //     background1.classList.remove("bg-night");
-        //     background1.classList.add("bg-day");
-        // }
-        // if (sunSetOpacity > 0) {
-        //     background2.style.opacity = sunSetOpacity
-        // }
-        // if (sunRiseOpacity > 0) {
-        //     background2.style.opacity = sunRiseOpacity
-
-        // }
     }
-
-
-
-
 
     start() {
         ctx.fillStyle = "white";
@@ -456,13 +328,13 @@ class Game {
         if (DRAW_NEAREST_NEIGHBOUR) { ctx.imageSmoothingEnabled = false } // viktig
         this.drawSprites();
         if (CLOUDS_ENABLED) { this.drawScenery(); };
-        if (GRAPHICS_LEVEL == 1) { ctx.filter = DEFAULT_DARKNESS; };
+        if (GRAPHICS_LEVEL > 0) { ctx.filter = DEFAULT_DARKNESS; };
         this.drawProjectiles();
-        if (GRAPHICS_LEVEL != 2) { ctx.filter = DEFAULT_DARKNESS; };
         if (DRAW_NEAREST_NEIGHBOUR) { ctx.imageSmoothingEnabled = true } // viktig
         this.drawButtons();
         this.drawUI(fps);
         this.giveGold();
+        this.checkAbilities();
 
         if (CLOUDS_ENABLED && this.sceneryCount < CLOUD_MAX_COUNT) { this.tryMakeCloud(); };
 
@@ -498,7 +370,6 @@ class Game {
         ctx.fillText(Math.floor(GOLD_INTERVAL + 1 + (this.timeSinceLastGold - Date.now()) / 1000), 160 * S, 20 * S)
         ctx.fillText(Math.floor(fps), 300 * S, 60 * S);
 
-
         for (var key in this.players) {
             var player = this.players[key]
             ctx.fillText(Math.floor(player.gold),
@@ -510,12 +381,8 @@ class Game {
                 (UI_POS.goldPerTurn.x + key * (GAME_WIDTH - 2 * UI_POS.goldPerTurn.x)) * S,
                 UI_POS.goldPerTurn.y * S
             );
-
-
         }
-
     }
-
 
     distToNextSprite(sprite, team) {
         let bestCandidate = null;
@@ -544,16 +411,6 @@ class Game {
     //===sprites===\\
     addSprite(x, y, name, anim, team) {
         this.sprites.push(new Sprite(x, y, name, anim, team))
-    }
-
-    castAbility(name, team) {
-        let factor = (2 * team - 1)
-        if (name == "arrows") {
-            for (var i = 0; i < 5; i++) {
-                //console.log(BASE_POS[team].x, BASE_POS[team].y, -(20 + 5 * Math.random()) * factor, -(50 + 10 * Math.random()), team, 2);
-                this.shootProjectile(BASE_POS[team].x, BASE_POS[team].y - 20, -(50 + 40 * Math.random()) * factor, -(50 + 20 * Math.random()), team, 2);
-            }
-        }
     }
 
     drawSprites() {
@@ -612,6 +469,8 @@ class Game {
         var mod_id = id % NUMBER_OF_BUTTONS;
         let btnAction = BTN_FOLDER[curFolder][mod_id].action;
         let btnData = BTN_FOLDER[curFolder][mod_id].data;
+        let btnCooldown = BTN_FOLDER[curFolder][mod_id].btnCooldown;
+        let abilityCooldown = BTN_FOLDER[curFolder][mod_id].abilityCooldown;
 
         if (btnAction == "hidden") {   //typeof null === 'object'
             console.log("how the fuck did you press a non-existent button")
@@ -628,7 +487,7 @@ class Game {
         }
         else if (btnAction === 'ability') {
             console.log(btnData, team)
-            this.castAbility(btnData, team)
+            this.castAbility(btnData, team, abilityCooldown)
         }
         this.activeButtons[id] = Date.now();
 

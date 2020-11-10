@@ -1,0 +1,18 @@
+
+
+
+pos.y = vel.y * t + acc.y * t^2
+
+t = (vel.y/acc.y) + sqrt((vel.y/acc.y)^2)
+
+t = 2(vel.y/acc.y)
+
+//från ratiogrejj:
+vel.y = vel.x * 1.25
+
+pos.x = vel.x * t
+pos.x = vel.x * 2(vel.y/acc.y)
+pos.x = vel.x * 2 * vel.x * 1.25 / acc.y
+pos.x * acc.x /(2 * 1.25) = vel.x ^2
+
+vel.x = sqrt(pos.x * acc.x / (2*1.25))
