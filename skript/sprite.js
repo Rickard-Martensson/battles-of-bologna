@@ -95,6 +95,7 @@ class Sprite {
         // };
         this.frameDelay = 20;    //how many ms left until next frame
         this.currentFrame = 0;
+        this.animTimeMult = 1;  //makes sprint look better
 
         this.direction = 1
         this.team = team;
@@ -320,7 +321,7 @@ class Sprite {
                 }
                 this._last0frame = Date.now()
             }
-            this.frameDelay = this.animations[this.currentAnimation].getFrameRate();
+            this.frameDelay = this.animations[this.currentAnimation].getFrameRate() * this.animTimeMult;
         }
         else {
 

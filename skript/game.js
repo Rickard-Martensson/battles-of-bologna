@@ -31,6 +31,32 @@ class Building {
     }
 }
 
+class Icon {
+    constructor(name, x, y) {
+        this.name = name
+        this.img = "gold";
+        this.pos = { x: x, y: y }
+        this.imageSize = 16;
+        this.DRAW_SIZE = 16;
+    }
+    draw() {
+        ctx.imageSmoothingEnabled = true
+        ctx.drawImage(Images[this.img],
+            this.imageSize * 0,
+            this.imageSize * 0,
+            this.imageSize,
+            this.imageSize,
+
+            (this.pos.x - this.DRAW_SIZE / 2) * S,
+            (this.pos.y - this.DRAW_SIZE / 2) * S,
+            this.DRAW_SIZE * S,
+            this.DRAW_SIZE * S
+        );
+    }
+}
+
+
+
 
 
 class Player {
@@ -107,7 +133,7 @@ class Scenery {
 
 
     move() {
-        this.pos.x += this.speed;
+        this.pos.x += this.speed * fpsCoefficient / 10;
     }
 
     checkDead(game, key) {
@@ -207,8 +233,18 @@ class Game {
         else if (name == "target") {
             for (var key in this.sprites) {
                 let sprite = this.sprites[key]
-                if (sprite.team == team || sprite.range != 0) {
+                if (sprite.team == team && sprite.range != 0) {
                     sprite.activeEffects.delete("target")
+                }
+            }
+        }
+        else if (name == "sprint") {
+            for (var key in this.sprites) {
+                let sprite = this.sprites[key]
+                if (sprite.team == team && sprite.activeEffects.has("sprint")) {
+                    sprite.activeEffects.delete("sprint")
+                    sprite.speed /= 2
+                    sprite.animTimeMult *= 2
                 }
             }
         }
@@ -238,6 +274,16 @@ class Game {
                 let sprite = this.sprites[key];
                 if (sprite.team == team && sprite.range != 0) {
                     sprite.activeEffects.add("target")
+                }
+            }
+        }
+        else if (name == "sprint") {
+            for (var key in this.sprites) {
+                let sprite = this.sprites[key];
+                if (sprite.team == team) {
+                    sprite.activeEffects.add("sprint")
+                    sprite.speed *= 2
+                    sprite.animTimeMult /= 2
                 }
             }
         }
@@ -370,16 +416,38 @@ class Game {
         ctx.fillText(Math.floor(GOLD_INTERVAL + 1 + (this.timeSinceLastGold - Date.now()) / 1000), 160 * S, 20 * S)
         ctx.fillText(Math.floor(fps), 300 * S, 60 * S);
 
-        for (var key in this.players) {
-            var player = this.players[key]
-            ctx.fillText(Math.floor(player.gold),
-                (UI_POS.gold.x + key * (GAME_WIDTH - 2 * UI_POS.gold.x)) * S,
-                UI_POS.gold.y * S
-            );
+        ctx.textAlign = "end";
 
-            ctx.fillText(Math.floor(player.goldPerTurn),
-                (UI_POS.goldPerTurn.x + key * (GAME_WIDTH - 2 * UI_POS.goldPerTurn.x)) * S,
-                UI_POS.goldPerTurn.y * S
+        for (var key in this.players) {
+            let playerIndex = key //this.players[key].team;
+            ctx.font = 5 * S + "px 'Press Start 2P'";
+            var player = this.players[key]
+            ctx.fillStyle = "#F2F2AA";
+            ctx.fillText(Math.floor(player.gold),
+                UI_POS[playerIndex].gold.x * S,
+                UI_POS[playerIndex].gold.y * S
+            );
+            ctx.fillStyle = "#CEBC1A";
+
+            ctx.font = 4 * S + "px 'Press Start 2P'";
+            ctx.fillText('+' + Math.floor(player.goldPerTurn),
+                UI_POS[playerIndex].goldPerTurn.x * S,
+                UI_POS[playerIndex].goldPerTurn.y * S
+            );
+            ctx.imageSmoothingEnabled = true
+            let goldIconSize = 6
+            ctx.drawImage(Images["gold"],
+                0,
+                0,
+                16,
+                16,
+
+                // (this.pos.x - goldIconSize / 2) * S,
+                // (this.pos.y - goldIconSize / 2) * S,
+                (UI_POS[playerIndex].goldIcon.x) * S,
+                (UI_POS[playerIndex].goldIcon.y - goldIconSize / 2) * S,
+                goldIconSize * S,
+                goldIconSize * S
             );
         }
     }
@@ -514,10 +582,12 @@ class Game {
             var frame = 0;
 
             let curFolder = this.players[team].currentFolder;
-            let btnAction = BTN_FOLDER[curFolder][mod_id].action
-            let btnText = BTN_FOLDER[curFolder][mod_id].txt
-            let btnImg = BTN_FOLDER[curFolder][mod_id].img
+            let btnAction = BTN_FOLDER[curFolder][mod_id].action;
+            let btnText = BTN_FOLDER[curFolder][mod_id].txt;
+            let btnText2 = BTN_FOLDER[curFolder][mod_id].txt2;
+            let btnImg = BTN_FOLDER[curFolder][mod_id].img;
             let btnSubText = BTN_FOLDER[curFolder][mod_id].subText;
+            let abilityCooldown = BTN_FOLDER[curFolder][mod_id].abilityCooldown;
 
             if (btnSubText === undefined) { btnSubText = "" };
 
@@ -553,23 +623,59 @@ class Game {
                     0 * 0,
                     32,
                     32,
-                    (item.x - ICON_SIZE / 2) * S,
-                    (item.y + 1 - ICON_SIZE / 2) * S,
+                    (item.x + UI_POS_BTN.img.x - ICON_SIZE / 2) * S,
+                    (item.y + UI_POS_BTN.img.y - ICON_SIZE / 2) * S,
                     ICON_SIZE * S,
                     ICON_SIZE * S
                 );
 
                 ctx.textAlign = "center";
                 ctx.fillStyle = "#ffffff";
-                ctx.font = 2.5 * S + "px 'Press Start 2P'";
+                if (btnText.length > 8) { ctx.font = 2.5 * S + "px 'Press Start 2P'"; }
+                else { ctx.font = 3 * S + "px 'Press Start 2P'"; }
                 ctx.fillText(btnText,
                     (item.x) * S,
-                    (item.y - 7) * S,
+                    (item.y + UI_POS_BTN.txt.y) * S,
                 );
+                if (btnText2 != null) {
+                    ctx.fillText(btnText2,
+                        (item.x) * S,
+                        (item.y + UI_POS_BTN.txt2.y) * S,
+                    );
+                }
+
+                if (btnSubText == "%upgold%") {
+                    btnSubText = this.players[team].goldPerTurn + 5;
+                }
+
+                ctx.textAlign = "end";
+                ctx.font = 3 * S + "px 'Press Start 2P'";
                 ctx.fillText(btnSubText,
-                    (item.x) * S,
-                    (item.y + 12) * S,
+                    (item.x + UI_POS_BTN.txt.x) * S,
+                    (item.y + UI_POS_BTN.subText.y) * S,
                 );
+                let btnIcon = null;
+                if (btnAction == "buyUnit" || btnAction == "upgrade") {
+                    btnIcon = 0;
+                }
+                else if (btnAction == "ability") {
+                    btnIcon = 1
+                }
+                if (btnIcon !== null) {
+                    ctx.imageSmoothingEnabled = false
+                    let goldIconSize = 5
+                    ctx.drawImage(Images["gold"],
+                        16 * btnIcon,
+                        16 * btnIcon,
+                        16,
+                        16,
+
+                        (item.x + UI_POS_BTN.gold.x) * S,
+                        (item.y + UI_POS_BTN.gold.y - goldIconSize / 2) * S,
+                        goldIconSize * S,
+                        goldIconSize * S
+                    );
+                }
             }
 
         }
