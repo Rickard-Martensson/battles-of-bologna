@@ -111,7 +111,6 @@ class Sprite {
             this.img = STATS[this.name].img;
             this.imageSize = STATS[this.name].imageSize;
             this.size = STATS[this.name].size;
-            this.cost = STATS[this.name].cost;
             this.row = STATS[this.name].row;
             this.animations = STATS[this.name].animations;
 

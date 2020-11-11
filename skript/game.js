@@ -55,68 +55,6 @@ class Icon {
     }
 }
 
-
-
-
-
-class Player {
-    constructor(name) {
-        this.name = name
-        this.gold = 150;
-        this.goldPerTurn = 30;
-        this.team = 0; //0 = blue
-        this.currentFolder = 0;
-        this.race = "human";
-        this.hp = 100;
-        this.btnCoolDowns = []
-    }
-
-
-
-    addCooldown(folder, btnId, time) {
-        this.btnCoolDowns.push({ foldertime: time })
-    }
-
-    takeDmg(dmg) {
-        this.hp -= dmg
-    }
-
-    changeGold(amount) {
-        this.gold += amount
-    }
-
-    changeGoldPerTurn(amount) {
-        this.goldPerTurn += amount
-    }
-
-    tryBuy(amount) {
-        if (this.gold >= amount) {
-            this.changeGold(-amount);
-            return true;
-        }
-        else { return false; }
-    }
-
-    giveGoldPerTurn() {
-        this.changeGold(this.goldPerTurn);
-
-    }
-
-    logGoldAmount() {
-        console.log(this.gold, "gold")
-    }
-
-    changeFolder(folder) {
-        this.currentFolder = folder;
-    }
-
-    attackCastle(unitHealth) {
-        this.goldPerTurn -= 1
-        //ändra andra spelarens gpt
-        this.hp -= unitHealth
-    }
-}
-
 class Scenery {
     constructor(x, y, name) {
         this.pos = { x: x, y: y }
@@ -130,7 +68,6 @@ class Scenery {
 
         this.DRAW_SIZE = 64
     }
-
 
     move() {
         this.pos.x += this.speed * fpsCoefficient / 10;
@@ -177,8 +114,8 @@ class Scenery {
 class Game {
     constructor() {
         this.players = [
-            new Player("kjelle"),
-            new Player("bert"),
+            new Player("kjelle", 0),
+            new Player("bert", 1),
         ]
         this.sprites = [
             //new Sprite(80, 100, "soldier", "anim", "red"),
@@ -202,6 +139,9 @@ class Game {
         this.activeAbilites = [];
         this.killStatus = undefined;
         this.activeButtons = {};
+        this.currentButton = -1;
+
+        this.justGaveGold = [null, null]
 
         this.mousePos = { x: 0, y: 0 };
 
@@ -379,7 +319,7 @@ class Game {
         if (DRAW_NEAREST_NEIGHBOUR) { ctx.imageSmoothingEnabled = true } // viktig
         this.drawButtons();
         this.drawUI(fps);
-        this.giveGold();
+        this.goldIntervalCheck();
         this.checkAbilities();
 
         if (CLOUDS_ENABLED && this.sceneryCount < CLOUD_MAX_COUNT) { this.tryMakeCloud(); };
@@ -396,20 +336,12 @@ class Game {
         return getMillisecondsPassed;
     }
 
-    giveGold() {
-        if (Date.now() - this.timeSinceLastGold > GOLD_INTERVAL * 1000) {
-            this.timeSinceLastGold = Date.now();
-            for (var i in this.players) {
-                this.players[i].giveGoldPerTurn()
-            }
-
-        }
-    }
     shootProjectile(x, y, vx, vy, team, dmg) {
         this.projectiles.push(new Projectile(x, y, vx, vy, team, dmg))
 
     }
     drawUI(fps) {
+        this.checkMouseWithinButton()
         ctx.textAlign = "center";
         ctx.fillStyle = "#ffffff";
         ctx.font = 5 * S + "px 'Press Start 2P'";
@@ -422,12 +354,14 @@ class Game {
             let playerIndex = key //this.players[key].team;
             ctx.font = 5 * S + "px 'Press Start 2P'";
             var player = this.players[key]
-            ctx.fillStyle = "#F2F2AA";
+            if (this.justGaveGold[playerIndex]) { ctx.fillStyle = "#FFFFFF"; }
+            else { ctx.fillStyle = "#F2F2AA"; };
             ctx.fillText(Math.floor(player.gold),
                 UI_POS[playerIndex].gold.x * S,
                 UI_POS[playerIndex].gold.y * S
             );
-            ctx.fillStyle = "#CEBC1A";
+            if (this.justGaveGold[playerIndex]) { ctx.fillStyle = "#F2F2AA"; }
+            else { ctx.fillStyle = "#CEBC1A"; };
 
             ctx.font = 4 * S + "px 'Press Start 2P'";
             ctx.fillText('+' + Math.floor(player.goldPerTurn),
@@ -459,10 +393,8 @@ class Game {
         for (var i in this.sprites) {
             let loopSprite = this.sprites[i]
             if (team == loopSprite.team) {   //jafan
-                //console.log(spriteDir * sprite.pos.x, spriteDir * loopSprite.pos.x, "comp")
                 if (spriteDir * sprite.pos.x < spriteDir * loopSprite.pos.x) {
                     let loopDist = Math.abs(sprite.pos.x - loopSprite.pos.x)
-                    //console.log(loopDist, "loopDist")
                     if (loopDist < bestCanLen) {
                         bestCanLen = loopDist
                         bestCandidate = loopSprite
@@ -472,7 +404,6 @@ class Game {
 
         }
         return ({ sprite: bestCandidate, len: bestCanLen });
-        //console.log(bestCanLen)
     }
 
 
@@ -507,54 +438,60 @@ class Game {
     }
     mouseClicked() {
         //this.addSprite(300, 100, "soldier", "anim");
-        var buttonPressed = this.checkMouseWithinButton();
+        var buttonPressed = this.currentButton;
         if (buttonPressed != -1) {
             this.buttonAction(buttonPressed)
             //vem  anser stud en autin bil vid en olycka .skiljer sig svaren åt sinsemellan de som har körkort och de som inte har de. beror tycker studenterna och beror svaren på med eller utan skrivbord
         }
     }
 
-    buyUnit(unitName, team) {
-        if (this.players[team].tryBuy(STATS[unitName].cost)) {
+    buyUnit(unitName, team, cost) {
+        if (this.players[team].tryBuy(cost)) {
             this.addSprite(BASE_POS[team].x, BASE_POS[team].y, unitName, "anim", team);
         }
     }
-    buyUpgrade(upgradeName, player) {
+    buyUpgrade(upgradeName, team) {
+        let player = this.players[team]
         if (upgradeName == "upgGold") {
-            let cost = this.players[player].goldPerTurn + UPGRADES["upgGold"].costIncrease;
-            console.log(cost)
-            if (this.players[player].tryBuy(cost)) {
-                console.log("tja")
-                this.players[player].goldPerTurn += UPGRADES["upgGold"].goldIncrease;
+            let cost = player.goldPerTurn + UPGRADES["upgGold"].costIncrease;
+            if (player.tryBuy(cost)) {
+                player.changeGoldPerTurn(UPGRADES["upgGold"].costIncrease) //.goldPerTurn += UPGRADES["upgGold"].goldIncrease;
             }
+        }
+        else if (upgradeName == "upgCastle") {
+        }
+        else {
+            player.addUpgrade(upgradeName);
         }
     }
 
     buttonAction(id) {
         let team = Math.floor(id / NUMBER_OF_BUTTONS);
-        let curFolder = this.players[team].currentFolder;
+        let player = this.players[team]
+        let curFolder = player.currentFolder;
 
         var mod_id = id % NUMBER_OF_BUTTONS;
         let btnAction = BTN_FOLDER[curFolder][mod_id].action;
         let btnData = BTN_FOLDER[curFolder][mod_id].data;
         let btnCooldown = BTN_FOLDER[curFolder][mod_id].btnCooldown;
         let abilityCooldown = BTN_FOLDER[curFolder][mod_id].abilityCooldown;
+        let cost = BTN_FOLDER[curFolder][mod_id].cost;
 
-        if (btnAction == "hidden") {   //typeof null === 'object'
-            console.log("how the fuck did you press a non-existent button")
+        let upgRequired = BTN_FOLDER[curFolder][mod_id].upgrade;
+
+        if (!this.btnIsEnabled(btnAction, player, upgRequired)) {
+            console.log("either btn is hidden, or its not researched")
         }
         else if (btnAction == 'folder') {
             this.players[team].changeFolder(btnData)
         }
         else if (btnAction === 'buyUnit') {
-            this.buyUnit(btnData, team);
+            this.buyUnit(btnData, team, cost);
         }
         else if (btnAction === 'upgrade') {
-            console.log(btnData, team)
             this.buyUpgrade(btnData, team);
         }
         else if (btnAction === 'ability') {
-            console.log(btnData, team)
             this.castAbility(btnData, team, abilityCooldown)
         }
         this.activeButtons[id] = Date.now();
@@ -562,120 +499,153 @@ class Game {
     }
 
     checkMouseWithinButton() {
+        this.currentButton = -1;
         for (const [index, item] of BUTTON_LAYOUT.entries()) {
             if (Math.abs(item.x * S - this.mousePos.x) < (BUTTON_SIZE * S) / 2 && Math.abs(item.y * S - this.mousePos.y) < (BUTTON_SIZE * S) / 2) {
-                return index;
+                this.currentButton = index;
             }
         }
-        return -1;
-    }
-
-    btnCoolDown() {
 
     }
+
+    goldIntervalCheck() {
+        if (Date.now() - this.timeSinceLastGold > GOLD_INTERVAL * 1000) {
+            this.timeSinceLastGold = Date.now();
+            for (var key in this.players) {
+                let player = this.players[key]
+                player.giveGoldPerTurn()
+
+                player.decreaseCoolDowns();
+            }
+
+        }
+        for (var i in this.players) {
+            if (this.justGaveGold[i] != null && Date.now() - this.justGaveGold[i] > 200) {
+                this.justGaveGold[i] = null;
+            }
+        }
+    }
+
+    btnIsEnabled(action, player, upgRequired) {
+        if (action == "hidden") {
+            return false;
+        }
+        else if (action != "upgrade" ^ player.checkIfResearched(upgRequired)) { //XOR, coolt. false ^ true
+            return false;
+        }
+        return true;
+    }
+
+    drawButton(index, mod_index, button, btnGlob, player) {
+        let text = btnGlob.txt;
+        let text2 = btnGlob.txt2;
+        let img = ((player.team == 0) ? btnGlob.img + "_blue" : btnGlob.img);
+        let cost = ((btnGlob.cost === undefined) ? "" : btnGlob.cost); //jävlar
+        let action = btnGlob.action;
+        let frame = 0
+        if (index in this.activeButtons || this.currentButton == index) {
+            frame = 1;
+            if (Date.now() - this.activeButtons[index] > BUTTON_DELAY) {
+                delete this.activeButtons[index]
+            }
+        }
+        // frame = ((this.checkMouseWithinButton()) ? 1 : frame);
+        ctx.drawImage(Images.button1,
+            34 * frame,
+            0 * 0,
+            34,
+            34,
+            (button.x - BUTTON_SIZE / 2) * S,
+            (button.y - BUTTON_SIZE / 2) * S,
+            BUTTON_SIZE * S,
+            BUTTON_SIZE * S
+        );
+        ctx.drawImage(Images[img],
+            32 * 0, //frame
+            0 * 0,
+            32,
+            32,
+            (button.x + UI_POS_BTN.img.x - ICON_SIZE / 2) * S,
+            (button.y + UI_POS_BTN.img.y - ICON_SIZE / 2) * S,
+            ICON_SIZE * S,
+            ICON_SIZE * S
+        );
+
+        ctx.textAlign = "center";
+        ctx.fillStyle = "#ffffff";
+        ctx.font = ((text.length > 8) ? 2.5 * S + "px 'Press Start 2P'" : 3 * S + "px 'Press Start 2P'");
+
+        this.writeBtnText(text, button, "txt")
+        if (text2 !== undefined) { this.writeBtnText(text2, button, "txt2") }
+
+        if (cost == "%upggold%") {
+            cost = player.goldPerTurn + 5;
+        }
+        else if (cost == "%upgcastle%") {
+            cost = 50;
+        }
+
+        ctx.textAlign = "end";
+        ctx.font = 3 * S + "px 'Press Start 2P'";
+        this.writeBtnText(cost, button, "subText")
+
+
+        let btnIcon = null;
+        if (action == "buyUnit" || action == "upgrade") {
+            btnIcon = 0;
+        }
+        else if (action == "ability") {
+            btnIcon = 1
+        }
+        if (btnIcon !== null) {
+            ctx.imageSmoothingEnabled = false
+            let goldIconSize = 5
+            ctx.drawImage(Images["gold"],
+                16 * btnIcon,
+                16 * btnIcon,
+                16,
+                16,
+
+                (button.x + UI_POS_BTN.gold.x) * S,
+                (button.y + UI_POS_BTN.gold.y - goldIconSize / 2) * S,
+                goldIconSize * S,
+                goldIconSize * S
+            );
+        }
+
+
+
+
+
+    }
+
+
+    writeBtnText(text, pos, name) {
+        ctx.fillText(text,
+            (pos.x + UI_POS_BTN[name].x) * S,
+            (pos.y + UI_POS_BTN[name].y) * S,
+        );
+    }
+
+    drawButtons2() {
+
+    }
+
+
 
     drawButtons() {
         for (const [index, item] of BUTTON_LAYOUT.entries()) {
             let mod_id = index % NUMBER_OF_BUTTONS
             let team = Math.floor(index / NUMBER_OF_BUTTONS);
+            let player = this.players[team];
 
-            var frame = 0;
+            let curFolder = player.currentFolder;
+            let btn = BTN_FOLDER[curFolder][mod_id];
+            let action = btn.action;
+            let upgrade = btn.upgrade;
 
-            let curFolder = this.players[team].currentFolder;
-            let btnAction = BTN_FOLDER[curFolder][mod_id].action;
-            let btnText = BTN_FOLDER[curFolder][mod_id].txt;
-            let btnText2 = BTN_FOLDER[curFolder][mod_id].txt2;
-            let btnImg = BTN_FOLDER[curFolder][mod_id].img;
-            let btnSubText = BTN_FOLDER[curFolder][mod_id].subText;
-            let abilityCooldown = BTN_FOLDER[curFolder][mod_id].abilityCooldown;
-
-            if (btnSubText === undefined) { btnSubText = "" };
-
-            if (team == 0 && btnImg != null) { btnImg += "_blue" }
-
-
-            if (this.checkMouseWithinButton() == index) {
-                frame = 1
-            }
-            if (index in this.activeButtons) {
-                frame = 1
-                if (Date.now() - this.activeButtons[index] > BUTTON_DELAY) {
-                    delete this.activeButtons[index]
-                }
-            }
-
-            if (DRAW_NEAREST_NEIGHBOUR) { ctx.imageSmoothingEnabled = false }
-
-            if (btnAction != "hidden") {
-                ctx.drawImage(Images.button1,
-                    34 * frame,
-                    0 * 0,
-                    34,
-                    34,
-                    (item.x - BUTTON_SIZE / 2) * S,
-                    (item.y - BUTTON_SIZE / 2) * S,
-                    BUTTON_SIZE * S,
-                    BUTTON_SIZE * S
-                );
-
-                ctx.drawImage(Images[btnImg],
-                    32 * 0, //frame
-                    0 * 0,
-                    32,
-                    32,
-                    (item.x + UI_POS_BTN.img.x - ICON_SIZE / 2) * S,
-                    (item.y + UI_POS_BTN.img.y - ICON_SIZE / 2) * S,
-                    ICON_SIZE * S,
-                    ICON_SIZE * S
-                );
-
-                ctx.textAlign = "center";
-                ctx.fillStyle = "#ffffff";
-                if (btnText.length > 8) { ctx.font = 2.5 * S + "px 'Press Start 2P'"; }
-                else { ctx.font = 3 * S + "px 'Press Start 2P'"; }
-                ctx.fillText(btnText,
-                    (item.x) * S,
-                    (item.y + UI_POS_BTN.txt.y) * S,
-                );
-                if (btnText2 != null) {
-                    ctx.fillText(btnText2,
-                        (item.x) * S,
-                        (item.y + UI_POS_BTN.txt2.y) * S,
-                    );
-                }
-
-                if (btnSubText == "%upgold%") {
-                    btnSubText = this.players[team].goldPerTurn + 5;
-                }
-
-                ctx.textAlign = "end";
-                ctx.font = 3 * S + "px 'Press Start 2P'";
-                ctx.fillText(btnSubText,
-                    (item.x + UI_POS_BTN.txt.x) * S,
-                    (item.y + UI_POS_BTN.subText.y) * S,
-                );
-                let btnIcon = null;
-                if (btnAction == "buyUnit" || btnAction == "upgrade") {
-                    btnIcon = 0;
-                }
-                else if (btnAction == "ability") {
-                    btnIcon = 1
-                }
-                if (btnIcon !== null) {
-                    ctx.imageSmoothingEnabled = false
-                    let goldIconSize = 5
-                    ctx.drawImage(Images["gold"],
-                        16 * btnIcon,
-                        16 * btnIcon,
-                        16,
-                        16,
-
-                        (item.x + UI_POS_BTN.gold.x) * S,
-                        (item.y + UI_POS_BTN.gold.y - goldIconSize / 2) * S,
-                        goldIconSize * S,
-                        goldIconSize * S
-                    );
-                }
+            if (this.btnIsEnabled(action, player, upgrade)) {
+                this.drawButton(index, mod_id, item, btn, player)
             }
 
         }

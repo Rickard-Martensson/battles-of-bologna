@@ -1,6 +1,8 @@
 //==========================================================================================================================================================================================================================================================================================================================================================================\\
 
 var IMAGE_DIRECTORY = [
+    ["buttonBack_img", "./bilder/ui/btnBack.png"],
+    ["buttonBack_img_blue", "./bilder/ui/btnBack.png"],
     ["soldier_img", "./bilder/sprites/soldier2.png"],
     ["archer_img", "./bilder/sprites/archer2.png"],
     ["knight_img", "./bilder/sprites/knight.png"],
@@ -16,7 +18,8 @@ var IMAGE_DIRECTORY = [
     ["background_dusk", "./bilder/background_1_dusk.png"],
     ["background_night", "./bilder/background_1_night.png"],
     ["cloud_img", "./bilder/sprites/clouds.png"],
-    ["gold", "./bilder/sprites/icons.png"]
+    ["gold", "./bilder/sprites/icons.png"],
+
 ];
 
 
@@ -25,7 +28,7 @@ const BASE_POS = [{ x: 20, y: 100 }, { x: 300, y: 100 }]
 const UI_POS = [
     { gold: { x: 30, y: 20 }, goldPerTurn: { x: 30, y: 15 }, goldIcon: { x: 30, y: 17.2 } },
     { gold: { x: 300, y: 20 }, goldPerTurn: { x: 300, y: 15 }, goldIcon: { x: 300, y: 17.2 } }];
-const UI_POS_BTN = { img: { x: 0, y: 2 }, txt: { x: 0, y: -8 }, txt2: { x: 0, y: -5 }, subText: { x: 1, y: 12 }, gold: { x: 1, y: 10.5 } }
+const UI_POS_BTN = { img: { x: 0, y: 2 }, txt: { x: 0, y: -8 }, txt2: { x: 0, y: -5 }, subText: { x: 0, y: 12 }, gold: { x: 1, y: 10.5 } }
 const BUTTON_SIZE = 30; //hur stora knapparna är
 const ICON_SIZE = 20;   //hur stora ikoner i knapparna
 const SPRITE_SIZE = 80; //vet ej
@@ -106,11 +109,18 @@ class Animation {
 }
 
 
+
+// let mySet = new Set(["ja", "nek"]);
+// if (mySet.has("jaj")) { console.log("yay") }
+// else { console.log("nay") }
+
+
+
 const STATS = {
-    soldier: { hp: 10, dmg: 3, meleRange: 12, range: 0, atkSpeed: 1200, atkDelay: 450, speed: 5, cost: 15, row: 0, img: "soldier_img", imageSize: 32, size: 7, animations: { idle: new Animation(32, 0, 8, 60, true), walk: new Animation(32, 1, 8, 20, true), attack: new Animation(32, 2, 7, 20, false) } },
-    archer: { hp: 8, dmg: 2, meleRange: 12, range: 3, atkSpeed: 2000, atkDelay: 1000, speed: 5, cost: 10, row: 0, img: "archer_img", imageSize: 32, size: 7, animations: { idle: new Animation(32, 0, 8, 60, true), walk: new Animation(32, 1, 8, 20, true), attack: new Animation(32, 2, 7, 20, false) } },
-    knight: { hp: 20, dmg: 2, meleRange: 12, range: 0, atkSpeed: 1200, atkDelay: 450, speed: 12, cost: 35, row: 1, img: "knight_img", imageSize: 32, size: 7, animations: { idle: new Animation(32, 0, 8, 60, true), walk: new Animation(32, 1, 8, 8, true), attack: new Animation(32, 2, 7, 20, false) } },
-    sprinter: { hp: 6, dmg: 2, meleRange: 12, range: 0, atkSpeed: 1000, atkDelay: 500, speed: 15, cost: 15, row: 0, img: "archer_img", imageSize: 32, size: 7, animations: { idle: new Animation(32, 0, 8, 60, true), walk: new Animation(32, 1, 8, 20, true), attack: new Animation(32, 2, 7, 20, false) } },
+    soldier: { hp: 10, dmg: 3, meleRange: 12, range: 0, atkSpeed: 1200, atkDelay: 450, speed: 5, row: 0, img: "soldier_img", imageSize: 32, size: 7, animations: { idle: new Animation(32, 0, 8, 60, true), walk: new Animation(32, 1, 8, 20, true), attack: new Animation(32, 2, 7, 20, false) } },
+    archer: { hp: 8, dmg: 2, meleRange: 12, range: 3, atkSpeed: 2000, atkDelay: 1000, speed: 5, row: 0, img: "archer_img", imageSize: 32, size: 7, animations: { idle: new Animation(32, 0, 8, 60, true), walk: new Animation(32, 1, 8, 20, true), attack: new Animation(32, 2, 7, 20, false) } },
+    knight: { hp: 20, dmg: 2, meleRange: 12, range: 0, atkSpeed: 1200, atkDelay: 450, speed: 12, row: 1, img: "knight_img", imageSize: 32, size: 7, animations: { idle: new Animation(32, 0, 8, 60, true), walk: new Animation(32, 1, 8, 8, true), attack: new Animation(32, 2, 7, 20, false) } },
+    sprinter: { hp: 6, dmg: 2, meleRange: 12, range: 0, atkSpeed: 1000, atkDelay: 500, speed: 15, row: 0, img: "archer_img", imageSize: 32, size: 7, animations: { idle: new Animation(32, 0, 8, 60, true), walk: new Animation(32, 1, 8, 20, true), attack: new Animation(32, 2, 7, 20, false) } },
 }
 
 
@@ -124,8 +134,16 @@ const UNIQE = {
     knight: ["coolShoes", "changeRow"],
     archer: ["targetfire"],
 }
-
-
+//antingen finns statementet i box, eller nån i barnen
+//vi kan patternmatcha
+//hur scope funkar är att säg att vi står o chillar här
+// [O, O, o, o, o, o]
+//     v
+// [O, O, O, O, O, o, o]
+//              v
+// [O, O, O, O, O, O, o]
+//                 ^
+//stora O är i scope, små o är inte i scope
 
 const UPGRADES = {
     upgGold: { goldIncrease: 5, costIncrease: 5 }
@@ -173,30 +191,30 @@ const BTN_FOLDER = {
         5: { txt: "abilities", action: "folder", data: 3, img: "soldier_img" },
     },
     1: {    // sprites
-        0: { txt: "soldier", subText: "15", action: "buyUnit", data: "soldier", img: "soldier_img" },
-        1: { txt: "archer", subText: "10", action: "buyUnit", data: "archer", img: "archer_img" },
-        2: { txt: "knight", subText: "35", action: "buyUnit", data: "knight", img: "knight_img" },
-        3: { txt: "back", action: "folder", data: 0, img: "soldier_img" },
+        0: { txt: "soldier", cost: 15, action: "buyUnit", data: "soldier", img: "soldier_img" },
+        1: { txt: "archer", cost: 10, action: "buyUnit", data: "archer", img: "archer_img" },
+        2: { txt: "knight", cost: 35, action: "buyUnit", data: "knight", upgrade: "upgKnight", require: "upgKnight", img: "knight_img" },
+        3: { txt: "back", action: "folder", data: 0, img: "buttonBack_img" },
         4: { txt: "", action: "hidden", data: -1, img: null },
         5: { txt: "", action: "hidden", data: -1, img: null },
 
     },
     2: {    //upgrades
-        0: { txt: "upgrade", txt2: "Gold", subText: "%upgold%", action: "upgrade", data: "upgGold", img: "soldier_img" },
-        1: { txt: "archer", action: "upgrade", data: "knight", img: "soldier_img" },
-        2: { txt: "unlock", txt2: "Knight", subText: "50", action: "upgrade", data: "knight", img: "knight_img" },
+        0: { txt: "upgrade", txt2: "Gold", cost: "%upggold%", action: "upgrade", upgrade: "upgAlwaysVisible", data: "upgGold", img: "soldier_img" },
+        1: { txt: "upgrade", txt2: "Castle", cost: "%upgcastle%", action: "upgrade", upgrade: "upgAlwaysVisible", data: "upgCastle", img: "soldier_img" },
+        2: { txt: "unlock", txt2: "Knight", cost: 50, subText: "50", action: "upgrade", upgrade: "upgKnight", data: "upgKnight", img: "knight_img" },
         3: { txt: "soldier", action: "wip", data: -1, img: "soldier_img" },
-        4: { txt: "back", action: "folder", data: 0, img: "soldier_img" },
-        5: { txt: "soldier", action: "wip", data: -1, img: "soldier_img" },
+        4: { txt: "back", action: "folder", data: 0, img: "buttonBack_img" },
+        5: { txt: "", action: "hidden", data: -1, img: null },
 
     },
     3: {
-        0: { txt: "Arrows", subText: "3", action: "ability", data: "arrows", btnCooldown: 0, abilityCooldown: 1, img: "soldier_img" },
-        1: { txt: "Invincible", subText: "4", action: "ability", data: "invincible", btnCooldown: 0, abilityCooldown: 2, img: "soldier_img" },
-        2: { txt: "Target", subText: "4", action: "ability", data: "target", btnCooldown: 0, abilityCooldown: 8, img: "archer_img" },
-        3: { txt: "Sprint", subText: "3", action: "ability", data: "sprint", btnCooldown: 0, abilityCooldown: 4, img: "soldier_img" },
+        0: { txt: "Arrows", cost: 3, action: "ability", data: "arrows", btnCooldown: 0, abilityCooldown: 1, img: "soldier_img" },
+        1: { txt: "Invincible", cost: 4, action: "ability", data: "invincible", btnCooldown: 0, abilityCooldown: 2, img: "soldier_img" },
+        2: { txt: "Target", cost: 4, action: "ability", data: "target", btnCooldown: 0, abilityCooldown: 8, img: "archer_img" },
+        3: { txt: "Sprint", cost: 3, action: "ability", data: "sprint", btnCooldown: 0, abilityCooldown: 4, img: "soldier_img" },
         4: { txt: "soldier", action: "wip", data: -1, img: "soldier_img" },
-        5: { txt: "back", action: "folder", data: 0, img: "soldier_img" },
+        5: { txt: "back", action: "folder", data: 0, img: "buttonBack_img" },
     },
 
 }
