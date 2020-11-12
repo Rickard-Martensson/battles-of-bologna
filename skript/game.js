@@ -139,6 +139,7 @@ class Game {
         this.activeAbilites = [];
         this.killStatus = undefined;
         this.activeButtons = {};
+        this.disabledButtons = {};
         this.currentButton = -1;
 
         this.justGaveGold = [null, null]
@@ -183,7 +184,7 @@ class Game {
                 let sprite = this.sprites[key]
                 if (sprite.team == team && sprite.activeEffects.has("sprint")) {
                     sprite.activeEffects.delete("sprint")
-                    sprite.speed /= 2
+                    sprite.speed -= 5
                     sprite.animTimeMult *= 2
                 }
             }
@@ -222,7 +223,7 @@ class Game {
                 let sprite = this.sprites[key];
                 if (sprite.team == team) {
                     sprite.activeEffects.add("sprint")
-                    sprite.speed *= 2
+                    sprite.speed += 5
                     sprite.animTimeMult /= 2
                 }
             }
@@ -316,7 +317,7 @@ class Game {
         if (CLOUDS_ENABLED) { this.drawScenery(); };
         if (GRAPHICS_LEVEL > 0) { ctx.filter = DEFAULT_DARKNESS; };
         this.drawProjectiles();
-        if (DRAW_NEAREST_NEIGHBOUR) { ctx.imageSmoothingEnabled = true } // viktig
+        ctx.imageSmoothingEnabled = false; // viktig
         this.drawButtons();
         this.drawUI(fps);
         this.goldIntervalCheck();
@@ -375,9 +376,6 @@ class Game {
                 0,
                 16,
                 16,
-
-                // (this.pos.x - goldIconSize / 2) * S,
-                // (this.pos.y - goldIconSize / 2) * S,
                 (UI_POS[playerIndex].goldIcon.x) * S,
                 (UI_POS[playerIndex].goldIcon.y - goldIconSize / 2) * S,
                 goldIconSize * S,
@@ -450,18 +448,26 @@ class Game {
             this.addSprite(BASE_POS[team].x, BASE_POS[team].y, unitName, "anim", team);
         }
     }
-    buyUpgrade(upgradeName, team) {
+    buyUpgrade(upgradeName, team, cost) {
         let player = this.players[team]
         if (upgradeName == "upgGold") {
-            let cost = player.goldPerTurn + UPGRADES["upgGold"].costIncrease;
-            if (player.tryBuy(cost)) {
+            let cost2 = player.goldPerTurn + UPGRADES["upgGold"].costIncrease;
+            if (player.tryBuy(cost2)) {
                 player.changeGoldPerTurn(UPGRADES["upgGold"].costIncrease) //.goldPerTurn += UPGRADES["upgGold"].goldIncrease;
             }
         }
         else if (upgradeName == "upgCastle") {
         }
+        else if (upgradeName == "upgAbility") {
+            let cost2 = 25 + player.btnLvl * 5
+            if (player.tryBuy(cost2)) {
+                player.upgAbility();
+            }
+        }
         else {
-            player.addUpgrade(upgradeName);
+            if (player.tryBuy(cost)) {
+                player.addUpgrade(upgradeName);
+            }
         }
     }
 
@@ -469,17 +475,19 @@ class Game {
         let team = Math.floor(id / NUMBER_OF_BUTTONS);
         let player = this.players[team]
         let curFolder = player.currentFolder;
-
         var mod_id = id % NUMBER_OF_BUTTONS;
-        let btnAction = BTN_FOLDER[curFolder][mod_id].action;
-        let btnData = BTN_FOLDER[curFolder][mod_id].data;
-        let btnCooldown = BTN_FOLDER[curFolder][mod_id].btnCooldown;
-        let abilityCooldown = BTN_FOLDER[curFolder][mod_id].abilityCooldown;
-        let cost = BTN_FOLDER[curFolder][mod_id].cost;
+        let btnGlob = BTN_FOLDER[curFolder][mod_id]
+        if (curFolder == 3 && mod_id == 2 && player.btnLvl != ABILITY_MAX_LVL) { btnGlob = BTN_FOLDER[curFolder][6] }
 
-        let upgRequired = BTN_FOLDER[curFolder][mod_id].upgrade;
+        let btnAction = btnGlob.action;
+        let btnData = btnGlob.data;
+        let abilityCooldown = btnGlob.abilityCooldown;
+        let cost = btnGlob.cost;
+        let lvl = btnGlob.lvl
 
-        if (!this.btnIsEnabled(btnAction, player, upgRequired)) {
+        let upgRequired = btnGlob.upgrade;
+
+        if (!this.btnIsEnabled(btnAction, player, upgRequired, lvl)) {
             console.log("either btn is hidden, or its not researched")
         }
         else if (btnAction == 'folder') {
@@ -489,10 +497,15 @@ class Game {
             this.buyUnit(btnData, team, cost);
         }
         else if (btnAction === 'upgrade') {
-            this.buyUpgrade(btnData, team);
+            console.log("1", btnData, team, cost)
+            this.buyUpgrade(btnData, team, cost);
         }
         else if (btnAction === 'ability') {
-            this.castAbility(btnData, team, abilityCooldown)
+            if (player.checkCooldown(curFolder, mod_id)) {
+                this.disabledButtons[id] = true;
+                player.addCooldown(curFolder, mod_id, cost, id)
+                this.castAbility(btnData, team, abilityCooldown)
+            }
         }
         this.activeButtons[id] = Date.now();
 
@@ -508,6 +521,10 @@ class Game {
 
     }
 
+    removeDisabledButtons(id) {
+        delete this.disabledButtons[id]
+    }
+
     goldIntervalCheck() {
         if (Date.now() - this.timeSinceLastGold > GOLD_INTERVAL * 1000) {
             this.timeSinceLastGold = Date.now();
@@ -515,7 +532,7 @@ class Game {
                 let player = this.players[key]
                 player.giveGoldPerTurn()
 
-                player.decreaseCoolDowns();
+                player.decreaseCoolDowns(this);
             }
 
         }
@@ -526,11 +543,14 @@ class Game {
         }
     }
 
-    btnIsEnabled(action, player, upgRequired) {
+    btnIsEnabled(action, player, upgRequired, lvl) {
         if (action == "hidden") {
             return false;
         }
         else if (action != "upgrade" ^ player.checkIfResearched(upgRequired)) { //XOR, coolt. false ^ true
+            return false;
+        }
+        else if (player.btnLvl < lvl) {
             return false;
         }
         return true;
@@ -549,7 +569,10 @@ class Game {
                 delete this.activeButtons[index]
             }
         }
-        // frame = ((this.checkMouseWithinButton()) ? 1 : frame);
+        if (index in this.disabledButtons && player.currentFolder == 3) {
+            frame = 2;
+        }
+        ctx.imageSmoothingEnabled = false
         ctx.drawImage(Images.button1,
             34 * frame,
             0 * 0,
@@ -560,6 +583,7 @@ class Game {
             BUTTON_SIZE * S,
             BUTTON_SIZE * S
         );
+        ctx.imageSmoothingEnabled = true
         ctx.drawImage(Images[img],
             32 * 0, //frame
             0 * 0,
@@ -578,12 +602,9 @@ class Game {
         this.writeBtnText(text, button, "txt")
         if (text2 !== undefined) { this.writeBtnText(text2, button, "txt2") }
 
-        if (cost == "%upggold%") {
-            cost = player.goldPerTurn + 5;
-        }
-        else if (cost == "%upgcastle%") {
-            cost = 50;
-        }
+        if (cost == "%upggold%") { cost = player.goldPerTurn + 5; }
+        else if (cost == "%upgcastle%") { cost = 50; }
+        else if (cost == "%upgability%") { cost = 25 + player.btnLvl * 5 }
 
         ctx.textAlign = "end";
         ctx.font = 3 * S + "px 'Press Start 2P'";
@@ -598,7 +619,6 @@ class Game {
             btnIcon = 1
         }
         if (btnIcon !== null) {
-            ctx.imageSmoothingEnabled = false
             let goldIconSize = 5
             ctx.drawImage(Images["gold"],
                 16 * btnIcon,
@@ -612,13 +632,7 @@ class Game {
                 goldIconSize * S
             );
         }
-
-
-
-
-
     }
-
 
     writeBtnText(text, pos, name) {
         ctx.fillText(text,
@@ -626,12 +640,6 @@ class Game {
             (pos.y + UI_POS_BTN[name].y) * S,
         );
     }
-
-    drawButtons2() {
-
-    }
-
-
 
     drawButtons() {
         for (const [index, item] of BUTTON_LAYOUT.entries()) {
@@ -643,8 +651,13 @@ class Game {
             let btn = BTN_FOLDER[curFolder][mod_id];
             let action = btn.action;
             let upgrade = btn.upgrade;
+            let lvl = btn.lvl
 
-            if (this.btnIsEnabled(action, player, upgrade)) {
+            if (this.btnIsEnabled(action, player, upgrade, lvl)) {
+                this.drawButton(index, mod_id, item, btn, player)
+            }
+            else if (curFolder == 3 && mod_id == 2 && player.btnLvl < 4) {
+                btn = BTN_FOLDER[curFolder][6];
                 this.drawButton(index, mod_id, item, btn, player)
             }
 

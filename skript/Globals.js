@@ -36,6 +36,7 @@ const BUTTON_DELAY = 100;   //hur länge en knapp är
 const NUMBER_OF_BUTTONS = 6;    //antal knappar
 const INVINCIBLE_DELAY = 200;   //hur länge en sprite är genomskinlig efter att ha blivit slagen
 const GRAVITY = 50; //projektiler
+const ABILITY_MAX_LVL = 4; //max lvl för abilities 
 var START_TIME = Date.now();  //när spelet startade
 const HEIGHT = 100; //vet ej
 const ROW_OFFSET = 1;   //hur många pixlar förskjuten en unit är i en ennan rad
@@ -108,11 +109,17 @@ class Animation {
     }
 }
 
+// let disabledBtns = new Set([{ "a": 1, "b": 2 }, { "a": 1, "b": 2 }
+// ])
 
+// if (disabledBtns.has({ "a": 1, "b": 2 })) { console.log("ja") }
+// else {
+//     console.log("nej")
+// }
 
-// let mySet = new Set(["ja", "nek"]);
-// if (mySet.has("jaj")) { console.log("yay") }
-// else { console.log("nay") }
+let mySet = new Set([("ja", 10), ("nej", 1)]);
+if (mySet.has(("ja", 1))) { console.log("yay") }
+else { console.log("nay") }
 
 
 
@@ -209,12 +216,14 @@ const BTN_FOLDER = {
 
     },
     3: {
-        0: { txt: "Arrows", cost: 3, action: "ability", data: "arrows", btnCooldown: 0, abilityCooldown: 1, img: "soldier_img" },
-        1: { txt: "Invincible", cost: 4, action: "ability", data: "invincible", btnCooldown: 0, abilityCooldown: 2, img: "soldier_img" },
-        2: { txt: "Target", cost: 4, action: "ability", data: "target", btnCooldown: 0, abilityCooldown: 8, img: "archer_img" },
-        3: { txt: "Sprint", cost: 3, action: "ability", data: "sprint", btnCooldown: 0, abilityCooldown: 4, img: "soldier_img" },
-        4: { txt: "soldier", action: "wip", data: -1, img: "soldier_img" },
+        0: { txt: "Arrows", cost: 2, action: "ability", data: "arrows", abilityCooldown: 1, lvl: 2, img: "soldier_img" },
+        1: { txt: "Invincible", cost: 4, action: "ability", data: "invincible", abilityCooldown: 3, lvl: 3, img: "soldier_img" },
+        2: { txt: "Target", cost: 4, action: "ability", data: "target", abilityCooldown: 8, lvl: 4, img: "archer_img" },
+        3: { txt: "Sprint", cost: 1, action: "ability", data: "sprint", abilityCooldown: 4, lvl: 1, img: "soldier_img" },
+        4: { txt: "Target", cost: 4, action: "ability", data: "target", abilityCooldown: 8, lvl: 0, img: "archer_img" },
         5: { txt: "back", action: "folder", data: 0, img: "buttonBack_img" },
+        6: { txt: "upgrade", txt2: "ability", cost: "%upgability%", action: "upgrade", upgrade: "upgAbility", data: "upgAbility", img: "archer_img" },
+
     },
 
 }

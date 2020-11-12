@@ -1,20 +1,59 @@
 class Player {
     constructor(name, team) {
         this.name = name
-        this.gold = 150;
-        this.goldPerTurn = 30;
+        this.gold = 80;
+        this.goldPerTurn = 25;
         this.team = team; //0 = blue
         this.currentFolder = 0;
         this.race = "human";
         this.hp = 100;
-        this.btnCoolDowns = new Set([
-            { folder: 1, btn: 2, time: 2 },
-            { folder: 2, btn: 1, time: 0 }
-        ]);
-        this.disabledBtns = new Set([
-            "12"
-        ])
+        this.btnLvl = 0;
+        this.castleLvl = 0;
+        this.btnCoolDowns = [
+            //{ folder: 3, btn: 2, time: 2, id: 1 }
+        ]
         this.upgsResearched = new Set([]);
+    }
+
+    upgAbility() {
+        if (this.btnLvl < ABILITY_MAX_LVL) {
+            this.btnLvl += 1
+        }
+    }
+
+    upgCastle() {
+
+    }
+
+    checkCooldown(folder, btn) {
+        for (const cool of this.btnCoolDowns) {
+            if (cool.folder == folder && cool.btn == btn) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    addCooldown(folder, btn, time, id) {
+        this.btnCoolDowns.push({ folder: folder, btn: btn, time: time, id: id })
+    }
+
+    decreaseCoolDowns(game) {
+        for (var cool of this.btnCoolDowns) {
+            if (cool.time != 1) {
+                cool.time -= 1;
+            }
+            else {
+                game.removeDisabledButtons(cool.btn)
+                cool.time = -1
+            }
+        }
+        this.btnCoolDowns = this.btnCoolDowns.filter(a => a.time != -1)
+    }
+
+
+    updateDisabledBtns(game) {
+
     }
 
     checkIfResearched(upgrade) {
@@ -28,24 +67,6 @@ class Player {
         this.upgsResearched.add(upgrade);
     }
 
-    // addDisabledBtn(folder, id) {
-    //     let btnName = str(folder) + str(id);
-    //     this.disabledBtns.add(btnName);
-    // }
-
-    // removeDisabledBtn(folder, id) {
-    //     let btnName = str(folder) + str(id);
-    //     this.disabledBtns.delete(btnName);
-    // }
-
-    // checkIfBtnHidden(folder, id) {
-    //     let btnName = str(folder) + str(id);
-    //     return (this.disabledBtns.has(btnName));
-    // }
-
-    addCooldown(folder, btn, time) {
-        this.btnCoolDowns.push({ folder: folder, btn: btn, foldertime: time })
-    }
 
     takeDmg(dmg) {
         this.hp -= dmg
@@ -83,13 +104,5 @@ class Player {
         this.hp -= 10 //unitHealth
     }
 
-    decreaseCoolDowns() {
-        for (let cooldown of this.btnCoolDowns.values()) {
-            console.log("cooldown", cooldown);
-            cooldown.time -= 1;
-            if (cooldown.time <= 0) {
-                this.btnCoolDowns.delete(cooldown)
-            }
-        }
-    }
+
 }
