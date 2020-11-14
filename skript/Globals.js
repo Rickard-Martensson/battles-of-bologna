@@ -96,10 +96,10 @@ const CLOUD_MAX_COUNT = 10; // make an educated guess
 
 //===PERFORMACE===\\\
 const CLOUDS_ENABLED = true
-const GRAPHICS_LEVEL = 0 //0 is fast, 2 is fancy. 1 = shade sprites, 2 = shade projectiles & sprites.
+const GRAPHICS_LEVEL = 2 //0 is fast, 2 is fancy. 1 = shade sprites, 2 = shade projectiles & sprites.
 const DRAW_NEAREST_NEIGHBOUR = true; //blurry or pixly
 const DAY_NIGHT_ENABLED = true; //guess
-const ARROW_GRAPHICS_LEVEL = 0; //0 for only white lines, 1 for texure, 2 for texture shaded by day/night
+const ARROW_GRAPHICS_LEVEL = 2; //0 for only white lines, 1 for texure, 2 for texture shaded by day/night
 
 
 class Animation {
@@ -149,6 +149,8 @@ const STATS = {
     knight: { hp: 15, dmg: 3, meleRange: 12, range: 0, atkSpeed: 1200, atkDelay: 450, speed: 10, row: 1, img: "knight_img", imageSize: 32, size: 7, animations: { idle: new Animation(32, 0, 8, 60, true), walk: new Animation(32, 1, 8, 8, true), attack: new Animation(32, 2, 7, 20, false) } },
     veteran: { hp: 15, dmg: 10, meleRange: 12, range: 0, atkSpeed: 2200, atkDelay: 1100, speed: 4, row: 0, img: "veteran_img", imageSize: 32, size: 7, animations: { idle: new Animation(32, 0, 8, 60, true), walk: new Animation(32, 1, 8, 20, true), attack: new Animation(32, 2, 12, 18, false) } },
     sprinter: { hp: 6, dmg: 2, meleRange: 12, range: 0, atkSpeed: 1000, atkDelay: 500, speed: 15, row: 0, img: "soldier_img", imageSize: 32, size: 7, animations: { idle: new Animation(32, 0, 8, 60, true), walk: new Animation(32, 1, 8, 20, true), attack: new Animation(32, 2, 7, 20, false) } },
+    wizard: { hp: Infinity, dmg: 3, meleRange: 12, range: 0, atkSpeed: 1200, atkDelay: 450, speed: 4, row: 0, img: "soldier_img", imageSize: 32, size: 7, animations: { idle: new Animation(32, 0, 8, 60, true), walk: new Animation(32, 1, 8, 20, true), attack: new Animation(32, 2, 7, 20, false) } },
+
 }
 
 
@@ -162,6 +164,7 @@ const STATS = {
 const UNIQE = {
     knight: ["coolShoes", "changeRow"],
     archer: ["targetfire"],
+    wizard: ["zap"]
 }
 //antingen finns statementet i box, eller nån i barnen
 //vi kan patternmatcha
