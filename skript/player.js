@@ -1,7 +1,7 @@
 class Player {
     constructor(name, team, img, x, y) {
         this.name = name
-        this.gold = 250;
+        this.gold = 500;
         this.goldPerTurn = 5;
         this.team = team; //0 = blue
         this.currentFolder = 0;
