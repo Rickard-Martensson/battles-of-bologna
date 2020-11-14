@@ -1,18 +1,35 @@
 class Player {
-    constructor(name, team) {
+    constructor(name, team, img, x, y) {
         this.name = name
-        this.gold = 80;
-        this.goldPerTurn = 25;
+        this.gold = 250;
+        this.goldPerTurn = 5;
         this.team = team; //0 = blue
         this.currentFolder = 0;
         this.race = "human";
         this.hp = 100;
         this.btnLvl = 0;
-        this.castleLvl = 0;
         this.btnCoolDowns = [
             //{ folder: 3, btn: 2, time: 2, id: 1 }
         ]
         this.upgsResearched = new Set([]);
+
+        //===castle===\\
+        this.pos = { x: x, y: y };
+        this.img = img;
+        this.imageSize = 64;
+        this.castleLvl = 0;
+        this.lastCastleAtk = -Infinity;
+        if (this.team == 0) { this.img += "_blue" };
+
+        this.DRAW_SIZE = 64;
+    }
+
+    castleAttack() {
+        let dmg = 3;
+        this.lastCastleAtk = Date.now()
+        game.shootProjectile(this.pos.x, this.pos.y, 35 * (Math.random() + 1) * (1 - 2 * this.team), -15 * (Math.random() * 1 + 4.5), this.team, dmg)
+        if (this.castleLvl > 2) {
+        }
     }
 
     upgAbility() {
@@ -22,7 +39,9 @@ class Player {
     }
 
     upgCastle() {
-
+        if (this.castleLvl <= CASTLE_MAX_LVL) {
+            this.castleLvl += 1
+        }
     }
 
     checkCooldown(folder, btn) {
@@ -104,5 +123,19 @@ class Player {
         this.hp -= 10 //unitHealth
     }
 
+    drawCastle() {
+        ctx.drawImage(Images[this.img],
+            this.imageSize * 0,
+            this.imageSize * this.castleLvl,
+            this.imageSize,
+            this.imageSize,
 
+            (this.pos.x - this.DRAW_SIZE / 2) * S,
+            (this.pos.y - this.DRAW_SIZE / 2) * S,
+            this.DRAW_SIZE * S,
+            this.DRAW_SIZE * S
+        );
+    }
 }
+
+

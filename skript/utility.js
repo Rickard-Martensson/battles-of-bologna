@@ -102,13 +102,23 @@ function setUnitDarkness(curTime, sunSetDate, sunSetDuration) {
 //precis sånthär som jag hade i åtanke
 //säg till när du har tid o prata!
 
-class Engine {
-    constructor() {
-        this.spriteBoxes = [];
-        this.sprites = [];
+function drawIcon(name, team, pos) {
+    if (!(name in ICON_SS_POS)) {
+        console.log("sorry, this icon", name, "is missing")
+        return false;
     }
+    let x = ICON_SS_POS[name].x
+    let y = ICON_SS_POS[name].y
+    let img = Images["icons_img"];
+    ctx.drawImage(img,
+        32 * x,
+        32 * (y + team),
+        32,
+        32,
 
-    addSprite(x) {
-        this.spriteBoxes.push(x)
-    }
+        (pos.x - ICON_SIZE / 2) * S,
+        (pos.y - ICON_SIZE / 2) * S,
+        ICON_SIZE * S,
+        ICON_SIZE * S,
+    );
 }

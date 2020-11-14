@@ -246,6 +246,7 @@ class Sprite {
         if (newState == "walk") {
             this.isWalking = true;
             this.lastStartOfAtkCycleDate = null;
+            this.lastAtkCycleDate = START_TIME;
             this.currentSpeed = this.speed
             this.state = "walk"
             this.currentAnimation = "walk"

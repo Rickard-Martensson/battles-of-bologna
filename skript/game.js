@@ -62,11 +62,14 @@ class Scenery {
         this.img = this.name + "_img"
         this.imageSize = 64;
         let images = 8
-        this.distFactor = (1 + (CLOUD_DIST_FACTOR - 1) * this.pos.y / CLOUD_MAX_HEIGHT) / CLOUD_DIST_FACTOR;
-        this.speed = CLOUD_SPEED * this.distFactor;
+        this.distFactor = CLOUD_DIST_FACTOR - (CLOUD_DIST_FACTOR - 1) * (y / CLOUD_MAX_HEIGHT);
+        this.speed = 1 * CLOUD_SPEED * this.distFactor;
+
         this.id = Math.floor(images * Math.random());
 
-        this.DRAW_SIZE = 64
+        this.DRAW_SIZE = 32
+        let drawSize = this.DRAW_SIZE * this.distFactor * S
+        console.log(y, drawSize,)
     }
 
     move() {
@@ -79,30 +82,30 @@ class Scenery {
 
     draw() {
         ctx.imageSmoothingEnabled = true
+        let drawSize = this.DRAW_SIZE * this.distFactor
         ctx.drawImage(Images[this.img],
             this.imageSize * (IS_NIGHT * 2),
             this.imageSize * this.id,
             this.imageSize,
             this.imageSize,
 
-            (this.pos.x - this.DRAW_SIZE / 2) * S,
-            (this.pos.y - this.DRAW_SIZE / 2) * S,
-            this.DRAW_SIZE * this.distFactor * S,
-            this.DRAW_SIZE * this.distFactor * S
+            (this.pos.x - drawSize / 2) * S,
+            (this.pos.y - drawSize / 2) * S,
+            drawSize * S,
+            drawSize * S
         );
         if (DUSK_OPACITY != 0 && DAY_NIGHT_ENABLED) {
             ctx.globalAlpha = DUSK_OPACITY;
-            let drawSize = this.DRAW_SIZE * this.distFactor * S
             ctx.drawImage(Images[this.img],
                 this.imageSize * 1,
                 this.imageSize * this.id,
                 this.imageSize,
                 this.imageSize,
 
-                (this.pos.x - this.DRAW_SIZE / 2) * S,
-                (this.pos.y - this.DRAW_SIZE / 2) * S,
-                drawSize,
-                drawSize
+                (this.pos.x - drawSize / 2) * S,
+                (this.pos.y - drawSize / 2) * S,
+                drawSize * S,
+                drawSize * S
             );
             ctx.globalAlpha = 1
         }
@@ -114,8 +117,8 @@ class Scenery {
 class Game {
     constructor() {
         this.players = [
-            new Player("kjelle", 0),
-            new Player("bert", 1),
+            new Player("kjelle", 0, "castle_img", 32, 60),
+            new Player("bert", 1, "castle_img", 288, 60),
         ]
         this.sprites = [
             //new Sprite(80, 100, "soldier", "anim", "red"),
@@ -125,10 +128,6 @@ class Game {
         ];
         this.projectiles = [
             //new Projectile(80, 100, 20, -40),
-        ]
-        this.buildings = [
-            new Building(32, 60, "castle", 0),
-            new Building(288, 60, "castle", 1),
         ]
         this.sceneryCount = 0;
         this.scenery = [
@@ -184,7 +183,7 @@ class Game {
                 let sprite = this.sprites[key]
                 if (sprite.team == team && sprite.activeEffects.has("sprint")) {
                     sprite.activeEffects.delete("sprint")
-                    sprite.speed -= 5
+                    sprite.speed -= SPRINT_ABILITY_SPEED
                     sprite.animTimeMult *= 2
                 }
             }
@@ -223,7 +222,7 @@ class Game {
                 let sprite = this.sprites[key];
                 if (sprite.team == team) {
                     sprite.activeEffects.add("sprint")
-                    sprite.speed += 5
+                    sprite.speed += SPRINT_ABILITY_SPEED
                     sprite.animTimeMult /= 2
                 }
             }
@@ -232,10 +231,11 @@ class Game {
 
     tryMakeCloud() {
         let randNum = Math.random()
-        if (randNum < CLOUD_RATE) {
+        if (randNum < 1) {
+            console.log("new cloud")
             this.sceneryCount++;
             let yPos = CLOUD_MIN_HEIGHT + Math.random() * (CLOUD_MAX_HEIGHT - CLOUD_MIN_HEIGHT)
-            this.scenery.push(new Scenery(-32, yPos, "cloud"));
+            this.scenery.push(new Scenery(0, yPos, "cloud"));
         }
     }
 
@@ -311,10 +311,10 @@ class Game {
 
         //draw stuff
         if (DAY_NIGHT_ENABLED) { this.changeBackground(Date.now() - this.startTime); };
+        if (CLOUDS_ENABLED) { this.drawScenery(); };
         if (GRAPHICS_LEVEL != 0) { ctx.filter = UNIT_DARKNESS; };
         if (DRAW_NEAREST_NEIGHBOUR) { ctx.imageSmoothingEnabled = false } // viktig
         this.drawSprites();
-        if (CLOUDS_ENABLED) { this.drawScenery(); };
         if (GRAPHICS_LEVEL > 0) { ctx.filter = DEFAULT_DARKNESS; };
         this.drawProjectiles();
         ctx.imageSmoothingEnabled = false; // viktig
@@ -339,8 +339,8 @@ class Game {
 
     shootProjectile(x, y, vx, vy, team, dmg) {
         this.projectiles.push(new Projectile(x, y, vx, vy, team, dmg))
-
     }
+
     drawUI(fps) {
         this.checkMouseWithinButton()
         ctx.textAlign = "center";
@@ -412,16 +412,20 @@ class Game {
 
     drawSprites() {
         for (var i in this.sprites) {
-            this.sprites[i].canMove(this);
-            this.sprites[i].move()
-            this.sprites[i].draw()
-            this.sprites[i].checkIfAtEnemyCastle(this)
-            this.sprites[i].checkDead(game, i)
-
+            let sprite = this.sprites[i];
+            sprite.canMove(this);
+            sprite.move();
+            sprite.draw();
+            sprite.checkIfAtEnemyCastle(this);
+            sprite.checkDead(game, i);
         }
-        for (var key in this.buildings) {
-            let building = this.buildings[key];
-            building.draw()
+        for (var i in this.players) {
+            let player = this.players[i];
+            player.drawCastle();
+            if (player.castleLvl != 0 && Date.now() - player.lastCastleAtk > CASTLE_ARROW_DELAY[player.castleLvl] * 1000) {
+                console.log("pang")
+                player.castleAttack();
+            }
         }
 
 
@@ -448,8 +452,7 @@ class Game {
             this.addSprite(BASE_POS[team].x, BASE_POS[team].y, unitName, "anim", team);
         }
     }
-    buyUpgrade(upgradeName, team, cost) {
-        let player = this.players[team]
+    buyUpgrade(upgradeName, player, cost) {
         if (upgradeName == "upgGold") {
             let cost2 = player.goldPerTurn + UPGRADES["upgGold"].costIncrease;
             if (player.tryBuy(cost2)) {
@@ -457,6 +460,10 @@ class Game {
             }
         }
         else if (upgradeName == "upgCastle") {
+            if (player.tryBuy(50)) {
+                player.upgCastle();
+                player.lastCastleAtk = -Infinity
+            }
         }
         else if (upgradeName == "upgAbility") {
             let cost2 = 25 + player.btnLvl * 5
@@ -497,8 +504,7 @@ class Game {
             this.buyUnit(btnData, team, cost);
         }
         else if (btnAction === 'upgrade') {
-            console.log("1", btnData, team, cost)
-            this.buyUpgrade(btnData, team, cost);
+            this.buyUpgrade(btnData, player, cost);
         }
         else if (btnAction === 'ability') {
             if (player.checkCooldown(curFolder, mod_id)) {
@@ -544,6 +550,7 @@ class Game {
     }
 
     btnIsEnabled(action, player, upgRequired, lvl) {
+        // console.log(action, player, upgRequired, lvl)
         if (action == "hidden") {
             return false;
         }
@@ -553,6 +560,9 @@ class Game {
         else if (player.btnLvl < lvl) {
             return false;
         }
+        else if (action == "upgrade" && upgRequired == "upgCastle" && player.castleLvl >= CASTLE_MAX_LVL) {
+            return false;
+        }
         return true;
     }
 
@@ -560,6 +570,7 @@ class Game {
         let text = btnGlob.txt;
         let text2 = btnGlob.txt2;
         let img = ((player.team == 0) ? btnGlob.img + "_blue" : btnGlob.img);
+        let icon = btnGlob.icon;
         let cost = ((btnGlob.cost === undefined) ? "" : btnGlob.cost); //jävlar
         let action = btnGlob.action;
         let frame = 0
@@ -584,16 +595,21 @@ class Game {
             BUTTON_SIZE * S
         );
         ctx.imageSmoothingEnabled = true
-        ctx.drawImage(Images[img],
-            32 * 0, //frame
-            0 * 0,
-            32,
-            32,
-            (button.x + UI_POS_BTN.img.x - ICON_SIZE / 2) * S,
-            (button.y + UI_POS_BTN.img.y - ICON_SIZE / 2) * S,
-            ICON_SIZE * S,
-            ICON_SIZE * S
-        );
+        if (icon != undefined) {
+            drawIcon(icon, player.team, { x: button.x, y: button.y });
+        }
+        else {
+            ctx.drawImage(Images[img],
+                32 * 0, //frame
+                0 * 0,
+                32,
+                32,
+                (button.x + UI_POS_BTN.img.x - ICON_SIZE / 2) * S,
+                (button.y + UI_POS_BTN.img.y - ICON_SIZE / 2) * S,
+                ICON_SIZE * S,
+                ICON_SIZE * S
+            );
+        }
 
         ctx.textAlign = "center";
         ctx.fillStyle = "#ffffff";

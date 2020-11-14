@@ -6,9 +6,11 @@ var IMAGE_DIRECTORY = [
     ["soldier_img", "./bilder/sprites/soldier2.png"],
     ["archer_img", "./bilder/sprites/archer2.png"],
     ["knight_img", "./bilder/sprites/knight.png"],
+    ["veteran_img", "./bilder/sprites/veteran.png"],
     ["soldier_img_blue", "./bilder/sprites/soldier_blue2.png"],
     ["archer_img_blue", "./bilder/sprites/archer_blue2.png"],
     ["knight_img_blue", "./bilder/sprites/knight_blue.png"],
+    ["veteran_img_blue", "./bilder/sprites/veteran_blue.png"],
     ["image_not_found", "./bilder/ui/wtf.png"],
     ["exitButton", "./bilder/ui/ExitButton.png"],
     ["button1", "./bilder/ui/button2.png"],
@@ -19,8 +21,22 @@ var IMAGE_DIRECTORY = [
     ["background_night", "./bilder/background_1_night.png"],
     ["cloud_img", "./bilder/sprites/clouds.png"],
     ["gold", "./bilder/sprites/icons.png"],
+    ["icons_img", "./bilder/ui/icons2.png"],
+    ["icons_img_blue", "./bilder/ui/icons1.png"]
 
 ];
+
+var ICON_DIRECTORY = {
+    target: { x: 0, y: 1 },
+    invis: { x: 0, y: 0 },
+
+}
+
+const ICON_SS_POS = {
+    target: { x: 0, y: 0 },
+    invincible: { x: 1, y: 0 },
+    sprint: { x: 2, y: 0 }
+}
 
 
 
@@ -37,6 +53,7 @@ const NUMBER_OF_BUTTONS = 6;    //antal knappar
 const INVINCIBLE_DELAY = 200;   //hur länge en sprite är genomskinlig efter att ha blivit slagen
 const GRAVITY = 50; //projektiler
 const ABILITY_MAX_LVL = 4; //max lvl för abilities 
+const CASTLE_MAX_LVL = 3; //max lvl för slottet
 var START_TIME = Date.now();  //när spelet startade
 const HEIGHT = 100; //vet ej
 const ROW_OFFSET = 1;   //hur många pixlar förskjuten en unit är i en ennan rad
@@ -51,6 +68,9 @@ const RANGE_RANDOMNESS = 0.5    //0.5 = arrows flyger mellan 100% & 150% av rang
 const INVINCIBLE_DURATION = 2;
 const ARCHER_TRAJECTORY = 1.25;  //arctan av detta är vinkeln den skjuts med
 const ARCHER_TARGET_MAX_RANGE = 100 // maxrange när archers använder target fire abilityn.
+const SPRINT_ABILITY_SPEED = 4;
+
+const CASTLE_ARROW_DELAY = [NaN, 15, 10, 10]
 
 //===DAY NIGHT ===\\
 const MAXDARKNESS = 0.5 //hur mörka sprites blir på natten. används endast i graphics_level 1+
@@ -69,10 +89,10 @@ var IS_NIGHT = false;   //används för moln, säger om det ska va dag eller nat
 //=== clouds ===\\
 const CLOUD_RATE = 0.00175;  //hur ofta det kommer moln
 const CLOUD_SPEED = 0.3;   //hur snabba molnen är
-const CLOUD_MIN_HEIGHT = 20;
-const CLOUD_MAX_HEIGHT = 40;    //hur långt ner molnen kan skapas
-const CLOUD_DIST_FACTOR = 8;      //clouds at y=CLOUD_HEIGHT are X bigger and X faster than those at y=0
-const CLOUD_MAX_COUNT = 4; // make an educated guess
+const CLOUD_MIN_HEIGHT = 0;
+const CLOUD_MAX_HEIGHT = 50;    //hur långt ner molnen kan skapas
+const CLOUD_DIST_FACTOR = 3;      //clouds at y=CLOUD_HEIGHT are X bigger and X faster than those at y=0
+const CLOUD_MAX_COUNT = 10; // make an educated guess
 
 //===PERFORMACE===\\\
 const CLOUDS_ENABLED = true
@@ -124,11 +144,13 @@ else { console.log("nay") }
 
 
 const STATS = {
-    soldier: { hp: 10, dmg: 3, meleRange: 12, range: 0, atkSpeed: 1200, atkDelay: 450, speed: 5, row: 0, img: "soldier_img", imageSize: 32, size: 7, animations: { idle: new Animation(32, 0, 8, 60, true), walk: new Animation(32, 1, 8, 20, true), attack: new Animation(32, 2, 7, 20, false) } },
-    archer: { hp: 8, dmg: 2, meleRange: 12, range: 3, atkSpeed: 2000, atkDelay: 1000, speed: 5, row: 0, img: "archer_img", imageSize: 32, size: 7, animations: { idle: new Animation(32, 0, 8, 60, true), walk: new Animation(32, 1, 8, 20, true), attack: new Animation(32, 2, 7, 20, false) } },
-    knight: { hp: 20, dmg: 2, meleRange: 12, range: 0, atkSpeed: 1200, atkDelay: 450, speed: 12, row: 1, img: "knight_img", imageSize: 32, size: 7, animations: { idle: new Animation(32, 0, 8, 60, true), walk: new Animation(32, 1, 8, 8, true), attack: new Animation(32, 2, 7, 20, false) } },
-    sprinter: { hp: 6, dmg: 2, meleRange: 12, range: 0, atkSpeed: 1000, atkDelay: 500, speed: 15, row: 0, img: "archer_img", imageSize: 32, size: 7, animations: { idle: new Animation(32, 0, 8, 60, true), walk: new Animation(32, 1, 8, 20, true), attack: new Animation(32, 2, 7, 20, false) } },
+    soldier: { hp: 10, dmg: 3, meleRange: 12, range: 0, atkSpeed: 1200, atkDelay: 450, speed: 4, row: 0, img: "soldier_img", imageSize: 32, size: 7, animations: { idle: new Animation(32, 0, 8, 60, true), walk: new Animation(32, 1, 8, 20, true), attack: new Animation(32, 2, 7, 20, false) } },
+    archer: { hp: 8, dmg: 2, meleRange: 12, range: 3, atkSpeed: 2000, atkDelay: 1000, speed: 4, row: 0, img: "archer_img", imageSize: 32, size: 7, animations: { idle: new Animation(32, 0, 8, 60, true), walk: new Animation(32, 1, 8, 20, true), attack: new Animation(32, 2, 7, 20, false) } },
+    knight: { hp: 15, dmg: 3, meleRange: 12, range: 0, atkSpeed: 1200, atkDelay: 450, speed: 10, row: 1, img: "knight_img", imageSize: 32, size: 7, animations: { idle: new Animation(32, 0, 8, 60, true), walk: new Animation(32, 1, 8, 8, true), attack: new Animation(32, 2, 7, 20, false) } },
+    veteran: { hp: 15, dmg: 10, meleRange: 12, range: 0, atkSpeed: 2200, atkDelay: 1100, speed: 4, row: 0, img: "veteran_img", imageSize: 32, size: 7, animations: { idle: new Animation(32, 0, 8, 60, true), walk: new Animation(32, 1, 8, 20, true), attack: new Animation(32, 2, 12, 18, false) } },
+    sprinter: { hp: 6, dmg: 2, meleRange: 12, range: 0, atkSpeed: 1000, atkDelay: 500, speed: 15, row: 0, img: "soldier_img", imageSize: 32, size: 7, animations: { idle: new Animation(32, 0, 8, 60, true), walk: new Animation(32, 1, 8, 20, true), attack: new Animation(32, 2, 7, 20, false) } },
 }
+
 
 
 // {
@@ -200,27 +222,26 @@ const BTN_FOLDER = {
     1: {    // sprites
         0: { txt: "soldier", cost: 15, action: "buyUnit", data: "soldier", img: "soldier_img" },
         1: { txt: "archer", cost: 10, action: "buyUnit", data: "archer", img: "archer_img" },
-        2: { txt: "knight", cost: 35, action: "buyUnit", data: "knight", upgrade: "upgKnight", require: "upgKnight", img: "knight_img" },
+        2: { txt: "knight", cost: 35, action: "buyUnit", data: "knight", upgrade: "upgKnight", img: "knight_img" }, // require: "upgKnight",
         3: { txt: "back", action: "folder", data: 0, img: "buttonBack_img" },
-        4: { txt: "", action: "hidden", data: -1, img: null },
+        4: { txt: "veteran", cost: 50, action: "buyUnit", data: "veteran", upgrade: "upgVeteran", img: "veteran_img" },
         5: { txt: "", action: "hidden", data: -1, img: null },
 
     },
     2: {    //upgrades
         0: { txt: "upgrade", txt2: "Gold", cost: "%upggold%", action: "upgrade", upgrade: "upgAlwaysVisible", data: "upgGold", img: "soldier_img" },
-        1: { txt: "upgrade", txt2: "Castle", cost: "%upgcastle%", action: "upgrade", upgrade: "upgAlwaysVisible", data: "upgCastle", img: "soldier_img" },
+        1: { txt: "", action: "hidden", data: -1, img: null },
         2: { txt: "unlock", txt2: "Knight", cost: 50, subText: "50", action: "upgrade", upgrade: "upgKnight", data: "upgKnight", img: "knight_img" },
-        3: { txt: "soldier", action: "wip", data: -1, img: "soldier_img" },
+        3: { txt: "upgrade", txt2: "Castle", cost: "%upgcastle%", action: "upgrade", upgrade: "upgCastle", data: "upgCastle", img: "soldier_img" },
         4: { txt: "back", action: "folder", data: 0, img: "buttonBack_img" },
-        5: { txt: "", action: "hidden", data: -1, img: null },
-
+        5: { txt: "unlock", txt2: "Veteran", cost: 50, subText: "50", action: "upgrade", upgrade: "upgVeteran", data: "upgVeteran", img: "veteran_img" },
     },
     3: {
         0: { txt: "Arrows", cost: 2, action: "ability", data: "arrows", abilityCooldown: 1, lvl: 2, img: "soldier_img" },
-        1: { txt: "Invincible", cost: 4, action: "ability", data: "invincible", abilityCooldown: 3, lvl: 3, img: "soldier_img" },
-        2: { txt: "Target", cost: 4, action: "ability", data: "target", abilityCooldown: 8, lvl: 4, img: "archer_img" },
-        3: { txt: "Sprint", cost: 1, action: "ability", data: "sprint", abilityCooldown: 4, lvl: 1, img: "soldier_img" },
-        4: { txt: "Target", cost: 4, action: "ability", data: "target", abilityCooldown: 8, lvl: 0, img: "archer_img" },
+        1: { txt: "Invincible", cost: 4, action: "ability", data: "invincible", abilityCooldown: 3, lvl: 3, img: "icons_img", icon: "invincible" },
+        2: { txt: "Target", cost: 4, action: "ability", data: "target", abilityCooldown: 8, lvl: 4, img: "archer_img", icon: "target" },
+        3: { txt: "Sprint", cost: 3, action: "ability", data: "sprint", abilityCooldown: 4, lvl: 1, img: "soldier_img" },
+        4: { txt: "Sprint", cost: 3, action: "ability", data: "sprint", abilityCooldown: 4, lvl: 0, img: "soldier_img", icon: "sprint" },
         5: { txt: "back", action: "folder", data: 0, img: "buttonBack_img" },
         6: { txt: "upgrade", txt2: "ability", cost: "%upgability%", action: "upgrade", upgrade: "upgAbility", data: "upgAbility", img: "archer_img" },
 

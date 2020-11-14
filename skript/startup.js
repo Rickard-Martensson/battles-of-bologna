@@ -133,6 +133,7 @@ function loadImages() {
     for (let i = 0; i < IMAGE_DIRECTORY.length; i++) {
         loadImage(IMAGE_DIRECTORY[i][0], IMAGE_DIRECTORY[i][1]);
     }
+
 }
 
 function loadImage(name, src) {
