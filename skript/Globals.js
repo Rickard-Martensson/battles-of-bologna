@@ -197,19 +197,38 @@ const BUTTON_LAYOUT = [
     { x: 245, y: 165, key: "l" },
 ]
 
+const BTN_LAYOUT = {
+    0: [
+        { x: 15, y: 135, key: "q" },
+        { x: 45, y: 135, key: "w" },
+        { x: 75, y: 135, key: "e" },
+        { x: 15, y: 165, key: "a" },
+        { x: 45, y: 165, key: "s" },
+        { x: 75, y: 165, key: "d" },
+    ],
+    1: [
+        { x: 305, y: 135, key: "u" },
+        { x: 275, y: 135, key: "i" },
+        { x: 245, y: 135, key: "o" },
+        { x: 305, y: 165, key: "j" },
+        { x: 275, y: 165, key: "k" },
+        { x: 245, y: 165, key: "l" },
+    ]
+}
+
 const BUTTON_DICT = {
-    q: 0,
-    w: 1,
-    e: 2,
-    a: 3,
-    s: 4,
-    d: 5,
-    o: 6,
-    i: 7,
-    u: 8,
-    l: 9,
-    k: 10,
-    j: 11,
+    q: { team: 0, id: 0 },
+    w: { team: 0, id: 1 },
+    e: { team: 0, id: 2 },
+    a: { team: 0, id: 3 },
+    s: { team: 0, id: 4 },
+    d: { team: 0, id: 5 },
+    o: { team: 1, id: 0 },
+    i: { team: 1, id: 1 },
+    u: { team: 1, id: 2 },
+    l: { team: 1, id: 3 },
+    k: { team: 1, id: 4 },
+    j: { team: 1, id: 5 },
 }
 
 const BTN_FOLDER = {

@@ -14,17 +14,16 @@ function sendmessage(txt) {
     })
 }
 
-function clickButton(id) {
+
+function pubnubAction(action, team, data) {
     pubnub.publish({
-        channel: "btn",
+        channel: "action",
         message: {
-            type: "unit",
-            unitName: "soldier",
-            team: 1,
-            cost: 15,
+            type: action,
+            unit: data,
+            team: team,
         }
     })
-
 }
 
 
@@ -32,13 +31,17 @@ function clickButton(id) {
 
 pubnub.addListener({
     message: function (m) {
+        console.log(m)
         //console.log("text:", m.message.text, "u:", m.message.button)
-
-
-        if (m.message.type == "unit") {
-            let unit = m.message.unitName;
-            game.buyUnit(unit, 1, 15)
+        let msg = m.message;
+        if (msg.type == "addSprite") {
+            game.addSprite(msg.unit, "anim", msg.team)
         }
+
+        // if (m.message.type == "unit") {
+        //     let unit = m.message.unitName;
+        //     game.buyUnit(unit, 1, 15)
+        // }
         // if (m.message.text != undefined) {
         //     let id = m.message.text
         //     console.log("knapp:", id, typeof (id))
@@ -49,7 +52,7 @@ pubnub.addListener({
 });
 
 pubnub.subscribe({
-    channels: ["msg", "btn"]
+    channels: ["msg", "action"]
 });
 
 

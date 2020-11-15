@@ -2,6 +2,8 @@
 let keySet = new Set(["q", "w", "e", "a", "s", "d", "u", "i", "o", "j", "k", "l"])
 
 
+let isTyping = false;
+
 
 function activateGameController() {
 
@@ -9,17 +11,20 @@ function activateGameController() {
         if (e.repeat) { return };
         var key = e.key.toLowerCase();
         console.log(key)
-        if (keySet.has(key)) {
-            game.buttonAction(BUTTON_DICT[key]);
+        if (key == "enter") {
+            isTyping = !isTyping;
+        }
+        if (keySet.has(key) && !isTyping) {
+            local_UI.buttonAction(BUTTON_DICT[key].id, BUTTON_DICT[key].team);
         }
     }
 
     document.onmousemove = function (e) {
-        game.mousePos = getMousePos(canvas, e);
+        local_UI.mousePos = getMousePos(canvas, e);
     }
     document.onmousedown = function (e) {
-        game.mousePos = getMousePos(canvas, e);
-        game.mouseClicked();
+        local_UI.mousePos = getMousePos(canvas, e);
+        local_UI.mouseClicked();
     }
 }
 

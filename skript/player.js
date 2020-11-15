@@ -63,7 +63,7 @@ class Player {
                 cool.time -= 1;
             }
             else {
-                game.removeDisabledButtons(cool.btn)
+                local_UI.removeDisabledButtons(this.team, cool.btn)
                 cool.time = -1
             }
         }
@@ -109,7 +109,7 @@ class Player {
     }
 
     giveGoldPerTurn() {
-        game.justGaveGold[this.team] = Date.now();
+        local_UI.justGaveGold[this.team] = Date.now();
         this.changeGold(this.goldPerTurn);
 
     }
