@@ -11,7 +11,7 @@ var IMAGE_DIRECTORY = [
     ["archer_img_blue", "./bilder/sprites/archer_blue2.png"],
     ["knight_img_blue", "./bilder/sprites/knight_blue.png"],
     ["veteran_img_blue", "./bilder/sprites/veteran_blue.png"],
-    ["image_not_found", "./bilder/ui/wtf.png"],
+    //["image_not_found", "./bilder/ui/wtf.png"],
     ["exitButton", "./bilder/ui/ExitButton.png"],
     ["button1", "./bilder/ui/button2.png"],
     ["castle_img", "./bilder/sprites/castle.png"],
@@ -22,7 +22,6 @@ var IMAGE_DIRECTORY = [
     ["cloud_img", "./bilder/sprites/clouds.png"],
     ["gold", "./bilder/sprites/icons.png"],
     ["icons_img", "./bilder/ui/icons2.png"],
-    ["icons_img_blue", "./bilder/ui/icons1.png"]
 
 ];
 
@@ -96,10 +95,10 @@ const CLOUD_MAX_COUNT = 10; // make an educated guess
 
 //===PERFORMACE===\\\
 const CLOUDS_ENABLED = true
-const GRAPHICS_LEVEL = 2 //0 is fast, 2 is fancy. 1 = shade sprites, 2 = shade projectiles & sprites.
+const GRAPHICS_LEVEL = 0 //0 is fast, 2 is fancy. 1 = shade sprites, 2 = shade projectiles & sprites.
 const DRAW_NEAREST_NEIGHBOUR = true; //blurry or pixly
 const DAY_NIGHT_ENABLED = true; //guess
-const ARROW_GRAPHICS_LEVEL = 2; //0 for only white lines, 1 for texure, 2 for texture shaded by day/night
+const ARROW_GRAPHICS_LEVEL = 1; //0 for only white lines, 1 for texure, 2 for texture shaded by day/night
 
 
 class Animation {

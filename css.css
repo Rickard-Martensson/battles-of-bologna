@@ -115,13 +115,13 @@ body {
 
 .buttonContainer {
     width: 90%;
-    height: 25%;
-    margin-top: 30%;
+    height: 20%;
+    margin-top: 35%;
 }
 
 .button {
     display: inline-block;
-    width: 16%;
+    width: 12.8%;
     height: 100%;
     margin-left: 20%;
     margin-right: 20%;
@@ -146,6 +146,75 @@ body {
     margin-top: 100%;
 }
 
-#button1:active {
+#button1:hover {
     background-image: url('bilder/ui/playActive.png');
+}
+
+#titleText {
+    src: url('bilder/ui/Logo.png');
+    display: block;
+    position: fixed;
+    margin-left: auto;
+    margin-right: auto;
+
+    width: 70%;
+    margin-left: 15%;
+    margin-right: 15%;
+    margin-top: -60.5%;
+    z-index: -1;
+}
+
+img {
+    -webkit-animation: mover 4.89795918367346938s infinite normal;
+    animation: mover 4.89795918367346938s infinite normal;
+    animation-delay: 1.6s;
+}
+
+@-webkit-keyframes mover {
+    0% {
+        transform: translateY(0);
+    }
+
+    100% {
+        transform: translateY(-8%);
+    }
+}
+
+@keyframes mover {
+    0% {
+        transform: translateY(0);
+    }
+
+    17% {
+        transform: translateY(0);
+    }
+
+    25% {
+        transform: translateY(-4%);
+    }
+
+    42% {
+        transform: translateY(-4%);
+    }
+
+    50% {
+        transform: translateY(-8%);
+    }
+
+    67% {
+        transform: translateY(-8%);
+    }
+
+    75% {
+        transform: translateY(-4%);
+    }
+
+    92% {
+        transform: translateY(-4%);
+    }
+
+    100% {
+        transform: translateY(0%);
+    }
+
 }

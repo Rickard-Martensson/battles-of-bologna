@@ -69,7 +69,7 @@ class Scenery {
 
         this.DRAW_SIZE = 32
         let drawSize = this.DRAW_SIZE * this.distFactor * S
-        console.log(y, drawSize,)
+        // console.log(y, drawSize,)
     }
 
     move() {
@@ -149,6 +149,9 @@ class Game {
         this.tickLengthArray = [];
         this.startTime = Date.now();
         this.timeSinceLastGold = Date.now();
+
+        this.isOnline = true;
+        this.localPlayer = 0;
     }
 
     checkAbilities() {
@@ -232,7 +235,6 @@ class Game {
     tryMakeCloud() {
         let randNum = Math.random()
         if (randNum < 1) {
-            console.log("new cloud")
             this.sceneryCount++;
             let yPos = CLOUD_MIN_HEIGHT + Math.random() * (CLOUD_MAX_HEIGHT - CLOUD_MIN_HEIGHT)
             this.scenery.push(new Scenery(0, yPos, "cloud"));
@@ -352,22 +354,22 @@ class Game {
         ctx.textAlign = "end";
 
         for (var key in this.players) {
-            let playerIndex = key //this.players[key].team;
+            let playerKey = key //this.players[key].team;
             ctx.font = 5 * S + "px 'Press Start 2P'";
             var player = this.players[key]
-            if (this.justGaveGold[playerIndex]) { ctx.fillStyle = "#FFFFFF"; }
+            if (this.justGaveGold[playerKey]) { ctx.fillStyle = "#FFFFFF"; }
             else { ctx.fillStyle = "#F2F2AA"; };
             ctx.fillText(Math.floor(player.gold),
-                UI_POS[playerIndex].gold.x * S,
-                UI_POS[playerIndex].gold.y * S
+                UI_POS[playerKey].gold.x * S,
+                UI_POS[playerKey].gold.y * S
             );
-            if (this.justGaveGold[playerIndex]) { ctx.fillStyle = "#F2F2AA"; }
+            if (this.justGaveGold[playerKey]) { ctx.fillStyle = "#F2F2AA"; }
             else { ctx.fillStyle = "#CEBC1A"; };
 
             ctx.font = 4 * S + "px 'Press Start 2P'";
             ctx.fillText('+' + Math.floor(player.goldPerTurn),
-                UI_POS[playerIndex].goldPerTurn.x * S,
-                UI_POS[playerIndex].goldPerTurn.y * S
+                UI_POS[playerKey].goldPerTurn.x * S,
+                UI_POS[playerKey].goldPerTurn.y * S
             );
             ctx.imageSmoothingEnabled = true
             let goldIconSize = 6
@@ -376,11 +378,12 @@ class Game {
                 0,
                 16,
                 16,
-                (UI_POS[playerIndex].goldIcon.x) * S,
-                (UI_POS[playerIndex].goldIcon.y - goldIconSize / 2) * S,
+                (UI_POS[playerKey].goldIcon.x) * S,
+                (UI_POS[playerKey].goldIcon.y - goldIconSize / 2) * S,
                 goldIconSize * S,
                 goldIconSize * S
             );
+
         }
     }
 
@@ -663,20 +666,23 @@ class Game {
             let team = Math.floor(index / NUMBER_OF_BUTTONS);
             let player = this.players[team];
 
-            let curFolder = player.currentFolder;
-            let btn = BTN_FOLDER[curFolder][mod_id];
-            let action = btn.action;
-            let upgrade = btn.upgrade;
-            let lvl = btn.lvl
+            if (!this.isOnline || this.localPlayer == player.team) {
 
-            if (this.btnIsEnabled(action, player, upgrade, lvl)) {
-                this.drawButton(index, mod_id, item, btn, player)
-            }
-            else if (curFolder == 3 && mod_id == 2 && player.btnLvl < 4) {
-                btn = BTN_FOLDER[curFolder][6];
-                this.drawButton(index, mod_id, item, btn, player)
-            }
+                let curFolder = player.currentFolder;
+                let btn = BTN_FOLDER[curFolder][mod_id];
+                let action = btn.action;
+                let upgrade = btn.upgrade;
+                let lvl = btn.lvl
 
+                if (this.btnIsEnabled(action, player, upgrade, lvl)) {
+                    this.drawButton(index, mod_id, item, btn, player)
+                }
+                else if (curFolder == 3 && mod_id == 2 && player.btnLvl < 4) {
+                    btn = BTN_FOLDER[curFolder][6];
+                    this.drawButton(index, mod_id, item, btn, player)
+                }
+
+            }
         }
     }
 }

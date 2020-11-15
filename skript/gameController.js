@@ -1,17 +1,24 @@
 
+let keySet = new Set(["q", "w", "e", "a", "s", "d", "u", "i", "o", "j", "k", "l"])
+
+
 
 function activateGameController() {
 
     document.onkeydown = function (e) {
         if (e.repeat) { return };
         var key = e.key.toLowerCase();
-        game.buttonAction(BUTTON_DICT[key]);
+        console.log(key)
+        if (keySet.has(key)) {
+            game.buttonAction(BUTTON_DICT[key]);
+        }
     }
 
     document.onmousemove = function (e) {
         game.mousePos = getMousePos(canvas, e);
     }
     document.onmousedown = function (e) {
+        game.mousePos = getMousePos(canvas, e);
         game.mouseClicked();
     }
 }
