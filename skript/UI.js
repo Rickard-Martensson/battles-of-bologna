@@ -1,26 +1,67 @@
 
+const CHAT_MSG_ROW_PAD = 4;
+const CHAT_MSG_NAME_PAD = 20;
+
+
+
 class UI {
     constructor(players, isOnline) {
-        this.players = players
+        this.players = players // [0], [0,1] eller [1]
         this.isOnline = ((isOnline) ? true : false);
 
         this.activeButtons = [{}, {}];
-        this.disabledButtons = [{}, {}]
+        this.disabledButtons = [{}, {}];
 
         this.mousePos = { x: 0, y: 0 };
         this.currentButton = { team: -1, id: -1 };
 
         this.sceneryCount = 0;
-        this.scenery = []
+        this.scenery = [];
 
+        this.justGaveGold = [null, null];
 
-        this.justGaveGold = [null, null]
+        this.chatmsgs = [
+            { sender: "Bert", msg: "Tjena kexet" },
+            { sender: "Kjelle", msg: "Tjatja bramski" },
+            { sender: "Bert", msg: "TEy bro!" }
+        ];
+    }
+
+    addChatMsg(sender, msg) {
+        this.chatmsgs.push({ sender: sender, msg: msg })
+    }
+
+    drawChatBox(team) {
+        if (this.isOnline) {
+            ctx.textAlign = "start";
+            ctx.font = 3 * S + "px 'Press Start 2P'";
+            for (var i in this.chatmsgs) {
+                let msg = this.chatmsgs[i].msg;
+                let sender = this.chatmsgs[i].sender;
+                ctx.fillText(sender,
+                    (UI_POS[team].chatBox.chat.x) * S,
+                    (UI_POS[team].chatBox.chat.y + CHAT_MSG_ROW_PAD * i) * S,
+                );
+                ctx.fillText(msg,
+                    (UI_POS[team].chatBox.chat.x + CHAT_MSG_NAME_PAD) * S,
+                    (UI_POS[team].chatBox.chat.y + CHAT_MSG_ROW_PAD * i) * S,
+                );
+            }
+            ctx.fillText(currentMsg,
+                (UI_POS[team].chatBox.input.x + CHAT_MSG_NAME_PAD) * S,
+                (UI_POS[team].chatBox.input.y + CHAT_MSG_ROW_PAD * i) * S,
+            );
+
+        }
     }
 
     drawEverything(fps) {
         for (var key in this.players) {
             let team = this.players[key]
             this.drawButtons(team);
+            if (this.isOnline) {
+                this.drawChatBox(team)
+            }
         }
 
 
@@ -121,7 +162,7 @@ class UI {
         if (player.tryBuy(cost)) {
             if (this.isOnline) {
                 //some pubnub shit
-                pubnubAction(action, team, data)
+                pubnubAction("addSprite", team, unitName);
             }
             else {
                 game.addSprite(unitName, "anim", team);
@@ -186,11 +227,21 @@ class UI {
             if (player.checkCooldown(curFolder, id)) {
                 this.disabledButtons[team][id] = true;
                 player.addCooldown(curFolder, id, cost, id)
-                game.castAbility(btnData, team, abilityCooldown)
+                this.castAbility(btnData, team, abilityCooldown)
             }
         }
         this.activeButtons[team][id] = Date.now();
 
+    }
+
+    castAbility(abilityName, team, abilityCooldown) {
+        if (this.isOnline) {
+            //some pubnub shit
+            pubnubAction("castAbility", team, abilityName, abilityCooldown);
+        }
+        else {
+            game.castAbility(btnData, team, abilityCooldown)
+        }
     }
 
 
@@ -399,4 +450,4 @@ class UI {
 
 }
 
-let local_UI = new UI([0], false);
+let local_UI = new UI([0], true);

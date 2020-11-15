@@ -15,13 +15,16 @@ function sendmessage(txt) {
 }
 
 
-function pubnubAction(action, team, data) {
+function pubnubAction(type, team, data1, data2, data3) {
     pubnub.publish({
         channel: "action",
         message: {
-            type: action,
-            unit: data,
+            type: type,
             team: team,
+            data1: data1,
+            data2: data2,
+            data3: data3,
+
         }
     })
 }
@@ -35,7 +38,13 @@ pubnub.addListener({
         //console.log("text:", m.message.text, "u:", m.message.button)
         let msg = m.message;
         if (msg.type == "addSprite") {
-            game.addSprite(msg.unit, "anim", msg.team)
+            game.addSprite(msg.data1, "anim", msg.team);
+        }
+        else if (msg.type == "castAbility") {
+            game.castAbility(msg.data1, msg.team, msg.data2);
+        }
+        else if (msg.type == "chatMsg") {
+            local_UI.addChatMsg(msg.data1, msg.data2);
         }
 
         // if (m.message.type == "unit") {

@@ -97,7 +97,7 @@ class Player {
 
     changeGoldPerTurn(amount) {
         this.goldPerTurn += amount;
-        game.justGaveGold[this.team] = Date.now();
+        local_UI.justGaveGold[this.team] = Date.now();
     }
 
     tryBuy(amount) {

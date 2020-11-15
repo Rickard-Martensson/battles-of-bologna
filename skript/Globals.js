@@ -41,8 +41,8 @@ const ICON_SS_POS = {
 
 const BASE_POS = [{ x: 20, y: 100 }, { x: 300, y: 100 }]
 const UI_POS = [
-    { gold: { x: 30, y: 20 }, goldPerTurn: { x: 30, y: 15 }, goldIcon: { x: 30, y: 17.2 } },
-    { gold: { x: 300, y: 20 }, goldPerTurn: { x: 300, y: 15 }, goldIcon: { x: 300, y: 17.2 } }];
+    { gold: { x: 30, y: 20 }, goldPerTurn: { x: 30, y: 15 }, goldIcon: { x: 30, y: 17.2 }, chatBox: { chat: { x: 200, y: 130 }, input: { x: 200, y: 160 } } },
+    { gold: { x: 300, y: 20 }, goldPerTurn: { x: 300, y: 15 }, goldIcon: { x: 300, y: 17.2 }, chatBox: { chat: { x: 20, y: 130 }, input: { x: 20, y: 160 } } }];
 const UI_POS_BTN = { img: { x: 0, y: 2 }, txt: { x: 0, y: -8 }, txt2: { x: 0, y: -5 }, subText: { x: 0, y: 12 }, gold: { x: 1, y: 10.5 } }
 const BUTTON_SIZE = 30; //hur stora knapparna är
 const ICON_SIZE = 20;   //hur stora ikoner i knapparna

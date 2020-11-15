@@ -4,6 +4,8 @@ let keySet = new Set(["q", "w", "e", "a", "s", "d", "u", "i", "o", "j", "k", "l"
 
 let isTyping = false;
 
+let currentMsg = ""
+
 
 function activateGameController() {
 
@@ -12,9 +14,16 @@ function activateGameController() {
         var key = e.key.toLowerCase();
         console.log(key)
         if (key == "enter") {
+            if (isTyping) {
+                pubnubAction("chatMsg", 0, "Kjell", currentMsg)
+            }
             isTyping = !isTyping;
+            currentMsg = ""
         }
-        if (keySet.has(key) && !isTyping) {
+        else if (isTyping) {
+            currentMsg += key;
+        }
+        else if (keySet.has(key)) {
             local_UI.buttonAction(BUTTON_DICT[key].id, BUTTON_DICT[key].team);
         }
     }
