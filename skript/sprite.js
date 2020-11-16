@@ -1,5 +1,5 @@
 class Projectile {
-    constructor(x, y, vx, vy, team, dmg) {
+    constructor(x, y, vx, vy, team, dmg, isUpdate, newData) {
         this.pos = { x: x, y: y };
         this.vel = { x: vx, y: vy };
         this.arrowLen = [0.6, 3, 1];
@@ -11,6 +11,19 @@ class Projectile {
         this.dmg = dmg;
         // this.colors = ['#DDDDDD', '#6F2B1F', '#8B3F2B', '#8B3F2B', '#8B3F2B', '#8B3F2B', '#FFFFFF']
         this.colors = ['#DDDDDD', '#6F2B1F', '#8B3F2B', '#8B3F2B', '#FFFFFF'];
+
+        if (isUpdate) { this.updateData(newData) }
+    }
+
+    updateData(newData) {
+        for (var i in newData) {
+            this[i] = newData[i];
+        }
+    }
+
+    getData() {
+        let data = this;
+        return data;
     }
 
     move() {
@@ -84,7 +97,7 @@ class Projectile {
 }
 
 class Sprite {
-    constructor(x, y, name, animations, team) {
+    constructor(x, y, name, animations, team, isUpdate, newData) {
         this.pos = { x: x, y: y };
         this.name = name
         this.imageName = this.name;
@@ -100,30 +113,9 @@ class Sprite {
         this.direction = 1
         this.team = team;
         //jahaaaa. det låter ju svinkul. Men då kan man väll bekosta sig en tävlingsgrimma. Eller åt minstonde
-        if (this.name in STATS) {
-            this.hp = STATS[this.name].hp;
-            this.atkSpeed = STATS[this.name].atkSpeed;
-            this.atkDelay = STATS[this.name].atkDelay;
-            this.dmg = STATS[this.name].dmg;
-            this.meleRange = STATS[this.name].meleRange;
-            this.range = STATS[this.name].range;
-            this.speed = STATS[this.name].speed;
-            this.img = STATS[this.name].img;
-            this.imageSize = STATS[this.name].imageSize;
-            this.size = STATS[this.name].size;
-            this.row = STATS[this.name].row;
-            this.animations = STATS[this.name].animations;
 
-            this.abilities = new Set(UNIQE[this.name])
-        }
-        else { console.log("unknown sprite") };
-        if (this.team == 0) {
-            this.direction = 1;
-            this.img += "_blue"
-        }
-        else if (this.team == 1) {
-            this.direction = -1
-        }
+
+        this.setStats();
 
         this.currentAnimation = "idle";
         this.currentSpeed = this.speed
@@ -132,7 +124,6 @@ class Sprite {
         this.isWalking = false //helps to make atk anim better
 
         this.DRAW_SIZE = 24;
-        this.FRAME_RATE = 20;
         this._last0frame = Date.now();  //not important, debugging
 
         //attack
@@ -145,6 +136,50 @@ class Sprite {
         this.invincible = false;
 
         this.activeEffects = new Set();
+
+        if (isUpdate) {
+            this.updateData(newData);
+        }
+    }
+
+    updateData(newData) {
+        // console.log("newData:", newData)
+        for (var i in newData) {
+            this[i] = newData[i];
+        }
+
+        this.animations = STATS[this.name].animations;
+
+        this.activeEffects = new Set();
+        for (var i in newData.activeEffects) {
+            this.activeEffects.add(i)
+        }
+    }
+
+    getData() {
+        let data = this;
+        // data.animations = null;
+        // //data.activeEffects = Array.from(this.activeEffects);
+        // console.log("set is now", data.activeEffects);
+        return data;
+    }
+
+    setStats() {
+        if (this.name in STATS) {
+            for (var stat in STATS[this.name]) {
+                this[stat] = STATS[this.name][stat]
+            }
+            this.abilities = new Set(UNIQE[this.name])
+        }
+        else { console.log("unknown sprite", this.name) };
+
+        if (this.team == 0) {
+            this.direction = 1;
+            this.img += "_blue"
+        }
+        else if (this.team == 1) {
+            this.direction = -1
+        }
     }
 
     move() {
@@ -153,6 +188,7 @@ class Sprite {
     }
 
     spriteShootProjectile() {
+        console.log("activeEffects:", this.activeEffects)
         if (this.activeEffects.has("target")) {
             let nextEnemy = game.distToNextSprite(this, this.getOtherTeam())
             if (nextEnemy.len < 80) {
@@ -160,7 +196,8 @@ class Sprite {
                 game.shootProjectile(this.pos.x, this.pos.y - 5,
                     vel_x * this.direction,
                     -vel_y,
-                    this.team, this.dmg
+                    this.team, this.dmg,
+                    IS_ONLINE
                 )
                 return;
             }
@@ -168,7 +205,8 @@ class Sprite {
         game.shootProjectile(this.pos.x, this.pos.y - 5,
             (this.range * (1 + RANGE_RANDOMNESS * Math.random())) * 10 * this.direction,
             (this.range * (1 + RANGE_RANDOMNESS * Math.random())) * -10 * ARCHER_TRAJECTORY,
-            this.team, this.dmg);
+            this.team, this.dmg,
+            IS_ONLINE);
     }
 
     attack(victim) {

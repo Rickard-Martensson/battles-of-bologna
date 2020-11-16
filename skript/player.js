@@ -24,11 +24,37 @@ class Player {
         this.DRAW_SIZE = 64;
     }
 
+    getData() {
+        let data = this;
+        return data;
+    }
+
+    updateData(newData) {
+        console.log("kachow4", newData);
+        for (var i in newData) {
+            this[i] = newData[i];
+            console.log("i", i, "newdata", newData[i]);
+        }
+
+        this.upgsResearched = new Set([]);
+        for (var upg in newData.upgsResearched) {
+            this.upgsResearched.add(upg)
+        }
+    }
+
+    upgGoldPerTurn() {
+        this.changeGoldPerTurn(UPGRADES["upgGold"].costIncrease) //.goldPerTurn += UPGRADES["upgGold"].goldIncrease;}
+
+    }
+
     castleAttack() {
         let dmg = 3;
         this.lastCastleAtk = Date.now()
-        game.shootProjectile(this.pos.x, this.pos.y, 35 * (Math.random() + 1) * (1 - 2 * this.team), -15 * (Math.random() * 1 + 4.5), this.team, dmg)
+        let pos = { x: this.pos.x, y: this.pos.y }
+        let vel = { vx: 35 * (Math.random() + 1) * (1 - 2 * this.team), vy: -15 * (Math.random() * 1 + 4.5) }
+        game.shootProjectile(this.pos.x, this.pos.y, 35 * (Math.random() + 1) * (1 - 2 * this.team), -15 * (Math.random() * 1 + 4.5), this.team, dmg, IS_ONLINE)
         if (this.castleLvl > 2) {
+            void (0)
         }
     }
 
@@ -39,8 +65,10 @@ class Player {
     }
 
     upgCastle() {
-        if (this.castleLvl <= CASTLE_MAX_LVL) {
+        if (this.castleLvl < CASTLE_MAX_LVL) {
+            console.log("leeveeell", this.castleLvl)
             this.castleLvl += 1
+            this.lastCastleAtk = -Infinity
         }
     }
 
@@ -70,11 +98,6 @@ class Player {
         this.btnCoolDowns = this.btnCoolDowns.filter(a => a.time != -1)
     }
 
-
-    updateDisabledBtns(game) {
-
-    }
-
     checkIfResearched(upgrade) {
         if (upgrade == null) {
             return true;
@@ -102,8 +125,15 @@ class Player {
 
     tryBuy(amount) {
         if (this.gold >= amount) {
-            this.changeGold(-amount);
-            return true;
+
+            if (local_UI.isOnline) {
+                this.changeGold(-amount);
+                pubnubAction("upPlayer", this.team, this.getData(), 0, 0);
+                return true;
+            } else {
+                this.changeGold(-amount);
+                return true;
+            }
         }
         else { return false; }
     }

@@ -1,60 +1,5 @@
 const bild = document.getElementById('');
 
-class Building {
-    constructor(x, y, img, team) {
-        this.pos = { x: x, y: y };
-        this.img = img + "_img"
-        this.team = team;
-        this.imageSize = 64;
-        this.lvl = 3
-        if (this.team == 0) { this.img += "_blue" };
-
-        this.DRAW_SIZE = 64;
-    }
-
-    upgradeBuildingLevel() {
-        this.lvl += 1
-    }
-
-    draw() {
-        ctx.drawImage(Images[this.img],
-            this.imageSize * 0,
-            this.imageSize * this.lvl,
-            this.imageSize,
-            this.imageSize,
-
-            (this.pos.x - this.DRAW_SIZE / 2) * S,
-            (this.pos.y - this.DRAW_SIZE / 2) * S,
-            this.DRAW_SIZE * S,
-            this.DRAW_SIZE * S
-        );
-    }
-}
-
-class Icon {
-    constructor(name, x, y) {
-        this.name = name
-        this.img = "gold";
-        this.pos = { x: x, y: y }
-        this.imageSize = 16;
-        this.DRAW_SIZE = 16;
-    }
-    draw() {
-        ctx.imageSmoothingEnabled = true
-        ctx.drawImage(Images[this.img],
-            this.imageSize * 0,
-            this.imageSize * 0,
-            this.imageSize,
-            this.imageSize,
-
-            (this.pos.x - this.DRAW_SIZE / 2) * S,
-            (this.pos.y - this.DRAW_SIZE / 2) * S,
-            this.DRAW_SIZE * S,
-            this.DRAW_SIZE * S
-        );
-    }
-}
-
 class Scenery {
     constructor(x, y, name) {
         this.pos = { x: x, y: y }
@@ -144,8 +89,53 @@ class Game {
 
     }
 
-    pubNubTranslate(name, team, data) {
+    updatePlayer(team, newData) {
+        this.players[team].updateData(newData);
+    }
 
+    sendGameState() {
+        // pubnubAction("upDateGame", 1, this.sprites, this.projectiles, this.activeAbilites,);
+        // console.log("sent sprites:", this.sprites)
+
+        let sprites = []
+        for (var i in this.sprites) {
+            sprites.push(this.sprites[i].getData());
+        }
+        let projectiles = []
+        for (var i in this.projectiles) {
+            projectiles.push(this.projectiles[i].getData())
+        }
+        let players = []
+        for (var i in this.players) {
+            players.push(this.players[i].getData());
+        }
+        let lastGoldTime = this.timeSinceLastGold
+        pubnubAction("upDateGame", 1, sprites, projectiles, players, lastGoldTime);
+    }
+
+    updateGame(sprites, projectiles, players, lastGoldTime) {
+        this.sprites = [];
+        for (var i in sprites) {
+            this.sprites.push(
+                new Sprite(0, 0, 0, 0, 0, true, sprites[i])
+            )
+        }
+        this.projectiles = [];
+        for (var i in projectiles) {
+            this.projectiles.push(new Projectile(0, 0, 0, 0, 0, 0, true, projectiles[i])
+            )
+        }
+        console.log("recieved players:", players[0])
+
+        for (var key in this.players) {
+            console.log("kachow0")
+            let player = this.players[key];
+            player.updateData(players[key]);
+        }
+
+        this.timeSinceLastGold = lastGoldTime
+        // console.log("recieved sprites: ", sprites)
+        // this.newData = { sprites: sprites, projectiles: projectiles, activeAbilites: activeAbilites, };
     }
 
     checkAbilities() {
@@ -195,7 +185,7 @@ class Game {
         if (name == "arrows") {
             for (var i = 0; i < 1; i++) {
                 //console.log(BASE_POS[team].x, BASE_POS[team].y, -(20 + 5 * Math.random()) * factor, -(50 + 10 * Math.random()), team, 2);
-                this.shootProjectile(BASE_POS[team].x, BASE_POS[team].y - 20, -(50 + 40 * Math.random()) * factor, -(50 + 20 * Math.random()), team, 2);
+                this.shootProjectile(BASE_POS[team].x, BASE_POS[team].y - 20, -(50 + 40 * Math.random()) * factor, -(50 + 20 * Math.random()), team, 2, IS_ONLINE);
             }
         }
         else if (name == "invincible") {
@@ -287,7 +277,11 @@ class Game {
 
         //stuff to do at the end
         //this.lastTimestamp = Date.now();
-        window.requestAnimationFrame(this.tick.bind(this)); //calls itself
+
+
+        window.requestAnimationFrame(this.tick.bind(this));
+
+
     }
 
     getMillisecondsPlayed() {
@@ -296,8 +290,10 @@ class Game {
         return getMillisecondsPassed;
     }
 
-    shootProjectile(x, y, vx, vy, team, dmg) {
-        this.projectiles.push(new Projectile(x, y, vx, vy, team, dmg))
+    shootProjectile(x, y, vx, vy, team, dmg, isOnline) {
+        console.log("arrow:", vx, vy)
+        if (isOnline) { pubnubAction("shootProj", team, { x: x, y: y }, { vx: vx, vy: vy }, dmg) }
+        else { this.projectiles.push(new Projectile(x, y, vx, vy, team, dmg)) }
     }
 
 
@@ -330,6 +326,7 @@ class Game {
     drawSprites() {
         for (var i in this.sprites) {
             let sprite = this.sprites[i];
+            //console.log("sprite:", sprite)
             sprite.canMove(this);
             sprite.move();
             sprite.draw();

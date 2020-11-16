@@ -136,19 +136,14 @@ class Animation {
 //     console.log("nej")
 // }
 
-let mySet = new Set([("ja", 10), ("nej", 1)]);
-if (mySet.has(("ja", 1))) { console.log("yay") }
-else { console.log("nay") }
-
-
 
 const STATS = {
-    soldier: { hp: 10, dmg: 3, meleRange: 12, range: 0, atkSpeed: 1200, atkDelay: 450, speed: 4, row: 0, img: "soldier_img", imageSize: 32, size: 7, animations: { idle: new Animation(32, 0, 8, 60, true), walk: new Animation(32, 1, 8, 20, true), attack: new Animation(32, 2, 7, 20, false) } },
-    archer: { hp: 8, dmg: 2, meleRange: 12, range: 3, atkSpeed: 2000, atkDelay: 1000, speed: 4, row: 0, img: "archer_img", imageSize: 32, size: 7, animations: { idle: new Animation(32, 0, 8, 60, true), walk: new Animation(32, 1, 8, 20, true), attack: new Animation(32, 2, 7, 20, false) } },
+    soldier: { hp: 10, dmg: 3, meleRange: 12, range: 0, atkSpeed: 1200, atkDelay: 450, speed: 4, row: 0, img: "soldier_img", imageSize: 32, size: 7, animations: { idle: new Animation(32, 0, 8, 60, true), walk: new Animation(32, 1, 8, 19.1804, true), attack: new Animation(32, 2, 7, 20, false) } },
+    archer: { hp: 8, dmg: 2, meleRange: 12, range: 3, atkSpeed: 2000, atkDelay: 1000, speed: 4, row: 0, img: "archer_img", imageSize: 32, size: 7, animations: { idle: new Animation(32, 0, 8, 60, true), walk: new Animation(32, 1, 8, 19.1804, true), attack: new Animation(32, 2, 7, 20, false) } },
     knight: { hp: 15, dmg: 3, meleRange: 12, range: 0, atkSpeed: 1200, atkDelay: 450, speed: 10, row: 1, img: "knight_img", imageSize: 32, size: 7, animations: { idle: new Animation(32, 0, 8, 60, true), walk: new Animation(32, 1, 8, 8, true), attack: new Animation(32, 2, 7, 20, false) } },
-    veteran: { hp: 15, dmg: 10, meleRange: 12, range: 0, atkSpeed: 2200, atkDelay: 1100, speed: 4, row: 0, img: "veteran_img", imageSize: 32, size: 7, animations: { idle: new Animation(32, 0, 8, 60, true), walk: new Animation(32, 1, 8, 20, true), attack: new Animation(32, 2, 12, 18, false) } },
-    sprinter: { hp: 6, dmg: 2, meleRange: 12, range: 0, atkSpeed: 1000, atkDelay: 500, speed: 15, row: 0, img: "soldier_img", imageSize: 32, size: 7, animations: { idle: new Animation(32, 0, 8, 60, true), walk: new Animation(32, 1, 8, 20, true), attack: new Animation(32, 2, 7, 20, false) } },
-    wizard: { hp: Infinity, dmg: 3, meleRange: 12, range: 0, atkSpeed: 1200, atkDelay: 450, speed: 4, row: 0, img: "soldier_img", imageSize: 32, size: 7, animations: { idle: new Animation(32, 0, 8, 60, true), walk: new Animation(32, 1, 8, 20, true), attack: new Animation(32, 2, 7, 20, false) } },
+    veteran: { hp: 15, dmg: 10, meleRange: 12, range: 0, atkSpeed: 2200, atkDelay: 1100, speed: 4, row: 0, img: "veteran_img", imageSize: 32, size: 7, animations: { idle: new Animation(32, 0, 8, 60, true), walk: new Animation(32, 1, 8, 19.1804, true), attack: new Animation(32, 2, 12, 18, false) } },
+    sprinter: { hp: 6, dmg: 2, meleRange: 12, range: 0, atkSpeed: 1000, atkDelay: 500, speed: 15, row: 0, img: "soldier_img", imageSize: 32, size: 7, animations: { idle: new Animation(32, 0, 8, 60, true), walk: new Animation(32, 1, 8, 19.1804, true), attack: new Animation(32, 2, 7, 20, false) } },
+    wizard: { hp: Infinity, dmg: 3, meleRange: 12, range: 0, atkSpeed: 1200, atkDelay: 450, speed: 4, row: 0, img: "soldier_img", imageSize: 32, size: 7, animations: { idle: new Animation(32, 0, 8, 60, true), walk: new Animation(32, 1, 8, 19.1804, true), attack: new Animation(32, 2, 7, 20, false) } },
 
 }
 
@@ -259,7 +254,7 @@ const BTN_FOLDER = {
     },
     3: {
         0: { txt: "Arrows", cost: 2, action: "ability", data: "arrows", abilityCooldown: 1, lvl: 2, img: "soldier_img" },
-        1: { txt: "Invincible", cost: 4, action: "ability", data: "invincible", abilityCooldown: 3, lvl: 3, img: "icons_img", icon: "invincible" },
+        1: { txt: "Invincible", cost: 4, action: "ability", data: "invincible", abilityCooldown: 12, lvl: 3, img: "icons_img", icon: "invincible" },
         2: { txt: "Target", cost: 4, action: "ability", data: "target", abilityCooldown: 8, lvl: 4, img: "archer_img", icon: "target" },
         3: { txt: "Sprint", cost: 3, action: "ability", data: "sprint", abilityCooldown: 4, lvl: 1, img: "soldier_img" },
         4: { txt: "Sprint", cost: 3, action: "ability", data: "sprint", abilityCooldown: 4, lvl: 0, img: "soldier_img", icon: "sprint" },

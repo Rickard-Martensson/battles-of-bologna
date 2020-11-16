@@ -66,7 +66,7 @@ class UI {
 
 
 
-        if (DAY_NIGHT_ENABLED) { this.changeBackground(Date.now() - this.startTime); };
+        if (DAY_NIGHT_ENABLED) { this.changeBackground(Date.now() - game.startTime); };
         if (CLOUDS_ENABLED) { this.drawScenery(); };
         if (CLOUDS_ENABLED && this.sceneryCount < CLOUD_MAX_COUNT) { this.tryMakeCloud(); };
 
@@ -137,7 +137,6 @@ class UI {
     mouseClicked() {
         var id = this.currentButton.id;
         var team = this.currentButton.team;
-        console.log(id, team)
         if (team != -1) {
             this.buttonAction(id, team)
         }
@@ -160,27 +159,25 @@ class UI {
 
     buyUnit(unitName, player, team, cost) {
         if (player.tryBuy(cost)) {
-            if (this.isOnline) {
-                //some pubnub shit
-                pubnubAction("addSprite", team, unitName);
-            }
-            else {
-                game.addSprite(unitName, "anim", team);
-            }
+            //some pubnub shit
+            if (this.isOnline) { pubnubAction("addSprite", team, unitName); }
+            else { game.addSprite(unitName, "anim", team); }
         }
     }
 
-    buyUpgrade(upgradeName, player, cost) {
+    buyUpgrade(upgradeName, player, cost, team) {
         if (upgradeName == "upgGold") {
             let cost2 = player.goldPerTurn + UPGRADES["upgGold"].costIncrease;
             if (player.tryBuy(cost2)) {
-                player.changeGoldPerTurn(UPGRADES["upgGold"].costIncrease) //.goldPerTurn += UPGRADES["upgGold"].goldIncrease;
+                //if (this.isOnline) { pubnubAction("upgGold", team, player); }
+                player.upgGoldPerTurn();
             }
         }
         else if (upgradeName == "upgCastle") {
             if (player.tryBuy(50)) {
-                player.upgCastle();
-                player.lastCastleAtk = -Infinity
+
+                if (this.isOnline) { pubnubAction("upgCastle", team, player) }
+                else { player.upgCastle(); }
             }
         }
         else if (upgradeName == "upgAbility") {
@@ -194,6 +191,7 @@ class UI {
                 player.addUpgrade(upgradeName);
             }
         }
+
     }
 
     buttonAction(id, team) {
@@ -202,7 +200,6 @@ class UI {
         let btnGlob = BTN_FOLDER[curFolder][id]
         if (curFolder == 3 && id == 2 && player.btnLvl != ABILITY_MAX_LVL) { btnGlob = BTN_FOLDER[curFolder][6] }
 
-        console.log(team, id, curFolder)
         let btnAction = btnGlob.action;
         let btnData = btnGlob.data;
         let abilityCooldown = btnGlob.abilityCooldown;
@@ -221,7 +218,7 @@ class UI {
             this.buyUnit(btnData, player, team, cost);
         }
         else if (btnAction === 'upgrade') {
-            this.buyUpgrade(btnData, player, cost);
+            this.buyUpgrade(btnData, player, cost, team);
         }
         else if (btnAction === 'ability') {
             if (player.checkCooldown(curFolder, id)) {
@@ -240,7 +237,7 @@ class UI {
             pubnubAction("castAbility", team, abilityName, abilityCooldown);
         }
         else {
-            game.castAbility(btnData, team, abilityCooldown)
+            game.castAbility(abilityName, team, abilityCooldown)
         }
     }
 
@@ -329,6 +326,7 @@ class UI {
         if (action == "hidden") {
             return false;
         }
+
         else if (action != "upgrade" ^ player.checkIfResearched(upgRequired)) { //XOR, coolt. false ^ true
             return false;
         }
@@ -450,4 +448,4 @@ class UI {
 
 }
 
-let local_UI = new UI([0], true);
+//let local_UI = new UI([1], true);

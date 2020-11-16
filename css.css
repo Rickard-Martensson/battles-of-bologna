@@ -123,8 +123,8 @@ body {
     display: inline-block;
     width: 12.8%;
     height: 100%;
-    margin-left: 20%;
-    margin-right: 20%;
+    margin-left: 5%;
+    margin-right: 5%;
     background-size: cover;
     cursor: pointer;
     vertical-align: center;
@@ -136,9 +136,6 @@ body {
     color: white;
 }
 
-#button1 {
-    background-image: url('bilder/ui/playBtn.png');
-}
 
 .button>span {
     display: inline-block;
@@ -146,8 +143,36 @@ body {
     margin-top: 100%;
 }
 
+#button1 {
+    background-image: url('bilder/ui/playBtn.png');
+}
+
 #button1:hover {
     background-image: url('bilder/ui/playActive.png');
+}
+
+#button2 {
+    background-image: url('bilder/ui/playBtn.png');
+}
+
+#button2:hover {
+    background-image: url('assets/ui/multiplayerActiveButton.png');
+}
+
+#button3 {
+    background-image: url('bilder/ui/playBtn.png');
+}
+
+#button3:hover {
+    background-image: url('assets/ui/trainingActiveButton.png');
+}
+
+.navbar {
+    z-index: 10;
+    width: 100%;
+    height: 5%;
+    background: #195448;
+    margin-top: 10.2%;
 }
 
 #titleText {
@@ -167,7 +192,7 @@ body {
 img {
     -webkit-animation: mover 4.89795918367346938s infinite normal;
     animation: mover 4.89795918367346938s infinite normal;
-    animation-delay: 1.6s;
+    animation-delay: 0.75s;
 }
 
 @-webkit-keyframes mover {
@@ -176,7 +201,7 @@ img {
     }
 
     100% {
-        transform: translateY(-8%);
+        transform: translateY(-6%);
     }
 }
 
@@ -185,32 +210,32 @@ img {
         transform: translateY(0);
     }
 
-    17% {
+    20% {
         transform: translateY(0);
     }
 
     25% {
-        transform: translateY(-4%);
+        transform: translateY(-3%);
     }
 
-    42% {
-        transform: translateY(-4%);
+    45% {
+        transform: translateY(-3%);
     }
 
     50% {
-        transform: translateY(-8%);
+        transform: translateY(-6%);
     }
 
-    67% {
-        transform: translateY(-8%);
+    70% {
+        transform: translateY(-6%);
     }
 
     75% {
-        transform: translateY(-4%);
+        transform: translateY(-3%);
     }
 
-    92% {
-        transform: translateY(-4%);
+    95% {
+        transform: translateY(-3%);
     }
 
     100% {

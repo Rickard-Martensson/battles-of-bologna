@@ -157,6 +157,8 @@ function showTitleScreen() {
 }
 
 
+
+
 function startGame() {
     hideTitleScreen()
     game = new Game();
@@ -168,3 +170,27 @@ function startGame() {
 function clickButton() {
     return;
 }
+
+let local_UI = null;
+
+function startGameLocal() {
+    local_UI = new UI([0, 1], false);
+    IS_ONLINE = false
+    startGame();
+}
+
+function startGameHost() {
+    local_UI = new UI([0], true);
+    IS_ONLINE = true
+    startGame();
+
+}
+
+function startGameJoin() {
+    local_UI = new UI([1], true);
+    IS_ONLINE = true
+    startGame();
+
+}
+
+
