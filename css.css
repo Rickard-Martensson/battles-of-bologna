@@ -113,22 +113,30 @@ body {
 }
 
 
-.buttonContainer {
-    width: 90%;
-    height: 20%;
-    margin-top: 35%;
-}
+/* .buttonContainer {
+    width: 100%;
+    position: absolute;
+    height: 25%;
+    border: 3px solid green;
+    margin-top: 36.25%;
+    56.25 = 320/180 typ
+} 
+
+*/
 
 .button {
     display: inline-block;
-    width: 12.8%;
-    height: 100%;
-    margin-left: 5%;
-    margin-right: 5%;
     background-size: cover;
     cursor: pointer;
-    vertical-align: center;
     color: transparent;
+    width: calc(0px + 20vmin);
+    height: calc(0px + 20vmin);
+    /* transform: translateX(-50%); */
+    /* transform: translateY(-50%); */
+    /* transform: translateX(-50%); */
+    transform: translate(-50%, -50%);
+    position: absolute;
+
 }
 
 .button:hover {
@@ -144,14 +152,18 @@ body {
 }
 
 #button1 {
+    left: 30%;
+    top: 70%;
     background-image: url('bilder/ui/playBtn.png');
 }
 
 #button1:hover {
-    background-image: url('bilder/ui/playActive.png');
+    background-image: url('bilder/ui/playBtn.png');
 }
 
 #button2 {
+    left: 50%;
+    top: 70%;
     background-image: url('bilder/ui/playBtn.png');
 }
 
@@ -160,6 +172,8 @@ body {
 }
 
 #button3 {
+    left: 70%;
+    top: 70%;
     background-image: url('bilder/ui/playBtn.png');
 }
 
@@ -175,6 +189,8 @@ body {
     margin-top: 10.2%;
 }
 
+
+
 #titleText {
     src: url('bilder/ui/Logo.png');
     display: block;
@@ -182,14 +198,18 @@ body {
     margin-left: auto;
     margin-right: auto;
 
-    width: 70%;
-    margin-left: 15%;
-    margin-right: 15%;
-    margin-top: -60.5%;
-    z-index: -1;
+    width: calc(0px + 100vmin);
+    height: calc(0px + 100vmin);
+
+    transform: translate(-50%, 0);
+    position: absolute;
+
+    left: 50%;
+    top: -20%;
+
 }
 
-img {
+amen det är ändå bra vibes. inte lika bra som matte men ja img {
     -webkit-animation: mover 4.89795918367346938s infinite normal;
     animation: mover 4.89795918367346938s infinite normal;
     animation-delay: 0.75s;
@@ -197,49 +217,49 @@ img {
 
 @-webkit-keyframes mover {
     0% {
-        transform: translateY(0);
+        transform: translate(-50%, 0);
     }
 
     100% {
-        transform: translateY(-6%);
+        transform: translate(-50%, -6%);
     }
 }
 
 @keyframes mover {
     0% {
-        transform: translateY(0);
+        transform: translate(-50%, 0);
     }
 
     20% {
-        transform: translateY(0);
+        transform: translate(-50%, 0);
     }
 
     25% {
-        transform: translateY(-3%);
+        transform: translate(-50%, -3%);
     }
 
     45% {
-        transform: translateY(-3%);
+        transform: translate(-50%, -3%);
     }
 
     50% {
-        transform: translateY(-6%);
+        transform: translate(-50%, -6%);
     }
 
     70% {
-        transform: translateY(-6%);
+        transform: translate(-50%, -6%);
     }
 
     75% {
-        transform: translateY(-3%);
+        transform: translate(-50%, -3%);
     }
 
     95% {
-        transform: translateY(-3%);
+        transform: translate(-50%, -3%);
     }
 
     100% {
-        transform: translateY(0%);
+        transform: translate(-50%, 0%);
     }
 
 }

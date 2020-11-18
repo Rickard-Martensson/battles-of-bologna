@@ -14,6 +14,8 @@
     <script src="skript/utility.js"></script>
     <script src="skript/UI.js"></script>
 
+    <script src="skript/lobby.js"></script>
+
 
     <script src="https://cdn.pubnub.com/sdk/javascript/pubnub.4.21.7.js"></script>
     <script src="skript/pubnub.js"></script>
@@ -39,27 +41,34 @@
 
 <body>
     <center>
-        <audio autoplay>
-            <source src="bilder/audio/TITLE MUSIC MP3.mp3" type="audio/mpeg">
-        </audio>
+        <!-- <audio autoplay>
+        <source src="bilder/audio/TITLE MUSIC MP3.mp3" type="audio/mpeg">
+    </audio> -->
         <div id="titleScreen">
 
-
-            <div class="buttonContainer noselect">
-                <span id="button1" class="button" onclick="startGameLocal()"><span>Play</span></span>
-                <span id="button2" class="button" onclick="startGameHost()"><span>Player 1</span></span>
-                <span id="button2" class="button" onclick="startGameJoin()"><span>Player 2</span></span>
-                <!-- <span id="button2" class="button" onclick="startGame()"><span>Host Game</span></span>
-                <span id="button3" class="button" onclick="startGame()"><span>Join Game</span></span> -->
-            </div>
-
             <img id="titleText" src="bilder/ui/Logo.png" alt="Battles Of Bologna">
+
+            <span id="button1" class="button" onclick="startGameLocal()"><span> Play </span></span>
+            <span id="button2" class="button" onclick="startGameHost()"><span>Player 1</span></span>
+            <span id="button3" class="button" onclick="startGameJoin()"><span>Player 2</span></span>
+
+
+
+            <!-- <div class="buttonContainer noselect">
+             <img id="titleText" src="bilder/ui/Logo.png" alt="Battles Of Bologna">
+            <span id="button1" class="button" onclick="startGameLocal()"><span> Play </span></span>
+            <span id="button2" class="button" onclick="startGameHost()"><span>Player 1</span></span>
+            <span id="button2" class="button" onclick="startGameJoin()"><span>Player 2</span></span>
+            <span id="button2" class="button" onclick="startGame()"><span>Host Game</span></span>
+                <span id="button3" class="button" onclick="startGame()"><span>Join Game</span></span>
+        </div> -->
+
+
         </div>
         <div id="bg2" class="bg-day"></div>
         <div id="bg1" class="bg-dusk"></div>
         <canvas id="canvas">
         </canvas>
-
     </center>
 
 
