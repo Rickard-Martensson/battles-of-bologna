@@ -28,14 +28,19 @@ var IMAGE_DIRECTORY = [
 var ICON_DIRECTORY = {
     target: { x: 0, y: 1 },
     invis: { x: 0, y: 0 },
+    castle: { x: 0, y: 0 },
+    invis: { x: 0, y: 0 },
 
 }
 
 const ICON_SS_POS = {
     target: { x: 0, y: 0 },
     invincible: { x: 1, y: 0 },
-    sprint: { x: 2, y: 0 }
+    sprint: { x: 2, y: 0 },
+    goldUpg: { x: 3, y: 0 },
+    castleUpg: { x: 4, y: 0 },
 }
+
 
 
 
@@ -245,10 +250,10 @@ const BTN_FOLDER = {
 
     },
     2: {    //upgrades
-        0: { txt: "upgrade", txt2: "Gold", cost: "%upggold%", action: "upgrade", upgrade: "upgAlwaysVisible", data: "upgGold", img: "soldier_img" },
+        0: { txt: "upgrade", txt2: "Gold", cost: "%upggold%", action: "upgrade", upgrade: "upgAlwaysVisible", data: "upgGold", img: "knight_img", icon: "goldUpg" },
         1: { txt: "", action: "hidden", data: -1, img: null },
         2: { txt: "unlock", txt2: "Knight", cost: 50, subText: "50", action: "upgrade", upgrade: "upgKnight", data: "upgKnight", img: "knight_img" },
-        3: { txt: "upgrade", txt2: "Castle", cost: "%upgcastle%", action: "upgrade", upgrade: "upgCastle", data: "upgCastle", img: "soldier_img" },
+        3: { txt: "upgrade", txt2: "Castle", cost: "%upgcastle%", action: "upgrade", upgrade: "upgCastle", data: "upgCastle", img: "knight_img", icon: "castleUpg" },
         4: { txt: "back", action: "folder", data: 0, img: "buttonBack_img" },
         5: { txt: "unlock", txt2: "Veteran", cost: 50, subText: "50", action: "upgrade", upgrade: "upgVeteran", data: "upgVeteran", img: "veteran_img" },
     },

@@ -18,9 +18,10 @@
 
 
     <script src="https://cdn.pubnub.com/sdk/javascript/pubnub.4.21.7.js"></script>
-    <script src="skript/pubnub.js"></script>
+    <script src="skript/connection.js"></script>
 
     <link rel="stylesheet" href="css.css">
+    <link rel="stylesheet" href="css_game.css">
     <style>
         #controls {
             bottom: 0;
@@ -42,26 +43,25 @@
 <body>
     <center>
         <!-- <audio autoplay>
-        <source src="bilder/audio/TITLE MUSIC MP3.mp3" type="audio/mpeg">
-    </audio> -->
+            <source src="bilder/audio/TITLE MUSIC MP3.mp3" type="audio/mpeg">
+        </audio> -->
         <div id="titleScreen">
 
-            <img id="titleText" src="bilder/ui/Logo.png" alt="Battles Of Bologna">
 
-            <span id="button1" class="button" onclick="startGameLocal()"><span> Play </span></span>
-            <span id="button2" class="button" onclick="startGameHost()"><span>Player 1</span></span>
-            <span id="button3" class="button" onclick="startGameJoin()"><span>Player 2</span></span>
+            <img id="titleText" class="all title" src="bilder/ui/Logo.png" alt="Battles Of Bologna">
+            <span id="button1" class="all title button" onclick="startGameLocal()"><span> Play </span></span>
+            <span id="button2" class="all title button" onclick="menuHostLobby()"><span>Host</span></span>
+            <span id="button3" class="all title button" onclick="menuJoinLobby()"><span>Join</span></span>
 
 
+            <div id="host_code" class="all hostlobby">ABCD</div>
+            <input id="username_input" class="all joinlobby hostlobby input" value="" maxlength="10" placeholder="memeslayer" style="visibility: visible;">
+            <input id="lobby_input" class="all joinlobby input" value="" maxlength="4" placeholder="ABCD" style="visibility: visible;">
+            <span id="button_back" class="all joinlobby hostlobby button" onclick="backLobby()"><span>Back</span></span>
 
-            <!-- <div class="buttonContainer noselect">
-             <img id="titleText" src="bilder/ui/Logo.png" alt="Battles Of Bologna">
-            <span id="button1" class="button" onclick="startGameLocal()"><span> Play </span></span>
-            <span id="button2" class="button" onclick="startGameHost()"><span>Player 1</span></span>
-            <span id="button2" class="button" onclick="startGameJoin()"><span>Player 2</span></span>
-            <span id="button2" class="button" onclick="startGame()"><span>Host Game</span></span>
-                <span id="button3" class="button" onclick="startGame()"><span>Join Game</span></span>
-        </div> -->
+            <span id="button_start" class="all hostlobby button" onclick="startOnlineGame()"><span>Back</span></span>
+
+
 
 
         </div>

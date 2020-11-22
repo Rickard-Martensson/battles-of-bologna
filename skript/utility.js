@@ -122,3 +122,12 @@ function drawIcon(name, team, pos) {
         ICON_SIZE * S,
     );
 }
+
+
+function elemId(e) {
+    return document.getElementById(e);
+}
+
+function elemC(e) {
+    return document.getElementsByClassName(e);
+}

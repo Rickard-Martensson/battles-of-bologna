@@ -6,17 +6,39 @@ var ctx;
 var titleScreen;
 var Images = {};
 
+var buttonClass;
+
 var fpsCoefficient = 1;
 
 var aspectRatio = { width: 16, height: 9 }
 
 var game;
 
+var audio = new Audio('./bilder/audio/TITLE MUSIC MP3.mp3');
 
 
 /***********************
  *   Startar spelet    *
  **********************/
+
+function playAudio(song = "title") {
+    audio.pause()
+    if (song == "title") {
+        audio = new Audio('./bilder/audio/TITLE MUSIC MP3.mp3');
+    }
+    else if (song == "ingame") {
+        audio = new Audio('./bilder/audio/INGAME MUSIC MP3.mp3');
+    }
+    if (song == "win") {
+        audio = new Audio('./bilder/audio/VICTORY THEME MP3.mp3');
+    }
+    if (song == "defeat") {
+        audio = new Audio('./bilder/audio/DEFEAT THEME MP3.mp3');
+    }
+    audio.play();
+}
+playAudio("title")
+
 
 window.onload = function () {
     getCanvas();
@@ -93,6 +115,8 @@ function resizeCanvas() {
     }
 
     S = (canvas.width / 320);
+
+    document.documentElement.style.setProperty('--S', S + "px");
 }
 
 function resizeTitleScreen() {
@@ -100,6 +124,13 @@ function resizeTitleScreen() {
     let { height, width } = getAspectRatio();
     titleScreen.style.width = width
     titleScreen.style.height = height
+
+    var buttons = document.getElementsByClassName("button");
+    // for (var i = 0; i < buttons.length; i++) {
+    //     buttons[i].style.height = 30 * S + "px";
+    //     buttons[i].style.width = 30 * S + "px";
+    // }
+
 
 }
 
@@ -160,10 +191,12 @@ function showTitleScreen() {
 
 
 function startGame() {
+    console.log("tjatja")
     hideTitleScreen()
     game = new Game();
     game.start()
     activateGameController()
+    playAudio("ingame")
 }
 
 
@@ -176,6 +209,12 @@ let local_UI = null;
 function startGameLocal() {
     local_UI = new UI([0, 1], false);
     IS_ONLINE = false
+    startGame();
+}
+
+function startGameTest() {
+    local_UI = new UI([0], true);
+    IS_ONLINE = true
     startGame();
 }
 
@@ -192,5 +231,15 @@ function startGameJoin() {
     startGame();
 
 }
+
+
+
+function startGame2(mySide) {
+    console.log("MYSIDE:", mySide)
+    local_UI = new UI([mySide], true);
+    IS_ONLINE = true
+    startGame();
+}
+
 
 

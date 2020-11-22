@@ -94,9 +94,6 @@ class Game {
     }
 
     sendGameState() {
-        // pubnubAction("upDateGame", 1, this.sprites, this.projectiles, this.activeAbilites,);
-        // console.log("sent sprites:", this.sprites)
-
         let sprites = []
         for (var i in this.sprites) {
             sprites.push(this.sprites[i].getData());
@@ -110,14 +107,15 @@ class Game {
             players.push(this.players[i].getData());
         }
         let lastGoldTime = this.timeSinceLastGold
-        pubnubAction("upDateGame", 1, sprites, projectiles, players, lastGoldTime);
+        //pubnubAction("upDateGame", 1, sprites, projectiles, players, lastGoldTime);
+        send("syncGame", { team: 1, sprites: sprites, projectiles: projectiles, players: players, lastGoldTime: lastGoldTime });
     }
 
     updateGame(sprites, projectiles, players, lastGoldTime) {
         this.sprites = [];
         for (var i in sprites) {
             this.sprites.push(
-                new Sprite(0, 0, 0, 0, 0, true, sprites[i])
+                new Sprite(0, 0, 0, 0, true, sprites[i])
             )
         }
         this.projectiles = [];
@@ -125,10 +123,8 @@ class Game {
             this.projectiles.push(new Projectile(0, 0, 0, 0, 0, 0, true, projectiles[i])
             )
         }
-        console.log("recieved players:", players[0])
 
         for (var key in this.players) {
-            console.log("kachow0")
             let player = this.players[key];
             player.updateData(players[key]);
         }
@@ -185,7 +181,11 @@ class Game {
         if (name == "arrows") {
             for (var i = 0; i < 1; i++) {
                 //console.log(BASE_POS[team].x, BASE_POS[team].y, -(20 + 5 * Math.random()) * factor, -(50 + 10 * Math.random()), team, 2);
-                this.shootProjectile(BASE_POS[team].x, BASE_POS[team].y - 20, -(50 + 40 * Math.random()) * factor, -(50 + 20 * Math.random()), team, 2, IS_ONLINE);
+                this.shootProjectile(
+                    { x: BASE_POS[team].x, y: BASE_POS[team].y - 20 },
+                    { vx: -(50 + 40 * Math.random()) * factor, vy: -(50 + 20 * Math.random()) },
+                    team, 2, IS_ONLINE
+                );
             }
         }
         else if (name == "invincible") {
@@ -231,7 +231,7 @@ class Game {
             START_TIME = Date.now()
             self.tick();
 
-        }, 2000)
+        }, 1000)
     }
 
 
@@ -290,10 +290,14 @@ class Game {
         return getMillisecondsPassed;
     }
 
-    shootProjectile(x, y, vx, vy, team, dmg, isOnline) {
-        console.log("arrow:", vx, vy)
-        if (isOnline) { pubnubAction("shootProj", team, { x: x, y: y }, { vx: vx, vy: vy }, dmg) }
-        else { this.projectiles.push(new Projectile(x, y, vx, vy, team, dmg)) }
+    shootProjectile(pos, vel, team, dmg, isOnline) {
+        // console.log("arrow:", pos, vel)
+        if (isOnline) {
+            if (mySide == 0) {
+                send("sendProjectile", { team: team, pos: pos, vel: vel, dmg: dmg })
+            }
+        }
+        else { this.projectiles.push(new Projectile(pos, vel, team, dmg)) }
     }
 
 
@@ -319,8 +323,10 @@ class Game {
 
 
     // === sprites === \\
-    addSprite(name, anim, team) {
-        this.sprites.push(new Sprite(BASE_POS[team].x, BASE_POS[team].y, name, anim, team))
+    addSprite(name, team) {
+
+
+        this.sprites.push(new Sprite(BASE_POS[team].x, BASE_POS[team].y, name, team))
     }
 
     drawSprites() {
@@ -337,7 +343,6 @@ class Game {
             let player = this.players[i];
             player.drawCastle();
             if (player.castleLvl != 0 && Date.now() - player.lastCastleAtk > CASTLE_ARROW_DELAY[player.castleLvl] * 1000) {
-                console.log("pang")
                 player.castleAttack();
             }
         }

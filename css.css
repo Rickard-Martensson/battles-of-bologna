@@ -1,39 +1,15 @@
-canvas {
-    /* background-image: url('bilder/background_1_dusk.png'); */
-    background-size: cover;
-    display: block;
+:root {
+    --S: 0px;
+    --purple: #4C2E4D;
 
+    --btnLeft: 35%;
+    --btnMid: 50%;
+    --btnRight: 65%;
+
+    --btnHeight: 80%;
 }
 
 
-.bg-day {
-    background-image: url('bilder/background_1_day.png');
-    opacity: 1;
-    z-index: -1;
-}
-
-.bg-dusk {
-    background-image: url('bilder/background_1_dusk.png');
-    opacity: 1;
-    z-index: -1;
-}
-
-.bg-night {
-    background-image: url('bilder/background_1_night.png');
-    /* opacity: 0.5; */
-}
-
-.bg-any {
-    width: 100px;
-    height: 100px;
-    position: absolute;
-    left: 50%;
-    /* position the left edge of the element at the middle of the parent */
-    transform: translateX(-50%);
-    /* background-image: url('bilder/ui/titleScreen.png'); */
-    background-size: cover;
-    display: block;
-}
 
 body {
     background: black;
@@ -64,78 +40,68 @@ body {
     display: block;
 }
 
-#bg2 {
-    z-index: -2;
-    width: 100px;
-    height: 100px;
+
+#host_code {
+    font-size: calc(var(--S) *25);
     position: absolute;
+    transform: translate(-50%, -50%);
+    color: white;
+    display: none;
+
+
+    top: 50%;
     left: 50%;
-    /* position the left edge of the element at the middle of the parent */
-    transform: translateX(-50%);
-    /* background-image: url('bilder/background_1_day.png'); */
-    background-size: cover;
-    display: block;
 }
 
-#bg1 {
-    z-index: -2;
-    width: 100px;
-    height: 100px;
-    position: absolute;
+#lobby_input {
+
+    padding: calc(var(--S) *2);
+    letter-spacing: calc(var(--S) *5);
+    font-size: calc(var(--S) *15);
+    width: calc(var(--S) *80);
+
+    top: 50%;
     left: 50%;
-    /* position the left edge of the element at the middle of the parent */
-    transform: translateX(-50%);
-    /* background-image: url('bilder/background_1_day.png'); */
-    background-size: cover;
-    display: block;
 }
 
-#background1 {
-    width: 100px;
-    height: 100px;
-    position: absolute;
-    left: 50%;
-    /* position the left edge of the element at the middle of the parent */
-    transform: translateX(-50%);
-    background-size: cover;
-    display: block;
-}
+#username_input {
 
-#background2 {
-    width: 100px;
-    height: 100px;
-    position: absolute;
+    padding: calc(var(--S) *2);
+    letter-spacing: calc(var(--S) *0);
+    font-size: calc(var(--S) *8);
+    width: calc(var(--S) *80);
+
+    top: 35%;
     left: 50%;
-    /* position the left edge of the element at the middle of the parent */
-    transform: translateX(-50%);
-    background-size: cover;
-    display: block;
 }
 
 
-/* .buttonContainer {
-    width: 100%;
-    position: absolute;
-    height: 25%;
-    border: 3px solid green;
-    margin-top: 36.25%;
-    56.25 = 320/180 typ
-} 
+.input {
+    background: none;
+    color: white;
+    border-radius: 0;
+    display: none;
 
-*/
+    font-family: 'Press Start 2P', cursive;
+    text-align: center;
+    border: calc(var(--S) *2) solid white;
+    border-style: solid;
+
+    position: absolute;
+    transform: translate(-50%, -50%);
+
+}
+
 
 .button {
     display: inline-block;
     background-size: cover;
     cursor: pointer;
     color: transparent;
-    width: calc(0px + 20vmin);
-    height: calc(0px + 20vmin);
-    /* transform: translateX(-50%); */
-    /* transform: translateY(-50%); */
-    /* transform: translateX(-50%); */
     transform: translate(-50%, -50%);
     position: absolute;
+    height: calc(var(--S) * 30);
+    width: calc(var(--S) * 30);
 
 }
 
@@ -151,34 +117,45 @@ body {
     margin-top: 100%;
 }
 
+#button_back {
+    left: var(--btnLeft);
+    top: var(--btnHeight);
+    display: none;
+    background-image: url('bilder/ui/singleplayer.png');
+}
+
+#button_back:hover {
+    background-image: url('bilder/ui/singleplayer.png');
+}
+
 #button1 {
-    left: 30%;
-    top: 70%;
-    background-image: url('bilder/ui/playBtn.png');
+    left: var(--btnLeft);
+    top: var(--btnHeight);
+    background-image: url('bilder/ui/singleplayer.png');
 }
 
 #button1:hover {
-    background-image: url('bilder/ui/playBtn.png');
+    background-image: url('bilder/ui/singleplayer.png');
 }
 
 #button2 {
-    left: 50%;
-    top: 70%;
-    background-image: url('bilder/ui/playBtn.png');
+    left: var(--btnMid);
+    top: var(--btnHeight);
+    background-image: url('bilder/ui/hostMultiplayer.png');
 }
 
 #button2:hover {
-    background-image: url('assets/ui/multiplayerActiveButton.png');
+    background-image: url('bilder/ui/hostMultiplayer.png');
 }
 
 #button3 {
-    left: 70%;
-    top: 70%;
-    background-image: url('bilder/ui/playBtn.png');
+    left: var(--btnRight);
+    top: var(--btnHeight);
+    background-image: url('bilder/ui/joinMultiplayer.png');
 }
 
 #button3:hover {
-    background-image: url('assets/ui/trainingActiveButton.png');
+    background-image: url('bilder/ui/joinMultiplayer.png');
 }
 
 .navbar {
@@ -198,8 +175,8 @@ body {
     margin-left: auto;
     margin-right: auto;
 
-    width: calc(0px + 100vmin);
-    height: calc(0px + 100vmin);
+    width: calc(var(--S) *200);
+    height: calc(var(--S) *200);
 
     transform: translate(-50%, 0);
     position: absolute;
@@ -209,10 +186,10 @@ body {
 
 }
 
-amen det är ändå bra vibes. inte lika bra som matte men ja img {
+img {
     -webkit-animation: mover 4.89795918367346938s infinite normal;
     animation: mover 4.89795918367346938s infinite normal;
-    animation-delay: 0.75s;
+    animation-delay: 0.55s;
 }
 
 @-webkit-keyframes mover {
@@ -230,35 +207,31 @@ amen det är ändå bra vibes. inte lika bra som matte men ja img {
         transform: translate(-50%, 0);
     }
 
-    20% {
-        transform: translate(-50%, 0);
+    5% {
+        transform: translate(-50%, -3%);
     }
 
     25% {
         transform: translate(-50%, -3%);
     }
 
-    45% {
-        transform: translate(-50%, -3%);
+    30% {
+        transform: translate(-50%, -6%);
     }
 
     50% {
         transform: translate(-50%, -6%);
     }
 
-    70% {
-        transform: translate(-50%, -6%);
+    55% {
+        transform: translate(-50%, -3%);
     }
 
     75% {
         transform: translate(-50%, -3%);
     }
 
-    95% {
-        transform: translate(-50%, -3%);
-    }
-
-    100% {
+    80% {
         transform: translate(-50%, 0%);
     }
 

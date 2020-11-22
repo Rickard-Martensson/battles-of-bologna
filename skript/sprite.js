@@ -1,7 +1,7 @@
 class Projectile {
-    constructor(x, y, vx, vy, team, dmg, isUpdate, newData) {
-        this.pos = { x: x, y: y };
-        this.vel = { x: vx, y: vy };
+    constructor(pos, vel, team, dmg, isUpdate, newData) {
+        this.pos = { x: pos.x, y: pos.y };
+        this.vel = { vx: vel.vx, vy: vel.vy };
         this.arrowLen = [0.6, 3, 1];
         this.arrowColors2 = ['#DDDDDD', '#8B3F2B', '#FFFFFF'];
         this.arrowColors = [{ r: 221, g: 221, b: 221 }, { r: 129, g: 63, b: 43 }, { r: 255, g: 255, b: 255 }]
@@ -27,9 +27,9 @@ class Projectile {
     }
 
     move() {
-        this.pos.x += this.vel.x * fpsCoefficient / 100;
-        this.pos.y += this.vel.y * fpsCoefficient / 100;
-        this.vel.y += GRAVITY * fpsCoefficient / 100;
+        this.pos.x += this.vel.vx * fpsCoefficient / 100;
+        this.pos.y += this.vel.vy * fpsCoefficient / 100;
+        this.vel.vy += GRAVITY * fpsCoefficient / 100;
 
         //this.predictTouchDown()
     }
@@ -54,14 +54,14 @@ class Projectile {
 
 
     getVec() {
-        var hyp = Math.sqrt(this.vel.x * this.vel.x + this.vel.y * this.vel.y)
-        return { dx: this.vel.x / hyp, dy: this.vel.y / hyp }
+        var hyp = Math.sqrt(this.vel.vx * this.vel.vx + this.vel.vy * this.vel.vy)
+        return { dx: this.vel.vx / hyp, dy: this.vel.vy / hyp }
     }
 
     predictTouchDown() {
         var acceleration = GRAVITY / 2
-        var t_0 = (- this.vel.y + Math.sqrt(this.vel.y * this.vel.y - 4 * acceleration * (this.pos.y - 100))) / (2 * acceleration)
-        console.log(this.vel.x * t_0 + this.pos.x)
+        var t_0 = (- this.vel.vy + Math.sqrt(this.vel.vy * this.vel.vy - 4 * acceleration * (this.pos.y - 100))) / (2 * acceleration)
+        console.log(this.vel.vx * t_0 + this.pos.x)
     }
 
     draw() {
@@ -97,7 +97,8 @@ class Projectile {
 }
 
 class Sprite {
-    constructor(x, y, name, animations, team, isUpdate, newData) {
+    constructor(x, y, name, team, isUpdate, newData) {
+        console.log(x, y, name, team, isUpdate, "newdata:", newData)
         this.pos = { x: x, y: y };
         this.name = name
         this.imageName = this.name;
@@ -188,23 +189,25 @@ class Sprite {
     }
 
     spriteShootProjectile() {
-        console.log("activeEffects:", this.activeEffects)
         if (this.activeEffects.has("target")) {
             let nextEnemy = game.distToNextSprite(this, this.getOtherTeam())
             if (nextEnemy.len < 80) {
                 let { vel_x, vel_y } = calcProjectilePower(this.pos, nextEnemy.sprite.pos, ARCHER_TRAJECTORY);
-                game.shootProjectile(this.pos.x, this.pos.y - 5,
-                    vel_x * this.direction,
-                    -vel_y,
+                game.shootProjectile(
+                    { x: this.pos.x, y: this.pos.y - 5 },
+                    { vx: vel_x * this.direction, vy: -vel_y },
                     this.team, this.dmg,
                     IS_ONLINE
                 )
                 return;
             }
         }
-        game.shootProjectile(this.pos.x, this.pos.y - 5,
-            (this.range * (1 + RANGE_RANDOMNESS * Math.random())) * 10 * this.direction,
-            (this.range * (1 + RANGE_RANDOMNESS * Math.random())) * -10 * ARCHER_TRAJECTORY,
+        game.shootProjectile(
+            { x: this.pos.x, y: this.pos.y - 5 },
+            {
+                vx: (this.range * (1 + RANGE_RANDOMNESS * Math.random())) * 10 * this.direction,
+                vy: (this.range * (1 + RANGE_RANDOMNESS * Math.random())) * -10 * ARCHER_TRAJECTORY
+            },
             this.team, this.dmg,
             IS_ONLINE);
     }
@@ -257,14 +260,13 @@ class Sprite {
     }
 
     checkIfAtEnemyCastle(game) {
-        let enemyPlayer = this.getOtherTeam()
+        let enemyPlayer = this.getOtherTeam();
         let enemyBasePos = BASE_POS[enemyPlayer].x
         let factor = (2 * this.team - 1) //-1 if team:0, 1 if team:1.
 
         if (this.pos.x * factor < enemyBasePos * factor) { // -100 < -40 //prolog inte imperativt
             game.players[enemyPlayer].attackCastle(50)
             game.players[this.team].changeGoldPerTurn(1)
-            console.log("attack")
             this.hp = 0
             //remove gold, add gold
         }

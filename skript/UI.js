@@ -160,8 +160,11 @@ class UI {
     buyUnit(unitName, player, team, cost) {
         if (player.tryBuy(cost)) {
             //some pubnub shit
-            if (this.isOnline) { pubnubAction("addSprite", team, unitName); }
-            else { game.addSprite(unitName, "anim", team); }
+            if (this.isOnline) {
+                // pubnubAction("addSprite", team, unitName);
+                send("sendUnit", { team: team, unit: unitName });
+            }
+            else { game.addSprite(unitName, team); }
         }
     }
 
@@ -175,9 +178,12 @@ class UI {
         }
         else if (upgradeName == "upgCastle") {
             if (player.tryBuy(50)) {
+                player.upgCastle();
 
-                if (this.isOnline) { pubnubAction("upgCastle", team, player) }
-                else { player.upgCastle(); }
+                // if (this.isOnline) { pubnubAction("upgCastle", team, player) }
+                // else { player.upgCastle(); }
+
+
             }
         }
         else if (upgradeName == "upgAbility") {
@@ -234,7 +240,8 @@ class UI {
     castAbility(abilityName, team, abilityCooldown) {
         if (this.isOnline) {
             //some pubnub shit
-            pubnubAction("castAbility", team, abilityName, abilityCooldown);
+            // pubnubAction("castAbility", team, abilityName, abilityCooldown);
+            send("castAbility", { team: team, ability: abilityName, cooldown: abilityCooldown })
         }
         else {
             game.castAbility(abilityName, team, abilityCooldown)

@@ -1,7 +1,7 @@
 class Player {
     constructor(name, team, img, x, y) {
         this.name = name
-        this.gold = 500;
+        this.gold = 60;
         this.goldPerTurn = 5;
         this.team = team; //0 = blue
         this.currentFolder = 0;
@@ -30,10 +30,9 @@ class Player {
     }
 
     updateData(newData) {
-        console.log("kachow4", newData);
         for (var i in newData) {
             this[i] = newData[i];
-            console.log("i", i, "newdata", newData[i]);
+            //console.log("i", i, "newdata", newData[i]);
         }
 
         this.upgsResearched = new Set([]);
@@ -52,7 +51,7 @@ class Player {
         this.lastCastleAtk = Date.now()
         let pos = { x: this.pos.x, y: this.pos.y }
         let vel = { vx: 35 * (Math.random() + 1) * (1 - 2 * this.team), vy: -15 * (Math.random() * 1 + 4.5) }
-        game.shootProjectile(this.pos.x, this.pos.y, 35 * (Math.random() + 1) * (1 - 2 * this.team), -15 * (Math.random() * 1 + 4.5), this.team, dmg, IS_ONLINE)
+        game.shootProjectile({ x: this.pos.x, y: this.pos.y }, { vx: 35 * (Math.random() + 1) * (1 - 2 * this.team), vy: -15 * (Math.random() * 1 + 4.5) }, this.team, dmg, IS_ONLINE)
         if (this.castleLvl > 2) {
             void (0)
         }
@@ -69,6 +68,8 @@ class Player {
             console.log("leeveeell", this.castleLvl)
             this.castleLvl += 1
             this.lastCastleAtk = -Infinity
+            this.syncMyself()
+
         }
     }
 
@@ -107,6 +108,7 @@ class Player {
 
     addUpgrade(upgrade) {
         this.upgsResearched.add(upgrade);
+        this.syncMyself()
     }
 
 
@@ -123,12 +125,17 @@ class Player {
         local_UI.justGaveGold[this.team] = Date.now();
     }
 
+    syncMyself() {
+        send("syncPlayer", { team: this.team, data: this.getData() })
+    }
+
     tryBuy(amount) {
         if (this.gold >= amount) {
 
             if (local_UI.isOnline) {
                 this.changeGold(-amount);
-                pubnubAction("upPlayer", this.team, this.getData(), 0, 0);
+                // pubnubAction("upPlayer", this.team, this.getData(), 0, 0);
+                this.syncMyself()
                 return true;
             } else {
                 this.changeGold(-amount);
