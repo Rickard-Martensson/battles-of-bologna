@@ -1,7 +1,6 @@
 const uuid = PubNub.generateUUID();
 var myChannel = "none";
 var amHost = "false";
-var myName = "none";
 var myOpponent = "none";
 var mySide = -1;
 const pubnub = new PubNub({
@@ -44,20 +43,31 @@ function send(type, content) {
     }, function (status, response) {
         //Handle error here
         console.log(status)
+        if (status.error) {
+            console.log("oops, we got an error")
+        }
     });
+}
+
+
+function chatty(msg) {
+    send("chat", msg)
 }
 
 pubnub.addListener({
     message: function (event) {
         if (event.message.type == "chat") {
-            ui.handleChat(event.message.content, event.message.name);
+            //ui.handleChat(event.message.content, event.message.name);
+            let sender = event.message.name;
+            let msg = event.message.content;
+            // console.log(sender, msg);
+            local_UI.handleChat(sender, msg);
         }
         else if (event.message.type == "gameUpdate") {
             let moveInfo = event.message.content;
             game.move(moveInfo[0], moveInfo[1], moveInfo[2], moveInfo[3]);
         }
         else if (event.message.type == "start") {
-
             console.log(event.message);
             //myName = elem("nameInput").value || getRandomName();
             send("startingInfo", mySide);
@@ -80,9 +90,9 @@ pubnub.addListener({
             let content = event.message.content
             let sprites = content.sprites;
             let projectiles = content.projectiles;
-            let players = content.players;
+            // let players = content.players;
             let lastGoldTime = content.lastGoldTime;
-            game.updateGame(sprites, projectiles, players, lastGoldTime)
+            game.updateGame(sprites, projectiles, lastGoldTime)
         }
 
         if (event.message.type == "castAbility") {

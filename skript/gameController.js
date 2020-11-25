@@ -1,10 +1,7 @@
 
 let keySet = new Set(["q", "w", "e", "a", "s", "d", "u", "i", "o", "j", "k", "l"])
 
-
-let isTyping = false;
-
-let currentMsg = ""
+let forbiddenSet = new Set(["enter", "tab", "capslock", "control", "alt", "shift", "meta", "altgraph", "arrowleft", "arrowright", "arrowup", "arrowdown", "insert", "delete"])
 
 
 function activateGameController() {
@@ -12,16 +9,20 @@ function activateGameController() {
     document.onkeydown = function (e) {
         if (e.repeat) { return };
         var key = e.key.toLowerCase();
-        console.log(key)
+        let isTyping = local_UI.getIfTyping();
         if (key == "enter") {
             if (isTyping) {
-                pubnubAction("chatMsg", 0, "Kjell", currentMsg)
+                local_UI.sendMessage();
             }
-            isTyping = !isTyping;
-            currentMsg = ""
+            local_UI.toggleTyping()
         }
         else if (isTyping) {
-            currentMsg += key;
+            if (!forbiddenSet.has(key)) {
+                local_UI.addTyping(key);
+            }
+            else if (key == "backspace") {
+                local_UI.addTyping(key)
+            }
         }
         else if (keySet.has(key)) {
             local_UI.buttonAction(BUTTON_DICT[key].id, BUTTON_DICT[key].team);

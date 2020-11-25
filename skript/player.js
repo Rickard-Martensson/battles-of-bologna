@@ -1,8 +1,9 @@
+
 class Player {
     constructor(name, team, img, x, y) {
         this.name = name
-        this.gold = 60;
-        this.goldPerTurn = 5;
+        this.gold = 600;
+        this.goldPerTurn = 15;
         this.team = team; //0 = blue
         this.currentFolder = 0;
         this.race = "human";
@@ -43,6 +44,7 @@ class Player {
 
     upgGoldPerTurn() {
         this.changeGoldPerTurn(UPGRADES["upgGold"].costIncrease) //.goldPerTurn += UPGRADES["upgGold"].goldIncrease;}
+        this.syncMyself()
 
     }
 

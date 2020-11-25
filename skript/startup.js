@@ -29,13 +29,19 @@ function playAudio(song = "title") {
     else if (song == "ingame") {
         audio = new Audio('./bilder/audio/INGAME MUSIC MP3.mp3');
     }
+    else if (song == "fast") {
+        audio = new Audio('./bilder/audio/INGAME FAST MP3.mp3');
+    }
     if (song == "win") {
+        audio.loop = false
         audio = new Audio('./bilder/audio/VICTORY THEME MP3.mp3');
     }
     if (song == "defeat") {
+        audio.loop = false
         audio = new Audio('./bilder/audio/DEFEAT THEME MP3.mp3');
     }
     audio.play();
+    audio.loop = true
 }
 playAudio("title")
 
@@ -200,6 +206,7 @@ function startGame() {
 }
 
 
+
 function clickButton() {
     return;
 }
@@ -207,26 +214,26 @@ function clickButton() {
 let local_UI = null;
 
 function startGameLocal() {
-    local_UI = new UI([0, 1], false);
+    local_UI = new UIHandler([0, 1], false);
     IS_ONLINE = false
     startGame();
 }
 
 function startGameTest() {
-    local_UI = new UI([0], true);
+    local_UI = new UIHandler([0], true);
     IS_ONLINE = true
     startGame();
 }
 
 function startGameHost() {
-    local_UI = new UI([0], true);
+    local_UI = new UIHandler([0], true);
     IS_ONLINE = true
     startGame();
 
 }
 
 function startGameJoin() {
-    local_UI = new UI([1], true);
+    local_UI = new UIHandler([1], true);
     IS_ONLINE = true
     startGame();
 
@@ -236,7 +243,7 @@ function startGameJoin() {
 
 function startGame2(mySide) {
     console.log("MYSIDE:", mySide)
-    local_UI = new UI([mySide], true);
+    local_UI = new UIHandler([mySide], true);
     IS_ONLINE = true
     startGame();
 }

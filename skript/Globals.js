@@ -13,7 +13,7 @@ var IMAGE_DIRECTORY = [
     ["veteran_img_blue", "./bilder/sprites/veteran_blue.png"],
     //["image_not_found", "./bilder/ui/wtf.png"],
     ["exitButton", "./bilder/ui/ExitButton.png"],
-    ["button1", "./bilder/ui/button2.png"],
+    ["button1", "./bilder/ui/button3.png"],
     ["castle_img", "./bilder/sprites/castle.png"],
     ["castle_img_blue", "./bilder/sprites/castle_blue.png"],
     ["background_day", "./bilder/background_1_day.png"],
@@ -24,6 +24,8 @@ var IMAGE_DIRECTORY = [
     ["icons_img", "./bilder/ui/icons2.png"],
 
 ];
+
+const BTN_SIZE = 32
 
 var ICON_DIRECTORY = {
     target: { x: 0, y: 1 },
@@ -46,9 +48,9 @@ const ICON_SS_POS = {
 
 const BASE_POS = [{ x: 20, y: 100 }, { x: 300, y: 100 }]
 const UI_POS = [
-    { gold: { x: 30, y: 20 }, goldPerTurn: { x: 30, y: 15 }, goldIcon: { x: 30, y: 17.2 }, chatBox: { chat: { x: 200, y: 130 }, input: { x: 200, y: 160 } } },
-    { gold: { x: 300, y: 20 }, goldPerTurn: { x: 300, y: 15 }, goldIcon: { x: 300, y: 17.2 }, chatBox: { chat: { x: 20, y: 130 }, input: { x: 20, y: 160 } } }];
-const UI_POS_BTN = { img: { x: 0, y: 2 }, txt: { x: 0, y: -8 }, txt2: { x: 0, y: -5 }, subText: { x: 0, y: 12 }, gold: { x: 1, y: 10.5 } }
+    { gold: { x: 30, y: 20 }, goldPerTurn: { x: 30, y: 15 }, goldIcon: { x: 30, y: 17.2 }, chatBox: { chat: { pos1: { x: 200, y: 130 }, pos2: { x: 315, y: 175 } }, input: { x: 205, y: 160 } } },
+    { gold: { x: 300, y: 20 }, goldPerTurn: { x: 300, y: 15 }, goldIcon: { x: 300, y: 17.2 }, chatBox: { chat: { pos1: { x: 5, y: 130 }, pos2: { x: 120, y: 175 } }, input: { x: 10, y: 160 } } }];
+const UI_POS_BTN = { img: { x: 0, y: 1.5 }, txt: { x: 0, y: -8 }, txt2: { x: 0, y: -5 }, subText: { x: 0, y: 10.7 }, gold: { x: 1, y: 9.2 } }
 const BUTTON_SIZE = 30; //hur stora knapparna är
 const ICON_SIZE = 20;   //hur stora ikoner i knapparna
 const SPRITE_SIZE = 80; //vet ej
@@ -106,6 +108,10 @@ const DAY_NIGHT_ENABLED = true; //guess
 const ARROW_GRAPHICS_LEVEL = 1; //0 for only white lines, 1 for texure, 2 for texture shaded by day/night
 
 
+//===ONLINE===\\
+const SYNC_INTERVAL = 30.5
+
+
 class Animation {
     //size of each square, how many rows down in spritesheet, number of frames, frameRate, isAloop(false on atk animations)
     constructor(size, row, frames, frameRate, isALoop) {
@@ -143,12 +149,36 @@ class Animation {
 
 
 const STATS = {
-    soldier: { hp: 10, dmg: 3, meleRange: 12, range: 0, atkSpeed: 1200, atkDelay: 450, speed: 4, row: 0, img: "soldier_img", imageSize: 32, size: 7, animations: { idle: new Animation(32, 0, 8, 60, true), walk: new Animation(32, 1, 8, 19.1804, true), attack: new Animation(32, 2, 7, 20, false) } },
-    archer: { hp: 8, dmg: 2, meleRange: 12, range: 3, atkSpeed: 2000, atkDelay: 1000, speed: 4, row: 0, img: "archer_img", imageSize: 32, size: 7, animations: { idle: new Animation(32, 0, 8, 60, true), walk: new Animation(32, 1, 8, 19.1804, true), attack: new Animation(32, 2, 7, 20, false) } },
-    knight: { hp: 15, dmg: 3, meleRange: 12, range: 0, atkSpeed: 1200, atkDelay: 450, speed: 10, row: 1, img: "knight_img", imageSize: 32, size: 7, animations: { idle: new Animation(32, 0, 8, 60, true), walk: new Animation(32, 1, 8, 8, true), attack: new Animation(32, 2, 7, 20, false) } },
-    veteran: { hp: 15, dmg: 10, meleRange: 12, range: 0, atkSpeed: 2200, atkDelay: 1100, speed: 4, row: 0, img: "veteran_img", imageSize: 32, size: 7, animations: { idle: new Animation(32, 0, 8, 60, true), walk: new Animation(32, 1, 8, 19.1804, true), attack: new Animation(32, 2, 12, 18, false) } },
-    sprinter: { hp: 6, dmg: 2, meleRange: 12, range: 0, atkSpeed: 1000, atkDelay: 500, speed: 15, row: 0, img: "soldier_img", imageSize: 32, size: 7, animations: { idle: new Animation(32, 0, 8, 60, true), walk: new Animation(32, 1, 8, 19.1804, true), attack: new Animation(32, 2, 7, 20, false) } },
-    wizard: { hp: Infinity, dmg: 3, meleRange: 12, range: 0, atkSpeed: 1200, atkDelay: 450, speed: 4, row: 0, img: "soldier_img", imageSize: 32, size: 7, animations: { idle: new Animation(32, 0, 8, 60, true), walk: new Animation(32, 1, 8, 19.1804, true), attack: new Animation(32, 2, 7, 20, false) } },
+    soldier: {
+        hp: 10, dmg: 3, meleRange: 12, range: 0, atkSpeed: 1200, atkDelay: 450, speed: 4,
+        abilities: [], row: 0, img: "soldier_img", imageSize: 32, size: 7,
+        animations: { idle: new Animation(32, 0, 8, 60, true), walk: new Animation(32, 1, 8, 19.1804, true), attack: new Animation(32, 2, 7, 20, false) }
+    },
+    archer: {
+        hp: 8, dmg: 2, meleRange: 12, range: 3, atkSpeed: 2000, atkDelay: 1000, speed: 4,
+        abilities: ["targetfire"], row: 0, img: "archer_img", imageSize: 32, size: 7,
+        animations: { idle: new Animation(32, 0, 8, 60, true), walk: new Animation(32, 1, 8, 19.1804, true), attack: new Animation(32, 2, 7, 20, false) }
+    },
+    knight: {
+        hp: 15, dmg: 3, meleRange: 12, range: 0, atkSpeed: 1200, atkDelay: 450, speed: 10,
+        abilities: ["coolShoes", "changeRow"], row: 1, img: "knight_img", imageSize: 32, size: 7,
+        animations: { idle: new Animation(32, 0, 8, 60, true), walk: new Animation(32, 1, 8, 8, true), attack: new Animation(32, 2, 7, 20, false) }
+    },
+    veteran: {
+        hp: 15, dmg: 10, meleRange: 12, range: 0, atkSpeed: 2200, atkDelay: 1100, speed: 4,
+        abilities: [], row: 0, img: "veteran_img", imageSize: 32, size: 7,
+        animations: { idle: new Animation(32, 0, 8, 60, true), walk: new Animation(32, 1, 8, 19.1804, true), attack: new Animation(32, 2, 12, 18, false) }
+    },
+    sprinter: {
+        hp: 6, dmg: 2, meleRange: 12, range: 0, atkSpeed: 1000, atkDelay: 500, speed: 15,
+        abilities: [], row: 0, img: "soldier_img", imageSize: 32, size: 7,
+        animations: { idle: new Animation(32, 0, 8, 60, true), walk: new Animation(32, 1, 8, 19.1804, true), attack: new Animation(32, 2, 7, 20, false) }
+    },
+    wizard: {
+        hp: Infinity, dmg: 3, meleRange: 12, range: 0, atkSpeed: 1200, atkDelay: 450, speed: 4,
+        abilities: ["zap"], row: 0, img: "soldier_img", imageSize: 32, size: 7,
+        animations: { idle: new Animation(32, 0, 8, 60, true), walk: new Animation(32, 1, 8, 19.1804, true), attack: new Animation(32, 2, 7, 20, false) }
+    },
 
 }
 
@@ -237,8 +267,8 @@ const BTN_FOLDER = {
         1: { txt: "", action: "hidden", data: -1, img: null },
         2: { txt: "", action: "hidden", data: -1, img: null },
         3: { txt: "units", action: "folder", data: 1, img: "soldier_img" },
-        4: { txt: "upgrades", action: "folder", data: 2, img: "soldier_img" },
-        5: { txt: "abilities", action: "folder", data: 3, img: "soldier_img" },
+        4: { txt: "upgrades", action: "folder", data: 2, img: "soldier_img", icon: "castleUpg" },
+        5: { txt: "abilities", action: "folder", data: 3, img: "soldier_img", icon: "target" },
     },
     1: {    // sprites
         0: { txt: "soldier", cost: 15, action: "buyUnit", data: "soldier", img: "soldier_img" },
@@ -259,7 +289,7 @@ const BTN_FOLDER = {
     },
     3: {
         0: { txt: "Arrows", cost: 2, action: "ability", data: "arrows", abilityCooldown: 1, lvl: 2, img: "soldier_img" },
-        1: { txt: "Invincible", cost: 4, action: "ability", data: "invincible", abilityCooldown: 12, lvl: 3, img: "icons_img", icon: "invincible" },
+        1: { txt: "Invincible", cost: 4, action: "ability", data: "invincible", abilityCooldown: 6, lvl: 3, img: "icons_img", icon: "invincible" },
         2: { txt: "Target", cost: 4, action: "ability", data: "target", abilityCooldown: 8, lvl: 4, img: "archer_img", icon: "target" },
         3: { txt: "Sprint", cost: 3, action: "ability", data: "sprint", abilityCooldown: 4, lvl: 1, img: "soldier_img" },
         4: { txt: "Sprint", cost: 3, action: "ability", data: "sprint", abilityCooldown: 4, lvl: 0, img: "soldier_img", icon: "sprint" },

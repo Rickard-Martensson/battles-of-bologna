@@ -10,6 +10,16 @@
 }
 
 
+@font-face {
+    font-family: 'FR73 Pixel';
+    src: url('FR73\ Pixel\ W00\ Regular.ttf');
+}
+
+@font-face {
+    font-family: 'iFlash 705';
+    src: url('iFlash\ 705.ttf');
+}
+
 
 body {
     background: black;
@@ -125,7 +135,7 @@ body {
 }
 
 #button_back:hover {
-    background-image: url('bilder/ui/singleplayer.png');
+    background-image: url('bilder/ui/singleplayerDown.png');
 }
 
 #button1 {
@@ -135,7 +145,7 @@ body {
 }
 
 #button1:hover {
-    background-image: url('bilder/ui/singleplayer.png');
+    background-image: url('bilder/ui/singleplayerDown.png');
 }
 
 #button2 {
@@ -145,7 +155,7 @@ body {
 }
 
 #button2:hover {
-    background-image: url('bilder/ui/hostMultiplayer.png');
+    background-image: url('bilder/ui/hostMultiplayerDown.png');
 }
 
 #button3 {
@@ -155,7 +165,7 @@ body {
 }
 
 #button3:hover {
-    background-image: url('bilder/ui/joinMultiplayer.png');
+    background-image: url('bilder/ui/joinMultiplayerDown.png');
 }
 
 .navbar {
@@ -198,7 +208,7 @@ img {
     }
 
     100% {
-        transform: translate(-50%, -6%);
+        transform: translate(-50%, -2%);
     }
 }
 
@@ -208,27 +218,27 @@ img {
     }
 
     5% {
-        transform: translate(-50%, -3%);
+        transform: translate(-50%, -1%);
     }
 
     25% {
-        transform: translate(-50%, -3%);
+        transform: translate(-50%, -1%);
     }
 
     30% {
-        transform: translate(-50%, -6%);
+        transform: translate(-50%, -2%);
     }
 
     50% {
-        transform: translate(-50%, -6%);
+        transform: translate(-50%, -2%);
     }
 
     55% {
-        transform: translate(-50%, -3%);
+        transform: translate(-50%, -1%);
     }
 
     75% {
-        transform: translate(-50%, -3%);
+        transform: translate(-50%, -1%);
     }
 
     80% {

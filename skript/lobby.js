@@ -10,13 +10,30 @@ class Lobby {
 var currentMenu = "title"
 var titleText;
 var btnContainer;
-var myName = "bob"
 
 var thisLobby = "AAAA"
 
 function enterLobby() {
 
 }
+
+var myName = "bob"
+function generateName() {
+    surnames = ["Bert", "Kjell", "Edward", "Leif GW", "Harald", "Loket"];
+    myName = surnames[Math.floor(Math.random() * surnames.length)] + " "
+
+    let randNum = Math.floor(10 + 26 * Math.random())
+    myName += randNum.toString(36).toLocaleUpperCase()
+}
+
+function fixDefaultName() {
+    generateName()
+    elemId("username_input").value = myName
+    console.log(myName, "mynasme")
+}
+
+
+
 
 function updateMenu() {
 
@@ -40,11 +57,12 @@ function menuJoinLobby() {
     let joinLbyInputField = elemId("lobby_input");
 
 
-    joinLbyInputField.addEventListener("keyup", function (e) {
+    joinLbyInputField.addEventListener("keyup", function (e) { //removeEventListener sen, 
         if (e.key == "Enter") {
             e.preventDefault();
             thisLobby = elemId("lobby_input").value.toLocaleUpperCase()
             myName = elemId("username_input").value;
+            console.log(myName, "myName")
             console.log("trying to join:", thisLobby, myName)
             promptJoin()
         }
@@ -52,21 +70,30 @@ function menuJoinLobby() {
             elemId("lobby_input").value = elemId("lobby_input").value.toLocaleUpperCase();
         }
     });
+    fixDefaultName()
 
     updateMenu()
 }
+
+
 
 function menuHostLobby() {
     mySide = 0
     console.log("myside is:", mySide)
     currentMenu = "hostlobby";
 
-    thisLobby = generateKey(4);
-
+    thisLobby = generateKey(2);
     elemId("host_code").innerHTML = thisLobby
-
     joinChannel(thisLobby);
 
+    let nameInputField = elemId("username_input")
+
+    nameInputField.addEventListener("keyup", function (e) {
+        myName = elemId("username_input").value;
+        console.log(myName, "myName")
+    }
+    )
+    fixDefaultName()
 
     updateMenu();
 

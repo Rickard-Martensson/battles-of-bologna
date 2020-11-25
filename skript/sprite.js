@@ -98,7 +98,7 @@ class Projectile {
 
 class Sprite {
     constructor(x, y, name, team, isUpdate, newData) {
-        console.log(x, y, name, team, isUpdate, "newdata:", newData)
+        //console.log(x, y, name, team, isUpdate, "newdata:", newData)
         this.pos = { x: x, y: y };
         this.name = name
         this.imageName = this.name;
@@ -170,7 +170,7 @@ class Sprite {
             for (var stat in STATS[this.name]) {
                 this[stat] = STATS[this.name][stat]
             }
-            this.abilities = new Set(UNIQE[this.name])
+            // this.abilities = new Set(UNIQE[this.name])
         }
         else { console.log("unknown sprite", this.name) };
 
@@ -337,7 +337,7 @@ class Sprite {
                     this.setState("attack", -1, "movetopos")
                     this.attack(nextEnemy.sprite)
                 }
-                else if (this.abilities.has("changeRow")) {
+                else if (this.abilities.includes("changeRow")) {
                     this.row = 0;
                 }
             }
@@ -361,7 +361,8 @@ class Sprite {
                 }
                 this._last0frame = Date.now()
             }
-            this.frameDelay = this.animations[this.currentAnimation].getFrameRate() * this.animTimeMult;
+            this.frameDelay = this.animations[this.currentAnimation].getFrameRate()
+            if (this.isWalking) { this.frameDelay *= this.animTimeMult }
         }
         else {
 

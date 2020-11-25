@@ -3,11 +3,14 @@ const CHAT_MSG_ROW_PAD = 4;
 const CHAT_MSG_NAME_PAD = 20;
 
 
+const MAX_CHAT = 6;
 
-class UI {
+class UIHandler {
     constructor(players, isOnline) {
         this.players = players // [0], [0,1] eller [1]
         this.isOnline = ((isOnline) ? true : false);
+
+        this.timeSinceGold = Date.now()
 
         this.activeButtons = [{}, {}];
         this.disabledButtons = [{}, {}];
@@ -20,39 +23,110 @@ class UI {
 
         this.justGaveGold = [null, null];
 
-        this.chatmsgs = [
-            { sender: "Bert", msg: "Tjena kexet" },
-            { sender: "Kjelle", msg: "Tjatja bramski" },
-            { sender: "Bert", msg: "TEy bro!" }
+        this.chats = [
+            // { sender: "Bert", msg: "Tjena kexet" },
+            // { sender: "Kjelle", msg: "Tjatja bramski" },
+            // { sender: "Bert", msg: "TEy bro!" }
         ];
+
+        this.curMsg = "";
+        this.lastTypingBlink = Date.now();
+        this.isTyping = false;
+    }
+
+    getIfTyping() {
+        return this.isTyping
+    }
+
+    toggleTyping() {
+        this.isTyping = !this.isTyping
+        this.lastTypingBlink = Date.now();
+    }
+
+    handleChat(name, msg) {
+        this.chats.push({ sender: name, msg: msg })
+        let chatLen = this.chats.length
+        if (chatLen > MAX_CHAT) {
+            this.chats.splice(0, chatLen - MAX_CHAT)
+        }
+    }
+
+    sendMessage() {
+        send("chat", this.curMsg);
+        this.curMsg = ""
+    }
+
+    addTyping(key) {
+        if (key == "backspace") {
+            this.curMsg = this.curMsg.slice(0, -1)
+        }
+        else if (this.curMsg.length < 20) {
+            this.curMsg += key
+        }
+    }
+
+
+    drawBox(pos1, pos2, color) {
+        ctx.fillStyle = "#B5A18C";
+        ctx.fillRect(pos1.x * S,
+            pos1.y * S,
+            (pos2.x - pos1.x) * S,
+            (pos2.y - pos1.y) * S
+        )
+        ctx.strokeStyle = "#4D2E37";
+
+        ctx.lineWidth = S;
+        ctx.lineJoin = 'bevel';
+
+        ctx.strokeRect(pos1.x * S,
+            pos1.y * S,
+            (pos2.x - pos1.x) * S,
+            (pos2.y - pos1.y) * S
+        )
+        console.log()
     }
 
     addChatMsg(sender, msg) {
         this.chatmsgs.push({ sender: sender, msg: msg })
     }
 
-    drawChatBox(team) {
-        if (this.isOnline) {
-            ctx.textAlign = "start";
-            ctx.font = 3 * S + "px 'Press Start 2P'";
-            for (var i in this.chatmsgs) {
-                let msg = this.chatmsgs[i].msg;
-                let sender = this.chatmsgs[i].sender;
-                ctx.fillText(sender,
-                    (UI_POS[team].chatBox.chat.x) * S,
-                    (UI_POS[team].chatBox.chat.y + CHAT_MSG_ROW_PAD * i) * S,
-                );
-                ctx.fillText(msg,
-                    (UI_POS[team].chatBox.chat.x + CHAT_MSG_NAME_PAD) * S,
-                    (UI_POS[team].chatBox.chat.y + CHAT_MSG_ROW_PAD * i) * S,
-                );
-            }
-            ctx.fillText(currentMsg,
-                (UI_POS[team].chatBox.input.x + CHAT_MSG_NAME_PAD) * S,
-                (UI_POS[team].chatBox.input.y + CHAT_MSG_ROW_PAD * i) * S,
-            );
+    drawChatBox2(team) {
+        ctx.textAlign = "start";
+        ctx.font = 5 * S + "px 'iFlash 705'";
+        ctx.fillStyle = "#F2F2AA"
+        let namePos = UI_POS[team].chatBox.chat.pos1.x + 3
+        let msgPos = UI_POS[team].chatBox.chat.pos1.x + 40
+        for (var i in this.chats) {
+            let msg = this.chats[i].msg;
+            let sender = this.chats[i].sender;
 
+            ctx.fillText(sender,
+                (namePos) * S,
+                (137 + 5 * i) * S,
+            );
+            ctx.fillText(msg,
+                (msgPos) * S,
+                (137 + 5 * i) * S,
+            );
         }
+        let typingBlink = ""
+        if (this.isTyping) {
+            if (Date.now() - this.lastTypingBlink > 500) {
+                typingBlink = "|";
+            }
+            if (Date.now() - this.lastTypingBlink > 1000) {
+                this.lastTypingBlink = Date.now();
+            }
+        }
+
+        ctx.fillText(myName,
+            (namePos) * S,
+            (140 + 5 * 6) * S,
+        );
+        ctx.fillText(this.curMsg + typingBlink,
+            (msgPos) * S,
+            (140 + 5 * 6) * S,
+        );
     }
 
     drawEverything(fps) {
@@ -60,7 +134,10 @@ class UI {
             let team = this.players[key]
             this.drawButtons(team);
             if (this.isOnline) {
-                this.drawChatBox(team)
+                // this.drawChatBox(team)
+
+                this.drawBox(UI_POS[team].chatBox.chat.pos1, UI_POS[team].chatBox.chat.pos2)
+                this.drawChatBox2(team);
             }
         }
 
@@ -228,7 +305,10 @@ class UI {
         }
         else if (btnAction === 'ability') {
             if (player.checkCooldown(curFolder, id)) {
-                this.disabledButtons[team][id] = true;
+                this.disabledButtons[team][id] = {
+                    start: Date.now(),
+                    duration: game.timeUntilNextGold() + GOLD_INTERVAL * 1000 * Math.max(0, cost - 1)
+                };
                 player.addCooldown(curFolder, id, cost, id)
                 this.castAbility(btnData, team, abilityCooldown)
             }
@@ -266,7 +346,7 @@ class UI {
         ctx.textAlign = "center";
         ctx.fillStyle = "#ffffff";
         ctx.font = 5 * S + "px 'Press Start 2P'";
-        ctx.fillText(Math.floor(GOLD_INTERVAL + 1 + (game.timeSinceLastGold - Date.now()) / 1000), 160 * S, 20 * S)
+        ctx.fillText(Math.floor(GOLD_INTERVAL + 1 + (game.lastGoldTime - Date.now()) / 1000), 160 * S, 20 * S)
         ctx.fillText(Math.floor(fps), 300 * S, 60 * S);
 
         ctx.textAlign = "end";
@@ -322,10 +402,10 @@ class UI {
     }
 
 
-    writeBtnText(text, pos, name) {
+    writeBtnText(text, pos, name, yoffset = 0) {
         ctx.fillText(text,
             (pos.x + UI_POS_BTN[name].x) * S,
-            (pos.y + UI_POS_BTN[name].y) * S,
+            (pos.y + UI_POS_BTN[name].y + yoffset) * S,
         );
     }
 
@@ -376,6 +456,7 @@ class UI {
         let cost = ((btnGlob.cost === undefined) ? "" : btnGlob.cost); //jävlar
         let action = btnGlob.action;
         let frame = 0
+        var cooldownFrac;
         if (index in this.activeButtons[team] || (this.currentButton.team == team && this.currentButton.id == index)) { // || this.currentButton == index
             frame = 1;
             if (Date.now() - this.activeButtons[team][index] > BUTTON_DELAY) {
@@ -383,22 +464,37 @@ class UI {
             }
         }
         if (index in this.disabledButtons[team] && player.currentFolder == 3) {
-            frame = 2;
+
+            cooldownFrac = (Date.now() - this.disabledButtons[team][index].start) / this.disabledButtons[team][index].duration
         }
         ctx.imageSmoothingEnabled = false
         ctx.drawImage(Images.button1,
-            34 * frame,
-            0 * 0,
-            34,
-            34,
+            BTN_SIZE * frame,
+            BTN_SIZE * 1,
+            BTN_SIZE,
+            BTN_SIZE,
             (button.x - BUTTON_SIZE / 2) * S,
             (button.y - BUTTON_SIZE / 2) * S,
             BUTTON_SIZE * S,
             BUTTON_SIZE * S
         );
+
+        if (cooldownFrac != 0) {
+            ctx.drawImage(Images.button1,
+                BTN_SIZE * 2,
+                BTN_SIZE * 1 + BTN_SIZE * cooldownFrac,
+                BTN_SIZE,
+                BTN_SIZE * (1 - cooldownFrac),
+                (button.x - BUTTON_SIZE / 2) * S,
+                (button.y - BUTTON_SIZE / 2 + BUTTON_SIZE * cooldownFrac) * S,
+                BUTTON_SIZE * S,
+                BUTTON_SIZE * S * (1 - cooldownFrac)
+            );
+        }
+
         ctx.imageSmoothingEnabled = true
         if (icon != undefined) {
-            drawIcon(icon, player.team, { x: button.x, y: button.y });
+            drawIcon(icon, player.team, { x: button.x, y: button.y + 1 * frame });
         }
         else {
             ctx.drawImage(Images[img],
@@ -407,7 +503,7 @@ class UI {
                 32,
                 32,
                 (button.x + UI_POS_BTN.img.x - ICON_SIZE / 2) * S,
-                (button.y + UI_POS_BTN.img.y - ICON_SIZE / 2) * S,
+                (button.y + UI_POS_BTN.img.y + frame - ICON_SIZE / 2) * S,
                 ICON_SIZE * S,
                 ICON_SIZE * S
             );
@@ -417,8 +513,8 @@ class UI {
         ctx.fillStyle = "#ffffff";
         ctx.font = ((text.length > 8) ? 2.5 * S + "px 'Press Start 2P'" : 3 * S + "px 'Press Start 2P'");
 
-        this.writeBtnText(text, button, "txt")
-        if (text2 !== undefined) { this.writeBtnText(text2, button, "txt2") }
+        this.writeBtnText(text, button, "txt", frame)
+        if (text2 !== undefined) { this.writeBtnText(text2, button, "txt2", frame) }
 
         if (cost == "%upggold%") { cost = player.goldPerTurn + 5; }
         else if (cost == "%upgcastle%") { cost = 50; }
@@ -426,7 +522,7 @@ class UI {
 
         ctx.textAlign = "end";
         ctx.font = 3 * S + "px 'Press Start 2P'";
-        this.writeBtnText(cost, button, "subText")
+        this.writeBtnText(cost, button, "subText", frame)
 
 
         let btnIcon = null;
@@ -445,7 +541,7 @@ class UI {
                 16,
 
                 (button.x + UI_POS_BTN.gold.x) * S,
-                (button.y + UI_POS_BTN.gold.y - goldIconSize / 2) * S,
+                (button.y + UI_POS_BTN.gold.y + frame - goldIconSize / 2) * S,
                 goldIconSize * S,
                 goldIconSize * S
             );

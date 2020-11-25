@@ -85,12 +85,17 @@ class Game {
         this.lastTimestamp = Date.now();
         this.tickLengthArray = [];
         this.startTime = Date.now();
-        this.timeSinceLastGold = Date.now();
+        this.lastGoldTime = Date.now();
+        this.lastSyncTime = Date.now();
 
     }
 
     updatePlayer(team, newData) {
         this.players[team].updateData(newData);
+    }
+
+    timeUntilNextGold() {
+        return this.lastGoldTime + GOLD_INTERVAL * 1000 - Date.now()
     }
 
     sendGameState() {
@@ -102,16 +107,16 @@ class Game {
         for (var i in this.projectiles) {
             projectiles.push(this.projectiles[i].getData())
         }
-        let players = []
-        for (var i in this.players) {
-            players.push(this.players[i].getData());
-        }
-        let lastGoldTime = this.timeSinceLastGold
+        // let players = []
+        // for (var i in this.players) {
+        //     players.push(this.players[i].getData());
+        // }
+        let lastGoldTime = this.lastGoldTime
         //pubnubAction("upDateGame", 1, sprites, projectiles, players, lastGoldTime);
-        send("syncGame", { team: 1, sprites: sprites, projectiles: projectiles, players: players, lastGoldTime: lastGoldTime });
+        send("syncGame", { team: 0, sprites: sprites, projectiles: projectiles, lastGoldTime: lastGoldTime });
     }
 
-    updateGame(sprites, projectiles, players, lastGoldTime) {
+    updateGame(sprites, projectiles, lastGoldTime) {
         this.sprites = [];
         for (var i in sprites) {
             this.sprites.push(
@@ -124,12 +129,12 @@ class Game {
             )
         }
 
-        for (var key in this.players) {
-            let player = this.players[key];
-            player.updateData(players[key]);
-        }
+        // for (var key in this.players) {
+        //     let player = this.players[key];
+        //     player.updateData(players[key]);
+        // }
 
-        this.timeSinceLastGold = lastGoldTime
+        this.lastGoldTime = lastGoldTime
         // console.log("recieved sprites: ", sprites)
         // this.newData = { sprites: sprites, projectiles: projectiles, activeAbilites: activeAbilites, };
     }
@@ -272,6 +277,7 @@ class Game {
         local_UI.drawEverything(fps);
         //this.drawUI(fps);
         this.goldIntervalCheck();
+        this.syncIntervalCheck();
         this.checkAbilities();
 
 
@@ -283,6 +289,7 @@ class Game {
 
 
     }
+
 
     getMillisecondsPlayed() {
         let currentTime = new Date();
@@ -359,9 +366,18 @@ class Game {
     }
 
 
+    syncIntervalCheck() {
+        if (IS_ONLINE && local_UI.players[0] == 0 && Date.now() - this.lastSyncTime > SYNC_INTERVAL * 1000) {
+            console.log("syncing...", (Date.now() - START_TIME) * 0.001)
+            this.lastSyncTime = Date.now()
+            this.sendGameState()
+
+        }
+    }
+
     goldIntervalCheck() {
-        if (Date.now() - this.timeSinceLastGold > GOLD_INTERVAL * 1000) {
-            this.timeSinceLastGold = Date.now();
+        if (Date.now() - this.lastGoldTime > GOLD_INTERVAL * 1000) {
+            this.lastGoldTime = Date.now();
             for (var key in this.players) {
                 let player = this.players[key]
                 player.giveGoldPerTurn()
