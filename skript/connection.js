@@ -3,6 +3,11 @@ var myChannel = "none";
 var amHost = "false";
 var myOpponent = "none";
 var mySide = -1;
+
+let lastSentPing = Date.now()
+let lastRecievedPing = Date.now()
+
+
 const pubnub = new PubNub({
     publishKey: 'pub-c-c2440a24-55ff-432f-b85b-a1c4b8c6dcf5',
     subscribeKey: 'sub-c-cbe33554-2762-11eb-8c1e-e6d4bf858fd7',
@@ -37,6 +42,7 @@ function joinChannel(channel) {
 }
 
 function send(type, content) {
+    let lastSentPing = Date.now()
     pubnub.publish({
         channel: myChannel,
         message: { "sender": uuid, "type": type, "content": content, name: myName }
@@ -56,6 +62,9 @@ function chatty(msg) {
 
 pubnub.addListener({
     message: function (event) {
+        if (uuid != event.message.sender) {
+            lastRecievedPing = Date.now()
+        }
         if (event.message.type == "chat") {
             //ui.handleChat(event.message.content, event.message.name);
             let sender = event.message.name;
@@ -86,13 +95,19 @@ pubnub.addListener({
                 } startGame2(mySide);
             }
         }
-        if (event.message.type == "syncGame") {
+        else if (event.message.type == "syncGame") {
             let content = event.message.content
             let sprites = content.sprites;
             let projectiles = content.projectiles;
             // let players = content.players;
             let lastGoldTime = content.lastGoldTime;
             game.updateGame(sprites, projectiles, lastGoldTime)
+        }
+        else if (event.message.type == "ping") {
+            console.log("pingpong", uuid, event.message.sender, Date.now() - lastRecievedPing)
+            // if (uuid != event.message.uuid) {
+            //     console.log("pingpong")
+            // }
         }
 
         if (event.message.type == "castAbility") {

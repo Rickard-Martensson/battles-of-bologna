@@ -48,8 +48,8 @@ const ICON_SS_POS = {
 
 const BASE_POS = [{ x: 20, y: 100 }, { x: 300, y: 100 }]
 const UI_POS = [
-    { gold: { x: 30, y: 20 }, goldPerTurn: { x: 30, y: 15 }, goldIcon: { x: 30, y: 17.2 }, chatBox: { chat: { pos1: { x: 200, y: 130 }, pos2: { x: 315, y: 175 } }, input: { x: 205, y: 160 } } },
-    { gold: { x: 300, y: 20 }, goldPerTurn: { x: 300, y: 15 }, goldIcon: { x: 300, y: 17.2 }, chatBox: { chat: { pos1: { x: 5, y: 130 }, pos2: { x: 120, y: 175 } }, input: { x: 10, y: 160 } } }];
+    { winScreen: { x: 160, y: 90 }, gold: { x: 30, y: 20 }, goldPerTurn: { x: 30, y: 15 }, goldIcon: { x: 30, y: 17.2 }, hp: { x: 30, y: 25 }, hpIcon: { x: 30, y: 22.2 }, chatBox: { chat: { pos1: { x: 200, y: 130 }, pos2: { x: 315, y: 175 } }, input: { x: 205, y: 160 } } },
+    { winScreen: { x: 160, y: 90 }, gold: { x: 300, y: 20 }, goldPerTurn: { x: 300, y: 15 }, goldIcon: { x: 300, y: 17.2 }, hp: { x: 300, y: 25 }, hpIcon: { x: 300, y: 22.2 }, chatBox: { chat: { pos1: { x: 5, y: 130 }, pos2: { x: 120, y: 175 } }, input: { x: 10, y: 160 } } }];
 const UI_POS_BTN = { img: { x: 0, y: 1.5 }, txt: { x: 0, y: -8 }, txt2: { x: 0, y: -5 }, subText: { x: 0, y: 10.7 }, gold: { x: 1, y: 9.2 } }
 const BUTTON_SIZE = 30; //hur stora knapparna är
 const ICON_SIZE = 20;   //hur stora ikoner i knapparna
@@ -280,7 +280,7 @@ const BTN_FOLDER = {
 
     },
     2: {    //upgrades
-        0: { txt: "upgrade", txt2: "Gold", cost: "%upggold%", action: "upgrade", upgrade: "upgAlwaysVisible", data: "upgGold", img: "knight_img", icon: "goldUpg" },
+        0: { txt: "upgrade", txt2: "Gold", cost: "%upggold%", action: "upgrade", upgrade: "maxGold", data: "upgGold", img: "knight_img", icon: "goldUpg" },
         1: { txt: "", action: "hidden", data: -1, img: null },
         2: { txt: "unlock", txt2: "Knight", cost: 50, subText: "50", action: "upgrade", upgrade: "upgKnight", data: "upgKnight", img: "knight_img" },
         3: { txt: "upgrade", txt2: "Castle", cost: "%upgcastle%", action: "upgrade", upgrade: "upgCastle", data: "upgCastle", img: "knight_img", icon: "castleUpg" },

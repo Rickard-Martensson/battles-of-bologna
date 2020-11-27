@@ -102,6 +102,11 @@ function setUnitDarkness(curTime, sunSetDate, sunSetDuration) {
 //precis sånthär som jag hade i åtanke
 //säg till när du har tid o prata!
 
+function getDirection(team) {
+    // return ((player.team == 0) ? btnGlob.img + "_blue" : btnGlob.img);
+    return (team == 0) ? 1 : -1;
+}
+
 function drawIcon(name, team, pos) {
     if (!(name in ICON_SS_POS)) {
         console.log("sorry, this icon", name, "is missing")

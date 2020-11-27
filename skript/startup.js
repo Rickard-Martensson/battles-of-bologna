@@ -21,30 +21,6 @@ var audio = new Audio('./bilder/audio/TITLE MUSIC MP3.mp3');
  *   Startar spelet    *
  **********************/
 
-function playAudio(song = "title") {
-    audio.pause()
-    if (song == "title") {
-        audio = new Audio('./bilder/audio/TITLE MUSIC MP3.mp3');
-    }
-    else if (song == "ingame") {
-        audio = new Audio('./bilder/audio/INGAME MUSIC MP3.mp3');
-    }
-    else if (song == "fast") {
-        audio = new Audio('./bilder/audio/INGAME FAST MP3.mp3');
-    }
-    if (song == "win") {
-        audio.loop = false
-        audio = new Audio('./bilder/audio/VICTORY THEME MP3.mp3');
-    }
-    if (song == "defeat") {
-        audio.loop = false
-        audio = new Audio('./bilder/audio/DEFEAT THEME MP3.mp3');
-    }
-    audio.play();
-    audio.loop = true
-}
-playAudio("title")
-
 
 window.onload = function () {
     getCanvas();
@@ -58,6 +34,9 @@ window.onload = function () {
     loadStats();
 
     showTitleScreen()
+
+    playAudio("title")
+
 
 }
 

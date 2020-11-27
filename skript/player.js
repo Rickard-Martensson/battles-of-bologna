@@ -1,18 +1,22 @@
+const BUY_QUEUE_MAX = 5;
+const GOLD_UPG_MAX = 45;
+
 
 class Player {
     constructor(name, team, img, x, y) {
         this.name = name
-        this.gold = 600;
-        this.goldPerTurn = 15;
+        this.gold = 800;
+        this.goldPerTurn = 10;
         this.team = team; //0 = blue
         this.currentFolder = 0;
         this.race = "human";
-        this.hp = 100;
+        this.hp = 99;
         this.btnLvl = 0;
         this.btnCoolDowns = [
             //{ folder: 3, btn: 2, time: 2, id: 1 }
         ]
         this.upgsResearched = new Set([]);
+        this.buyQueue = [];
 
         //===castle===\\
         this.pos = { x: x, y: y };
@@ -23,6 +27,31 @@ class Player {
         if (this.team == 0) { this.img += "_blue" };
 
         this.DRAW_SIZE = 64;
+    }
+
+    addToBuyQueue(unit) {
+        this.buyQueue.push(unit);
+    }
+
+    checkBuyQueue() {
+        if (this.buyQueue.length > 0) {
+            let team = this.team
+            let len = game.distToNextSprite2(team, { x: BASE_POS[team].x - 5, y: BASE_POS[team].y }).len;
+            console.log("len", len)
+            if (len < 20) {
+                console.log("full")
+            }
+            else {
+                let firstUnit = this.buyQueue.shift()
+                if (this.isOnline) {
+                    // pubnubAction("addSprite", team, unitName);
+                    send("sendUnit", { team: team, unit: firstUnit });
+                }
+                else { game.addSprite(firstUnit, team); }
+                // game.addSprite(firstUnit, team)
+            }
+        }
+
     }
 
     getData() {
@@ -123,7 +152,13 @@ class Player {
     }
 
     changeGoldPerTurn(amount) {
-        this.goldPerTurn += amount;
+        if (this.goldPerTurn + amount >= GOLD_UPG_MAX) {
+            this.upgsResearched.add("maxGold")
+        }
+        else {  //remove this if you dont want to be able to buy back to 45 gpt
+            this.upgsResearched.delete("maxGold")
+        }
+        this.goldPerTurn = Math.min(this.goldPerTurn + amount, GOLD_UPG_MAX);
         local_UI.justGaveGold[this.team] = Date.now();
     }
 

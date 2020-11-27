@@ -27,6 +27,10 @@ function activateGameController() {
         else if (keySet.has(key)) {
             local_UI.buttonAction(BUTTON_DICT[key].id, BUTTON_DICT[key].team);
         }
+        else if (key = "m") {
+            if (VOLUME != 0.0) { VOLUME = 0.0; audio.volume = VOLUME }
+            else { VOLUME = 0.2; audio.volume = VOLUME }
+        }
     }
 
     document.onmousemove = function (e) {

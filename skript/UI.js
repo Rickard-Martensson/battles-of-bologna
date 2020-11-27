@@ -28,11 +28,31 @@ class UIHandler {
             // { sender: "Kjelle", msg: "Tjatja bramski" },
             // { sender: "Bert", msg: "TEy bro!" }
         ];
+        this.deSynced = false;
+        this.winner = -1;
 
         this.curMsg = "";
         this.lastTypingBlink = Date.now();
         this.isTyping = false;
     }
+
+    setLoser(key) {
+        if (key == 1) {
+            this.winner = 0;
+        }
+        else if (key == 0) {
+            this.winner = 1;
+        }
+        else {
+            console.log("weird winner id, not 0 or 1", key)
+        }
+    }
+
+    setDesync(bool) {
+        this.deSynced = bool;
+    }
+
+
 
     getIfTyping() {
         return this.isTyping
@@ -236,19 +256,20 @@ class UIHandler {
 
     buyUnit(unitName, player, team, cost) {
         if (player.tryBuy(cost)) {
+            player.addToBuyQueue(unitName)
             //some pubnub shit
-            if (this.isOnline) {
-                // pubnubAction("addSprite", team, unitName);
-                send("sendUnit", { team: team, unit: unitName });
-            }
-            else { game.addSprite(unitName, team); }
+            // if (this.isOnline) {
+            //     // pubnubAction("addSprite", team, unitName);
+            //     send("sendUnit", { team: team, unit: unitName });
+            // }
+            // else { game.addSprite(unitName, team); }
         }
     }
 
     buyUpgrade(upgradeName, player, cost, team) {
         if (upgradeName == "upgGold") {
             let cost2 = player.goldPerTurn + UPGRADES["upgGold"].costIncrease;
-            if (player.tryBuy(cost2)) {
+            if (player.tryBuy(cost2) && player.goldPerTurn < GOLD_UPG_MAX) {
                 //if (this.isOnline) { pubnubAction("upgGold", team, player); }
                 player.upgGoldPerTurn();
             }
@@ -302,6 +323,7 @@ class UIHandler {
         }
         else if (btnAction === 'upgrade') {
             this.buyUpgrade(btnData, player, cost, team);
+            // if (cost = "%upggold%" && player.goldPerTurn >= GOLD_UPG_MAX) 
         }
         else if (btnAction === 'ability') {
             if (player.checkCooldown(curFolder, id)) {
@@ -348,6 +370,40 @@ class UIHandler {
         ctx.font = 5 * S + "px 'Press Start 2P'";
         ctx.fillText(Math.floor(GOLD_INTERVAL + 1 + (game.lastGoldTime - Date.now()) / 1000), 160 * S, 20 * S)
         ctx.fillText(Math.floor(fps), 300 * S, 60 * S);
+        if (this.deSynced) {
+            console.log("desynced!!!")
+            ctx.fillStyle = "#cb0000";
+            ctx.fillText("Desynced!", 160 * S, 26 * S)
+        }
+        ctx.fillText(Math.floor((Date.now() - lastRecievedPing) / 1000), 300 * S, 65 * S);
+
+        if (this.winner != -1) {
+            let resultText = "Victory!"
+
+
+            if (this.winner == 0) { ctx.fillStyle = "#3B6BCB" }
+            else if (this.winner == 1) { ctx.fillStyle = "#CB0000" }
+            ctx.font = 25 * S + "px 'Press Start 2P'";
+            console.log(this.players)
+            if (this.players == [0, 1]) {
+                playAudio("win")
+                console.log(1)
+                resultText = "Victory!"
+            }
+            else if (this.players[0] == this.winner) {
+                playAudio("win")
+                console.log(2)
+                resultText = "Victory!"
+            }
+            else if (this.players[0] != this.winner) {
+                playAudio("defeat")
+                console.log(3)
+                resultText = "Defeat!"
+            }
+            ctx.fillText(resultText, UI_POS[0].winScreen.x * S, UI_POS[0].winScreen.y * S);
+
+        }
+
 
         ctx.textAlign = "end";
 
@@ -378,6 +434,24 @@ class UIHandler {
                 16,
                 (UI_POS[playerKey].goldIcon.x) * S,
                 (UI_POS[playerKey].goldIcon.y - goldIconSize / 2) * S,
+                goldIconSize * S,
+                goldIconSize * S
+            );
+
+
+            ctx.font = 4 * S + "px 'Press Start 2P'";
+            ctx.fillStyle = "#CC5285";
+            ctx.fillText(Math.floor(player.hp),
+                UI_POS[playerKey].hp.x * S,
+                UI_POS[playerKey].hp.y * S
+            );
+            ctx.drawImage(Images["gold"],
+                32,
+                16,
+                16,
+                16,
+                (UI_POS[playerKey].hpIcon.x) * S,
+                (UI_POS[playerKey].hpIcon.y - goldIconSize / 2) * S,
                 goldIconSize * S,
                 goldIconSize * S
             );
@@ -413,8 +487,8 @@ class UIHandler {
         if (action == "hidden") {
             return false;
         }
-
         else if (action != "upgrade" ^ player.checkIfResearched(upgRequired)) { //XOR, coolt. false ^ true
+            // console.log("button is hidden")
             return false;
         }
         else if (player.btnLvl < lvl) {

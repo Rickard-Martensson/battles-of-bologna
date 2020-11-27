@@ -1,6 +1,5 @@
 
 
-
 class Lobby {
     constructor() {
 
@@ -11,7 +10,7 @@ var currentMenu = "title"
 var titleText;
 var btnContainer;
 
-var thisLobby = "AAAA"
+var thisLobbyCode = "TEST"
 
 function enterLobby() {
 
@@ -60,10 +59,10 @@ function menuJoinLobby() {
     joinLbyInputField.addEventListener("keyup", function (e) { //removeEventListener sen, 
         if (e.key == "Enter") {
             e.preventDefault();
-            thisLobby = elemId("lobby_input").value.toLocaleUpperCase()
+            thisLobbyCode = elemId("lobby_input").value.toLocaleUpperCase()
             myName = elemId("username_input").value;
             console.log(myName, "myName")
-            console.log("trying to join:", thisLobby, myName)
+            console.log("trying to join:", thisLobbyCode, myName)
             promptJoin()
         }
         else {
@@ -82,9 +81,9 @@ function menuHostLobby() {
     console.log("myside is:", mySide)
     currentMenu = "hostlobby";
 
-    thisLobby = generateKey(2);
-    elemId("host_code").innerHTML = thisLobby
-    joinChannel(thisLobby);
+    thisLobbyCode = generateKey(2);
+    elemId("host_code").innerHTML = thisLobbyCode
+    joinChannel(thisLobbyCode);
 
     let nameInputField = elemId("username_input")
 
@@ -125,14 +124,14 @@ function promptJoin() {
 
     self = this;
     pubnub.hereNow({
-        channels: [thisLobby],
+        channels: [thisLobbyCode],
         includeUUIDs: true,
         includeState: true,
     }, (status, response) => {
         // handle status, response
         console.log(response);
         if (response.totalOccupancy == 1) {
-            joinChannel(thisLobby);
+            joinChannel(thisLobbyCode);
             send("start", myName);
             //self.startGame();
         }

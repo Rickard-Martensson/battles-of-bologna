@@ -1,21 +1,27 @@
+const ARROW_CONSTS = {
+
+}
+
 class Projectile {
     constructor(pos, vel, team, dmg, isUpdate, newData) {
         this.pos = { x: pos.x, y: pos.y };
         this.vel = { vx: vel.vx, vy: vel.vy };
-        this.arrowLen = [0.6, 3, 1];
-        this.arrowColors2 = ['#DDDDDD', '#8B3F2B', '#FFFFFF'];
-        this.arrowColors = [{ r: 221, g: 221, b: 221 }, { r: 129, g: 63, b: 43 }, { r: 255, g: 255, b: 255 }]
-        this.size = .6;
         this.team = team;
-        this.dead = false;
         this.dmg = dmg;
+
+        this.ARROW_LEN = [0.6, 3, 1];
+        //this.ARROW_COLORS = ['#DDDDDD', '#8B3F2B', '#FFFFFF'];
+        this.ARROW_COLORS_2 = [{ r: 221, g: 221, b: 221 }, { r: 129, g: 63, b: 43 }, { r: 255, g: 255, b: 255 }]
+        //this.ARROW_COLORS_3 = ['#DDDDDD', '#6F2B1F', '#8B3F2B', '#8B3F2B', '#FFFFFF'];
+        this.ARROW_SIZE = .6;
+        this.dead = false;
         // this.colors = ['#DDDDDD', '#6F2B1F', '#8B3F2B', '#8B3F2B', '#8B3F2B', '#8B3F2B', '#FFFFFF']
-        this.colors = ['#DDDDDD', '#6F2B1F', '#8B3F2B', '#8B3F2B', '#FFFFFF'];
 
         if (isUpdate) { this.updateData(newData) }
     }
 
     updateData(newData) {
+        console.log("olddata:", newData)
         for (var i in newData) {
             this[i] = newData[i];
         }
@@ -23,6 +29,8 @@ class Projectile {
 
     getData() {
         let data = this;
+        console.log("aData:", data)
+        console.log("newData:", { pos: this.pos, vel: this.vel, team: this.team, dmg: this.dmg })
         return data;
     }
 
@@ -38,7 +46,9 @@ class Projectile {
         if (this.pos.y > HEIGHT - 5) {
             for (var i in game.sprites) {
                 if (this.team != game.sprites[i].team) {
+                    //console.log("disty:", dist(this.pos, game.sprites[i].pos), game.sprites[i].size);
                     if (dist(this.pos, game.sprites[i].pos) < game.sprites[i].size) {
+                        console.log("hejhej")
                         game.sprites[i].takeDmg(this.dmg)
                         this.dead = true;
                     }
@@ -67,16 +77,16 @@ class Projectile {
     draw() {
         let lastPos = { x: this.pos.x, y: this.pos.y }
         let { dx, dy } = this.getVec();
-        ctx.lineWidth = this.size * S;
+        ctx.lineWidth = this.ARROW_SIZE * S;
         if (ARROW_GRAPHICS_LEVEL != 0) {
-            for (var i = 0; i < this.arrowLen.length; i++) {
+            for (var i = 0; i < this.ARROW_LEN.length; i++) {
                 ctx.beginPath();
-                if (ARROW_GRAPHICS_LEVEL > 1) { ctx.strokeStyle = getShadedColorCode(this.arrowColors[i].r, this.arrowColors[i].g, this.arrowColors[i].b) }
-                else { ctx.strokeStyle = getColorCode(this.arrowColors[i].r, this.arrowColors[i].g, this.arrowColors[i].b) };
-                // ctx.strokeStyle = this.arrowColors2[i]
+                if (ARROW_GRAPHICS_LEVEL > 1) { ctx.strokeStyle = getShadedColorCode(this.ARROW_COLORS_2[i].r, this.ARROW_COLORS_2[i].g, this.ARROW_COLORS_2[i].b) }
+                else { ctx.strokeStyle = getColorCode(this.ARROW_COLORS_2[i].r, this.ARROW_COLORS_2[i].g, this.ARROW_COLORS_2[i].b) };
+                // ctx.strokeStyle = this.ARROW_COLORS[i]
                 ctx.moveTo(lastPos.x * S, lastPos.y * S);
                 let endPos = {
-                    x: lastPos.x - dx * this.arrowLen[i], y: lastPos.y - dy * this.arrowLen[i]
+                    x: lastPos.x - dx * this.ARROW_LEN[i], y: lastPos.y - dy * this.ARROW_LEN[i]
                 };
                 ctx.lineTo(endPos.x * S, endPos.y * S);
                 lastPos = { x: endPos.x, y: endPos.y };
@@ -84,11 +94,11 @@ class Projectile {
             }
         }
         else {
-            let totArrowLen = this.arrowLen.reduce((a, b) => a + b, 0)
+            let totARROW_LEN = this.ARROW_LEN.reduce((a, b) => a + b, 0)
             ctx.beginPath();
             ctx.strokeStyle = "white";
             ctx.moveTo(lastPos.x * S, lastPos.y * S);
-            let endPos = { x: lastPos.x - dx * totArrowLen, y: lastPos.y - dy * totArrowLen };
+            let endPos = { x: lastPos.x - dx * totARROW_LEN, y: lastPos.y - dy * totARROW_LEN };
             ctx.lineTo(endPos.x * S, endPos.y * S);
             ctx.stroke();
         }
@@ -348,7 +358,7 @@ class Sprite {
     }
 
 
-    getFrame() {
+    getFrame() { //usually this crashes if sprite is 
         var currAnim = this.animations[this.currentAnimation];
         this.frameDelay -= fpsCoefficient;
         if (this.frameDelay <= 0) {

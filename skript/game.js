@@ -87,6 +87,9 @@ class Game {
         this.startTime = Date.now();
         this.lastGoldTime = Date.now();
         this.lastSyncTime = Date.now();
+        this.lastTriedPing = Date.now();
+
+        this.gameOver = false
 
     }
 
@@ -279,6 +282,12 @@ class Game {
         this.goldIntervalCheck();
         this.syncIntervalCheck();
         this.checkAbilities();
+        if (IS_ONLINE) {
+            this.checkPing();
+        }
+        this.checkIfPlayersDead();
+
+        this.spawnSprites();
 
 
         //stuff to do at the end
@@ -288,6 +297,39 @@ class Game {
         window.requestAnimationFrame(this.tick.bind(this));
 
 
+    }
+
+    spawnSprites() {
+        for (var key in local_UI.players) {
+            let player = game.players[key]
+            player.checkBuyQueue()
+        }
+
+    }
+
+
+
+    checkIfPlayersDead() {
+        for (var key in this.players) {
+            let player = this.players[key]
+            if (player.hp <= 0 && !this.gameOver) {
+                local_UI.setLoser(key)
+                this.gameOver = true
+            }
+        }
+    }
+
+    checkPing() {
+        if (Date.now() - lastSentPing > 10 * 1000 && Date.now() - this.lastTriedPing > 10 * 1000) {
+            this.lastTriedPing = Date.now()
+            send("ping", "pingpong")
+        }
+        if (Date.now() - lastRecievedPing > 15 * 1000) {
+            local_UI.setDesync(true);
+        }
+        else {
+            local_UI.setDesync(false);
+        }
     }
 
 
@@ -307,6 +349,25 @@ class Game {
         else { this.projectiles.push(new Projectile(pos, vel, team, dmg)) }
     }
 
+    distToNextSprite2(team, pos) {
+        let bestCandidate = null;
+        let bestCanLen = Infinity;
+        let dir = getDirection(team)
+        for (var i in this.sprites) {
+            let loopSprite = this.sprites[i];
+            if (team == loopSprite.team) {
+                if (dir * pos.x < dir * loopSprite) {
+                    let dist = Math.abs(pos.x - loopSprite.pos.x)
+                    if (dist < bestCanLen) {
+                        bestCanLen = dist;
+                        bestCandidate = loopSprite;
+                    }
+                }
+            }
+        }
+        return ({ sprite: bestCandidate, len: bestCanLen });
+    }
+
 
     distToNextSprite(sprite, team) {
         let bestCandidate = null;
@@ -318,8 +379,8 @@ class Game {
                 if (spriteDir * sprite.pos.x < spriteDir * loopSprite.pos.x) {
                     let loopDist = Math.abs(sprite.pos.x - loopSprite.pos.x)
                     if (loopDist < bestCanLen) {
-                        bestCanLen = loopDist
-                        bestCandidate = loopSprite
+                        bestCanLen = loopDist;
+                        bestCandidate = loopSprite;
                     }
                 }
             }
@@ -331,14 +392,13 @@ class Game {
 
     // === sprites === \\
     addSprite(name, team) {
-
-
         this.sprites.push(new Sprite(BASE_POS[team].x, BASE_POS[team].y, name, team))
     }
 
     drawSprites() {
         for (var i in this.sprites) {
             let sprite = this.sprites[i];
+            console.log("sprite is", sprite)
             //console.log("sprite:", sprite)
             sprite.canMove(this);
             sprite.move();
@@ -367,7 +427,7 @@ class Game {
 
 
     syncIntervalCheck() {
-        if (IS_ONLINE && local_UI.players[0] == 0 && Date.now() - this.lastSyncTime > SYNC_INTERVAL * 1000) {
+        if (IS_ONLINE && local_UI.players == [0] && Date.now() - this.lastSyncTime > SYNC_INTERVAL * 1000) {
             console.log("syncing...", (Date.now() - START_TIME) * 0.001)
             this.lastSyncTime = Date.now()
             this.sendGameState()
