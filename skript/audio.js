@@ -4,46 +4,54 @@ var VOLUME = 0.2
 
 //===AUDIO===\\
 var curAudio = "none"
-var music;
-function playAudio(song = "title", meme = false) {
-    if (meme == false) { return }
-    let music = elemId("music");
-    // music.pause()
-    if (song != curAudio) {
-        // music.volume(1)
+var musicPlayer;
 
-        music.pause()
+function setupAudio() {
+    musicPlayer = elemId("music")
+}
+function playAudio(song = "title") {
+    // musicPlayer.pause()
+    if (song != curAudio) {
+        console.log(musicPlayer.src)
+
+
+        // musicPlayer.src = './bilder/audio/title_music.mp3'
+        // url("./bilder/audio/title_music.mp3")
+        // "http://127.0.0.1:5501/bilder/audio/title_music.mp3";
+        // musicPlayer.volume(1)
+
+        // musicPlayer.pause()
         curAudio = song
+        // console.log(song)
         if (song == "title") {
-            music.src = "./bilder/music/TITLE MUSIC MP3.mp3";
+            musicPlayer.src = './bilder/audio/title_music.mp3';
         }
         else if (song == "ingame") {
-            music.src = "./bilder/music/INGAME MUSIC MP3.mp3";
-        }
-        else if (song == "fast") {
-            music.src = "./bilder/music/INGAME FAST MP3.mp3";
-        }
-        else if (song == "win") {
-            music.loop = false
-            music.src = "./bilder/music/VICTORY THEME MP3.mp3";
-        }
-        else if (song == "defeat") {
-            music.loop = false
-            music.src = "./bilder/music/DEFEAT THEME MP3.mp3";
+            musicPlayer.src = './bilder/audio/ingame_music.mp3';
         }
         else if (song == "ingame_hurry") {
-            music.src = "./bilder/music/INGAME FAST NEW MP3.mp3";
+            musicPlayer.src = './bilder/audio/ingame_fast.mp3';
+        }
+        else if (song == "win") {
+            musicPlayer.loop = false
+            musicPlayer.src = './bilder/audio/victory_theme.mp3';
+        }
+        else if (song == "defeat") {
+            musicPlayer.loop = false
+            musicPlayer.src = './bilder/audio/DEFEAT THEME MP3.mp3';
         }
         else {
             console.log("unknown sound", song)
         }
     }
-    music.play();
-    music.loop = true
-    music.volume = VOLUME
+    musicPlayer.play();
+    musicPlayer.loop = true
+    musicPlayer.volume = VOLUME
     console.log(music)
 
 }
+
+
 
 
 

@@ -5,8 +5,8 @@ const GOLD_UPG_MAX = 45;
 class Player {
     constructor(name, team, img, x, y) {
         this.name = name
-        this.gold = 800;
-        this.goldPerTurn = 10;
+        this.gold = 50;
+        this.goldPerTurn = 5;
         this.team = team; //0 = blue
         this.currentFolder = 0;
         this.race = "human";
@@ -26,6 +26,8 @@ class Player {
         this.castleLvl = 0;
         this.lastCastleAtk = -Infinity;
         if (this.team == 0) { this.img += "_blue" };
+
+        this.isHurry = false;
 
         this.DRAW_SIZE = 64;
     }
@@ -146,7 +148,8 @@ class Player {
     takeDmg(dmg) {
         this.hp -= dmg
         console.log("dmg dmg")
-        if (this.hp < 90) {
+        if (this.hp < 90 && !this.isHurry) {
+            this.isHurry = true;
             playSoundEffect("hurry_up");
             console.log("hurry hurry")
             setTimeout(playAudio("ingame_hurry"), 1000);

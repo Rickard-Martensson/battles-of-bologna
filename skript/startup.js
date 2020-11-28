@@ -14,7 +14,7 @@ var aspectRatio = { width: 16, height: 9 }
 
 var game;
 
-var audio = new Audio('./bilder/audio/TITLE MUSIC MP3.mp3');
+//var audio = new Audio('./bilder/audio/TITLE MUSIC MP3.mp3');
 
 
 /***********************
@@ -34,6 +34,8 @@ window.onload = function () {
     loadStats();
 
     showTitleScreen()
+
+    setupAudio()
 
     playAudio("title")
 
