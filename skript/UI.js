@@ -7,7 +7,7 @@ const MAX_CHAT = 6;
 
 class UIHandler {
     constructor(players, isOnline) {
-        this.players = players // [0], [0,1] eller [1]
+        this.players = players // [0], [0,1] eller [1] , eller [] för spectate
         this.isOnline = ((isOnline) ? true : false);
 
         this.timeSinceGold = Date.now()
@@ -256,12 +256,14 @@ class UIHandler {
 
     buyUnit(unitName, player, team, cost) {
         if (player.tryBuy(cost)) {
-            player.addToBuyQueue(unitName)
+            // game.addToBuyQueue(unitName, team)
             //some pubnub shit
-            // if (this.isOnline) {
-            //     // pubnubAction("addSprite", team, unitName);
-            //     send("sendUnit", { team: team, unit: unitName });
-            // }
+            if (this.isOnline) {
+                // pubnubAction("addSprite", team, unitName);
+                // send("sendUnit", { team: team, unit: unitName });
+                send("addSpriteQueue", { team: team, unit: unitName });
+            }
+            else { game.addToBuyQueue(unitName, team) }
             // else { game.addSprite(unitName, team); }
         }
     }
@@ -370,8 +372,11 @@ class UIHandler {
         ctx.font = 5 * S + "px 'Press Start 2P'";
         ctx.fillText(Math.floor(GOLD_INTERVAL + 1 + (game.lastGoldTime - Date.now()) / 1000), 160 * S, 20 * S)
         ctx.fillText(Math.floor(fps), 300 * S, 60 * S);
+        if (IS_SPECTATOR) {
+            ctx.fillText("Spectator", 160 * S, 26 * S);
+        }
         if (this.deSynced) {
-            console.log("desynced!!!")
+            // console.log("desynced!!!")
             ctx.fillStyle = "#cb0000";
             ctx.fillText("Desynced!", 160 * S, 26 * S)
         }
@@ -384,20 +389,17 @@ class UIHandler {
             if (this.winner == 0) { ctx.fillStyle = "#3B6BCB" }
             else if (this.winner == 1) { ctx.fillStyle = "#CB0000" }
             ctx.font = 25 * S + "px 'Press Start 2P'";
-            console.log(this.players)
+            //console.log(this.players)
             if (this.players == [0, 1]) {
                 playAudio("win")
-                console.log(1)
                 resultText = "Victory!"
             }
             else if (this.players[0] == this.winner) {
                 playAudio("win")
-                console.log(2)
                 resultText = "Victory!"
             }
             else if (this.players[0] != this.winner) {
                 playAudio("defeat")
-                console.log(3)
                 resultText = "Defeat!"
             }
             ctx.fillText(resultText, UI_POS[0].winScreen.x * S, UI_POS[0].winScreen.y * S);

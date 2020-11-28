@@ -42,6 +42,10 @@ function joinChannel(channel) {
 }
 
 function send(type, content) {
+    if (IS_SPECTATOR) {
+        console.log("spectator sending data:", type, content);
+        return;
+    }
     let lastSentPing = Date.now()
     pubnub.publish({
         channel: myChannel,
@@ -86,13 +90,17 @@ pubnub.addListener({
             console.log(event.message);
             if (uuid != event.message.sender) {
                 myOpponent = event.message.name;
-                if (event.message.content != -1) { //if opponent has side
-                    if (event.message.content == 0) { //other players team
-                        mySide = 1;
-                    } else {
-                        mySide = 0;
-                    }
-                } startGame2(mySide);
+                // if (event.message.content != -1) { //if opponent has side
+                //     if (event.message.content == 0) { //other players team
+                //         mySide = 1;
+                //     } else {
+                //         mySide = 0;
+                //     }
+                // } startGame2(mySide);
+                if (event.message.content != -1) { }
+                else if (event.message.content == 0) { mySide = 1 }
+                else { mySide = 0 }
+                startGame2(mySide)
             }
         }
         else if (event.message.type == "syncGame") {
@@ -104,13 +112,15 @@ pubnub.addListener({
             game.updateGame(sprites, projectiles, lastGoldTime)
         }
         else if (event.message.type == "ping") {
-            console.log("pingpong", uuid, event.message.sender, Date.now() - lastRecievedPing)
+            // console.log("pingpong", uuid, event.message.sender, Date.now() - lastRecievedPing)
+            console.log("ping")
             // if (uuid != event.message.uuid) {
             //     console.log("pingpong")
             // }
         }
 
-        if (event.message.type == "castAbility") {
+        else if (event.message.type == "castAbility") {
+            LAST_GLOBAL_UPDATE = Date.now()
             // send("castAbility", { team: team, ability: abilityName, cooldown: abilityCooldown })
             let content = event.message.content;
             let team = content.team;
@@ -119,15 +129,28 @@ pubnub.addListener({
             game.castAbility(ability, team, cooldown);
         }
 
-        if (event.message.type == "sendUnit") {
+        else if (event.message.type == "sendUnit") {
+            LAST_GLOBAL_UPDATE = Date.now()
             let content = event.message.content;
             let team = content.team;
             let unit = content.unit;
+            let posShift = content.posShift
             //console.log(unit, team, "unit & team")
-            game.addSprite(unit, team);
+            game.addSprite(unit, team, posShift);
         }
 
-        if (event.message.type == "sendProjectile") {
+        // end("addSpriteQueue", { team: team, unit: unitName });
+        else if (event.message.type == "addSpriteQueue") {
+            LAST_GLOBAL_UPDATE = Date.now()
+            let content = event.message.content;
+            let team = content.team;
+            let unit = content.unit;
+            console.log(unit, team, "unit & team")
+            game.addToBuyQueue(unit, team);
+
+        }
+
+        else if (event.message.type == "sendProjectile") {
             // send("sendProjectile", { team: team, pos: { x: x, y: y }, vel: { vx: vx, vy: vy }, dmg: dmg })
             let content = event.message.content;
             //console.log("SendProj:", content)

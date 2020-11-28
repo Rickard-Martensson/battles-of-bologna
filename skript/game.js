@@ -77,6 +77,9 @@ class Game {
             //new Projectile(80, 100, 20, -40),
         ]
 
+        this.buyQueue = { 0: [], 1: [] }
+        this.lastQueueShift = [Date.now(), Date.now()]
+
         this.activeAbilites = [];
         this.killStatus = undefined;
 
@@ -120,26 +123,32 @@ class Game {
     }
 
     updateGame(sprites, projectiles, lastGoldTime) {
-        this.sprites = [];
-        for (var i in sprites) {
-            this.sprites.push(
-                new Sprite(0, 0, 0, 0, true, sprites[i])
-            )
+        if (Date.now() - LAST_GLOBAL_UPDATE > GLOBAL_UPDATE_MARGIN) {
+            this.sprites = [];
+            for (var i in sprites) {
+                this.sprites.push(
+                    new Sprite(0, 0, 0, 0, true, sprites[i])
+                )
+            }
+            this.projectiles = [];
+            for (var i in projectiles) {
+                this.projectiles.push(new Projectile(0, 0, 0, 0, 0, 0, true, projectiles[i])
+                )
+            }
+
+            // for (var key in this.players) {
+            //     let player = this.players[key];
+            //     player.updateData(players[key]);
+            // }
+
+            this.lastGoldTime = lastGoldTime
+            // console.log("recieved sprites: ", sprites)
+            // this.newData = { sprites: sprites, projectiles: projectiles, activeAbilites: activeAbilites, };
         }
-        this.projectiles = [];
-        for (var i in projectiles) {
-            this.projectiles.push(new Projectile(0, 0, 0, 0, 0, 0, true, projectiles[i])
-            )
+        else {
+            console.log("game update blocked")
         }
 
-        // for (var key in this.players) {
-        //     let player = this.players[key];
-        //     player.updateData(players[key]);
-        // }
-
-        this.lastGoldTime = lastGoldTime
-        // console.log("recieved sprites: ", sprites)
-        // this.newData = { sprites: sprites, projectiles: projectiles, activeAbilites: activeAbilites, };
     }
 
     checkAbilities() {
@@ -282,7 +291,7 @@ class Game {
         this.goldIntervalCheck();
         this.syncIntervalCheck();
         this.checkAbilities();
-        if (IS_ONLINE) {
+        if (IS_ONLINE && !IS_SPECTATOR) {
             this.checkPing();
         }
         this.checkIfPlayersDead();
@@ -299,10 +308,38 @@ class Game {
 
     }
 
+    addToBuyQueue(unit, team) {
+        let row = (unit == "knight") ? 1 : 0;
+        this.buyQueue[team].push({ unit: unit, row: row });
+        console.log(this.buyQueue)
+    }
+
     spawnSprites() {
-        for (var key in local_UI.players) {
-            let player = game.players[key]
-            player.checkBuyQueue()
+        for (var key in this.players) {
+            let player = local_UI.players[key]
+            this.checkBuyQueue(key)
+        }
+
+    }
+
+    checkBuyQueue(team) { // maybe just let host handle buyque. Well thats tomorrows problem nevermind now host does!
+        if ((mySide == 0 ^ IS_ONLINE) != 1 && (this.buyQueue[team].length > 0 && Date.now() - this.lastQueueShift[team] > 0.2 * 1000)) {
+            let len = game.distToNextSprite2(team, { x: BASE_POS[team].x - getDirection(team), y: BASE_POS[team].y }, this.buyQueue[team][0].row).len;
+            if (len < 11) { }
+            else {
+                this.lastQueueShift[team] = Date.now()
+                let firstUnit = this.buyQueue[team].shift()
+                let firstUnitName = firstUnit.unit;
+                // console.log("unit, name", firstUnit, firstUnitName, len)
+                let posShift = (len >= 21) ? 10 : 0
+                if (IS_ONLINE) {
+                    send("sendUnit", { team: team, unit: firstUnitName, posShift: posShift });
+                }
+                else { game.addSprite(firstUnitName, team, posShift); }
+            }
+        }
+        else {
+            //console.log(mySide, "== 0", this.buyQueue[team].length, "> 0", Date.now() - this.lastQueueShift[team], "> 0.2 * 1000")
         }
 
     }
@@ -349,14 +386,15 @@ class Game {
         else { this.projectiles.push(new Projectile(pos, vel, team, dmg)) }
     }
 
-    distToNextSprite2(team, pos) {
+    distToNextSprite2(team, pos, row = 0) {
         let bestCandidate = null;
         let bestCanLen = Infinity;
         let dir = getDirection(team)
         for (var i in this.sprites) {
             let loopSprite = this.sprites[i];
             if (team == loopSprite.team) {
-                if (dir * pos.x < dir * loopSprite) {
+                // console.log("loopy", dir * pos.x, dir * loopSprite)
+                if ((dir * pos.x < dir * loopSprite.pos.x) && (row == loopSprite.row)) {
                     let dist = Math.abs(pos.x - loopSprite.pos.x)
                     if (dist < bestCanLen) {
                         bestCanLen = dist;
@@ -365,6 +403,7 @@ class Game {
                 }
             }
         }
+        // console.log("out:", bestCandidate, bestCanLen)
         return ({ sprite: bestCandidate, len: bestCanLen });
     }
 
@@ -391,14 +430,14 @@ class Game {
 
 
     // === sprites === \\
-    addSprite(name, team) {
-        this.sprites.push(new Sprite(BASE_POS[team].x, BASE_POS[team].y, name, team))
+    addSprite(name, team, posShift = 0) {
+        // console.log("yeye", posShift, getDirection(team))
+        this.sprites.push(new Sprite(BASE_POS[team].x + posShift * getDirection(team), BASE_POS[team].y, name, team))
     }
 
     drawSprites() {
         for (var i in this.sprites) {
             let sprite = this.sprites[i];
-            console.log("sprite is", sprite)
             //console.log("sprite:", sprite)
             sprite.canMove(this);
             sprite.move();
@@ -427,7 +466,7 @@ class Game {
 
 
     syncIntervalCheck() {
-        if (IS_ONLINE && local_UI.players == [0] && Date.now() - this.lastSyncTime > SYNC_INTERVAL * 1000) {
+        if (IS_ONLINE && mySide == 0 && Date.now() - this.lastSyncTime > SYNC_INTERVAL * 1000) {
             console.log("syncing...", (Date.now() - START_TIME) * 0.001)
             this.lastSyncTime = Date.now()
             this.sendGameState()

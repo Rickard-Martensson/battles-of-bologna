@@ -17,6 +17,7 @@ class Player {
         ]
         this.upgsResearched = new Set([]);
         this.buyQueue = [];
+        this.lastQueueShift = Date.now()
 
         //===castle===\\
         this.pos = { x: x, y: y };
@@ -29,30 +30,29 @@ class Player {
         this.DRAW_SIZE = 64;
     }
 
-    addToBuyQueue(unit) {
-        this.buyQueue.push(unit);
-    }
+    // addToBuyQueue(unit) {
+    //     // this.buyQueue.push(unit);
+    //     game.buyQueue.push(unit);
+    // }
 
-    checkBuyQueue() {
-        if (this.buyQueue.length > 0) {
-            let team = this.team
-            let len = game.distToNextSprite2(team, { x: BASE_POS[team].x - 5, y: BASE_POS[team].y }).len;
-            console.log("len", len)
-            if (len < 20) {
-                console.log("full")
-            }
-            else {
-                let firstUnit = this.buyQueue.shift()
-                if (this.isOnline) {
-                    // pubnubAction("addSprite", team, unitName);
-                    send("sendUnit", { team: team, unit: firstUnit });
-                }
-                else { game.addSprite(firstUnit, team); }
-                // game.addSprite(firstUnit, team)
-            }
-        }
+    // checkBuyQueue() { // maybe just let host handle buyque. Well thats tomorrows problem
+    //     if (this.buyQueue.length > 0 && Date.now() - this.lastQueueShift > 0.2 * 1000) {
+    //         let team = this.team
+    //         let len = game.distToNextSprite2(team, { x: BASE_POS[team].x - getDirection(team), y: BASE_POS[team].y }).len;
+    //         if (len < 11) {
+    //         }
+    //         else {
+    //             this.lastQueueShift = Date.now()
+    //             let firstUnit = this.buyQueue.shift()
+    //             if (IS_ONLINE) {
+    //                 send("sendUnit", { team: team, unit: firstUnit });
+    //                 console.log("oui")
+    //             }
+    //             else { game.addSprite(firstUnit, team); }
+    //         }
+    //     }
 
-    }
+    // }
 
     getData() {
         let data = this;
@@ -145,6 +145,12 @@ class Player {
 
     takeDmg(dmg) {
         this.hp -= dmg
+        console.log("dmg dmg")
+        if (this.hp < 90) {
+            playSoundEffect("hurry_up");
+            console.log("hurry hurry")
+            setTimeout(playAudio("ingame_hurry"), 1000);
+        }
     }
 
     changeGold(amount) {
@@ -166,13 +172,15 @@ class Player {
         send("syncPlayer", { team: this.team, data: this.getData() })
     }
 
-    tryBuy(amount) {
+    tryBuy(amount, shouldSync = true) {
         if (this.gold >= amount) {
+            playSoundEffect("buy")
 
             if (local_UI.isOnline) {
                 this.changeGold(-amount);
                 // pubnubAction("upPlayer", this.team, this.getData(), 0, 0);
-                this.syncMyself()
+                if (shouldSync) { this.syncMyself() }
+
                 return true;
             } else {
                 this.changeGold(-amount);
@@ -194,7 +202,7 @@ class Player {
 
     attackCastle(unitHealth) {
         this.changeGoldPerTurn(-1)
-        this.hp -= 10 //unitHealth
+        this.takeDmg(Math.floor(unitHealth / 2)) //unitHealth
     }
 
     drawCastle() {

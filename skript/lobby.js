@@ -120,9 +120,10 @@ function backLobby() {
 
 
 
+var IS_SPECTATOR = false
+
 function promptJoin() {
 
-    self = this;
     pubnub.hereNow({
         channels: [thisLobbyCode],
         includeUUIDs: true,
@@ -133,7 +134,15 @@ function promptJoin() {
         if (response.totalOccupancy == 1) {
             joinChannel(thisLobbyCode);
             send("start", myName);
-            //self.startGame();
+        }
+        else if (response.totalOccupancy == 2) {
+            console.log("lobby full!", local_UI)
+            joinChannel(thisLobbyCode);
+            //send("start", myName);
+            mySide = -1
+            IS_SPECTATOR = true;
+            startGame2(mySide)
+
         }
         else {
             console.log("No lobby found!");
@@ -141,3 +150,11 @@ function promptJoin() {
     });
 
 }
+
+// function spectatorJoin() {
+//     pubnub.hereNow({
+//         channels: [thisLobbyCode],
+
+//     })
+
+// }

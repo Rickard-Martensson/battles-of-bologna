@@ -18,6 +18,7 @@ class Projectile {
         // this.colors = ['#DDDDDD', '#6F2B1F', '#8B3F2B', '#8B3F2B', '#8B3F2B', '#8B3F2B', '#FFFFFF']
 
         if (isUpdate) { this.updateData(newData) }
+        else { playSoundEffect("arrow") }
     }
 
     updateData(newData) {
@@ -183,6 +184,8 @@ class Sprite {
             // this.abilities = new Set(UNIQE[this.name])
         }
         else { console.log("unknown sprite", this.name) };
+        this.atkDelay = (IS_ONLINE) ? this.atkDelay - 100 : this.atkDelay;
+
 
         if (this.team == 0) {
             this.direction = 1;
@@ -222,6 +225,8 @@ class Sprite {
             IS_ONLINE);
     }
 
+
+
     attack(victim) {
         this.currentSpeed = 0;
         if (this.isWalking) {
@@ -240,12 +245,13 @@ class Sprite {
         }
 
         let timeSinceStartOfAtk = Date.now() - this.lastStartOfAtkCycleDate;
-        if (timeSinceStartOfAtk > this.atkDelay && this.lastStartOfAtkCycleDate !== null) { // atks if its enough time since atkstart
+        if (timeSinceStartOfAtk > this.atkDelay - 100 && this.lastStartOfAtkCycleDate !== null) { // atks if its enough time since atkstart
             //console.log("attack 2")
             if (this.range > 0) {
                 this.spriteShootProjectile();
             }
             else {
+                playSoundEffect("sword")
                 victim.takeDmg(this.dmg)
             }
             this.lastStartOfAtkCycleDate = null //efter denhär så står spriten bara still o vibear
@@ -253,6 +259,7 @@ class Sprite {
     }
 
     takeDmg(dmg) {
+        playSoundEffect("damage");
         if (this.startInvincibleDate == null) {
             this.hp -= dmg
             this.invincible = false;
@@ -275,7 +282,7 @@ class Sprite {
         let factor = (2 * this.team - 1) //-1 if team:0, 1 if team:1.
 
         if (this.pos.x * factor < enemyBasePos * factor) { // -100 < -40 //prolog inte imperativt
-            game.players[enemyPlayer].attackCastle(50)
+            game.players[enemyPlayer].attackCastle(this.hp)
             game.players[this.team].changeGoldPerTurn(1)
             this.hp = 0
             //remove gold, add gold
@@ -358,7 +365,7 @@ class Sprite {
     }
 
 
-    getFrame() { //usually this crashes if sprite is 
+    getFrame() { //usually this crashes if sprite is undefined
         var currAnim = this.animations[this.currentAnimation];
         this.frameDelay -= fpsCoefficient;
         if (this.frameDelay <= 0) {

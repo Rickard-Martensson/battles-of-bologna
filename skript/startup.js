@@ -220,9 +220,11 @@ function startGameJoin() {
 
 
 
-function startGame2(mySide) {
+function startGame2(mySide) { // mySide = -1 means spectator
     console.log("MYSIDE:", mySide)
-    local_UI = new UIHandler([mySide], true);
+    if (mySide == -1) { playerList = [] }
+    else { playerList = [mySide] }
+    local_UI = new UIHandler(playerList, true);
     IS_ONLINE = true
     startGame();
 }
