@@ -51,6 +51,7 @@ class Projectile {
                     if (dist(this.pos, game.sprites[i].pos) < game.sprites[i].size) {
                         console.log("hejhej")
                         game.sprites[i].takeDmg(this.dmg)
+                        playSoundEffect("arrow_hit")
                         this.dead = true;
                     }
                 }
@@ -152,6 +153,7 @@ class Sprite {
         if (isUpdate) {
             this.updateData(newData);
         }
+        this.speed *= 5
     }
 
     updateData(newData) {
@@ -253,13 +255,13 @@ class Sprite {
             else {
                 playSoundEffect("sword")
                 victim.takeDmg(this.dmg)
+                playSoundEffect("damage");
             }
             this.lastStartOfAtkCycleDate = null //efter denhär så står spriten bara still o vibear
         }
     }
 
     takeDmg(dmg) {
-        playSoundEffect("damage");
         if (this.startInvincibleDate == null) {
             this.hp -= dmg
             this.invincible = false;

@@ -10,7 +10,7 @@ var currentMenu = "title"
 var titleText;
 var btnContainer;
 
-var thisLobbyCode = "TEST"
+var thisLobbyCode = "ABCD"
 
 function enterLobby() {
 
@@ -75,13 +75,12 @@ function menuJoinLobby() {
 }
 
 
-
 function menuHostLobby() {
     mySide = 0
     console.log("myside is:", mySide)
     currentMenu = "hostlobby";
 
-    thisLobbyCode = generateKey(2);
+    thisLobbyCode = generateKey(4);
     elemId("host_code").innerHTML = thisLobbyCode
     joinChannel(thisLobbyCode);
 

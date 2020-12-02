@@ -1,16 +1,24 @@
 const BUY_QUEUE_MAX = 5;
 const GOLD_UPG_MAX = 45;
+var GAME_OVER = false;
 
-
+const PLAYER_HP_MAX = 50;
 class Player {
     constructor(name, team, img, x, y) {
         this.name = name
-        this.gold = 50;
+        this.gold = 500;
         this.goldPerTurn = 5;
+        this.repairCost = 50;
         this.team = team; //0 = blue
         this.currentFolder = 0;
         this.race = "human";
-        this.hp = 99;
+
+        //===HP===\
+        this.hp = PLAYER_HP_MAX;
+        this.prevHp = PLAYER_HP_MAX;
+        this.lastDmgdTime = Date.now();
+        this.isHurry = 0;
+
         this.btnLvl = 0;
         this.btnCoolDowns = [
             //{ folder: 3, btn: 2, time: 2, id: 1 }
@@ -27,38 +35,37 @@ class Player {
         this.lastCastleAtk = -Infinity;
         if (this.team == 0) { this.img += "_blue" };
 
-        this.isHurry = false;
+
 
         this.DRAW_SIZE = 64;
     }
 
-    // addToBuyQueue(unit) {
-    //     // this.buyQueue.push(unit);
-    //     game.buyQueue.push(unit);
-    // }
+    repairCastle(hp) {
 
-    // checkBuyQueue() { // maybe just let host handle buyque. Well thats tomorrows problem
-    //     if (this.buyQueue.length > 0 && Date.now() - this.lastQueueShift > 0.2 * 1000) {
-    //         let team = this.team
-    //         let len = game.distToNextSprite2(team, { x: BASE_POS[team].x - getDirection(team), y: BASE_POS[team].y }).len;
-    //         if (len < 11) {
-    //         }
-    //         else {
-    //             this.lastQueueShift = Date.now()
-    //             let firstUnit = this.buyQueue.shift()
-    //             if (IS_ONLINE) {
-    //                 send("sendUnit", { team: team, unit: firstUnit });
-    //                 console.log("oui")
-    //             }
-    //             else { game.addSprite(firstUnit, team); }
-    //         }
-    //     }
+    }
 
-    // }
+    syncMyself(syncData = "all") {
+        let data = this.getData();
+        if (syncData = "all") { data = this.getData() }
+        else if (syncData = "eco") { data = this.getEcoData() }
+        else if (syncData = "hp") { data = this.getHpData() }
+        send("syncPlayer", { team: this.team, data: data })
+        console.log("synicing:", syncData)
+    }
 
     getData() {
         let data = this;
         return data;
+    }
+
+    getEcoData() {
+        let data = { gold: this.gold, goldPerTurn: this.goldPerTurn, castleLvl: this.castleLvl, lastCastleAtk: this.lastCastleAtk }
+        return data
+    }
+
+    getHpData() {
+        let data = { hp: this.hp, prevHp: this.prevHp, lastDmgdTime: this.lastDmgdTime, isHurry: this.isHurry, repairCost: this.repairCost }
+        return data
     }
 
     updateData(newData) {
@@ -73,10 +80,9 @@ class Player {
         }
     }
 
+
     upgGoldPerTurn() {
         this.changeGoldPerTurn(UPGRADES["upgGold"].costIncrease) //.goldPerTurn += UPGRADES["upgGold"].goldIncrease;}
-        this.syncMyself()
-
     }
 
     castleAttack() {
@@ -101,7 +107,7 @@ class Player {
             console.log("leeveeell", this.castleLvl)
             this.castleLvl += 1
             this.lastCastleAtk = -Infinity
-            this.syncMyself()
+            this.syncMyself("eco")
 
         }
     }
@@ -144,45 +150,60 @@ class Player {
         this.syncMyself()
     }
 
+    repairCastle(hp) {
+        this.lastDmgdTime = Date.now();
+        this.prevHp = this.hp;
+        this.hp += hp;
+        console.log(hp, this.hp)
+        this.repairCost += 10;
+        if (this.hp > PLAYER_HP_MAX) { this.hp = PLAYER_HP_MAX };
+        if (IS_ONLINE) { this.syncMyself("hp") }
+    }
+
 
     takeDmg(dmg) {
+        this.lastDmgdTime = Date.now()
+        this.prevHp = this.hp;
         this.hp -= dmg
-        console.log("dmg dmg")
-        if (this.hp < 90 && !this.isHurry) {
-            this.isHurry = true;
+        if (this.hp < PLAYER_HP_MAX * 0.4 && this.isHurry == 0) {
+            this.hp = 0;
+            this.prevHp = 0;
+            this.isHurry = 1;
             playSoundEffect("hurry_up");
             console.log("hurry hurry")
             setTimeout(playAudio("ingame_hurry"), 1000);
         }
+        if (IS_ONLINE) { this.syncMyself("hp") }
     }
 
     changeGold(amount) {
         this.gold += amount
     }
 
-    changeGoldPerTurn(amount) {
+    changeGoldPerTurn(amount, shouldSync = true) {
         if (this.goldPerTurn + amount >= GOLD_UPG_MAX) {
             this.upgsResearched.add("maxGold")
         }
         else {  //remove this if you dont want to be able to buy back to 45 gpt
             this.upgsResearched.delete("maxGold")
         }
-        this.goldPerTurn = Math.min(this.goldPerTurn + amount, GOLD_UPG_MAX);
+        this.goldPerTurn = Math.max(5, Math.min(this.goldPerTurn + amount, GOLD_UPG_MAX));
         local_UI.justGaveGold[this.team] = Date.now();
+        if (IS_ONLINE && shouldSync) { this.syncMyself("eco") }
     }
 
-    syncMyself() {
-        send("syncPlayer", { team: this.team, data: this.getData() })
-    }
 
-    tryBuy(amount, shouldSync = true) {
+
+    tryBuy(amount, shouldSync = true, reqEmptyQueue = false) {
+        if (reqEmptyQueue && game.buyQueue[this.team].length > 4) {
+            return false;
+        }
         if (this.gold >= amount) {
-            playSoundEffect("buy")
 
             if (local_UI.isOnline) {
                 this.changeGold(-amount);
                 // pubnubAction("upPlayer", this.team, this.getData(), 0, 0);
-                if (shouldSync) { this.syncMyself() }
+                if (shouldSync) { this.syncMyself("eco") }
 
                 return true;
             } else {
@@ -196,6 +217,8 @@ class Player {
     giveGoldPerTurn() {
         local_UI.justGaveGold[this.team] = Date.now();
         this.changeGold(this.goldPerTurn);
+        playSoundEffect("buy")
+
 
     }
 
@@ -210,7 +233,7 @@ class Player {
 
     drawCastle() {
         ctx.drawImage(Images[this.img],
-            this.imageSize * 0,
+            this.imageSize * this.isHurry,
             this.imageSize * this.castleLvl,
             this.imageSize,
             this.imageSize,

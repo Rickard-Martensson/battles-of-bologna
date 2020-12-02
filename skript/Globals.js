@@ -22,6 +22,8 @@ var IMAGE_DIRECTORY = [
     ["cloud_img", "./bilder/sprites/clouds.png"],
     ["gold", "./bilder/sprites/icons.png"],
     ["icons_img", "./bilder/ui/icons2.png"],
+    ["heart", "./bilder/ui/heart.png"],
+    ["hpBars", "./bilder/ui/hpBars2.png"]
 
 ];
 
@@ -41,6 +43,7 @@ const ICON_SS_POS = {
     sprint: { x: 2, y: 0 },
     goldUpg: { x: 3, y: 0 },
     castleUpg: { x: 4, y: 0 },
+    repair: { x: 5, y: 0 },
 }
 
 
@@ -48,15 +51,23 @@ const ICON_SS_POS = {
 
 const BASE_POS = [{ x: 20, y: 100 }, { x: 300, y: 100 }]
 const UI_POS = [
-    { winScreen: { x: 160, y: 90 }, gold: { x: 30, y: 20 }, goldPerTurn: { x: 30, y: 15 }, goldIcon: { x: 30, y: 17.2 }, hp: { x: 30, y: 25 }, hpIcon: { x: 30, y: 22.2 }, chatBox: { chat: { pos1: { x: 200, y: 130 }, pos2: { x: 315, y: 175 } }, input: { x: 205, y: 160 } } },
-    { winScreen: { x: 160, y: 90 }, gold: { x: 300, y: 20 }, goldPerTurn: { x: 300, y: 15 }, goldIcon: { x: 300, y: 17.2 }, hp: { x: 300, y: 25 }, hpIcon: { x: 300, y: 22.2 }, chatBox: { chat: { pos1: { x: 5, y: 130 }, pos2: { x: 120, y: 175 } }, input: { x: 10, y: 160 } } }];
+    {
+        winScreen: { x: 160, y: 90 }, gold: { x: 30, y: 20 }, goldPerTurn: { x: 30, y: 15 }, goldIcon: { x: 30, y: 17.2 },
+        hp: { x: 30, y: 25 }, hpIcon: { x: 30, y: 22.2 }, heart: { x: 35, y: 15 }, hpBar: { x: 14.6, y: 22 },
+        chatBox: { chat: { pos1: { x: 200, y: 130 }, pos2: { x: 315, y: 175 } }, input: { x: 205, y: 160 } }
+    },
+    {
+        winScreen: { x: 160, y: 90 }, gold: { x: 300, y: 20 }, goldPerTurn: { x: 300, y: 15 }, goldIcon: { x: 300, y: 17.2 },
+        hp: { x: 300, y: 25 }, hpIcon: { x: 300, y: 22.2 }, heart: { x: 305, y: 15 }, hpBar: { x: 284.6, y: 22 },
+        chatBox: { chat: { pos1: { x: 5, y: 130 }, pos2: { x: 120, y: 175 } }, input: { x: 10, y: 160 } }
+    }];
 const UI_POS_BTN = { img: { x: 0, y: 1.5 }, txt: { x: 0, y: -8 }, txt2: { x: 0, y: -5 }, subText: { x: 0, y: 10.7 }, gold: { x: 1, y: 9.2 } }
 const BUTTON_SIZE = 30; //hur stora knapparna är
 const ICON_SIZE = 20;   //hur stora ikoner i knapparna
 const SPRITE_SIZE = 80; //vet ej
 const BUTTON_DELAY = 100;   //hur länge en knapp är 
 const NUMBER_OF_BUTTONS = 6;    //antal knappar
-const INVINCIBLE_DELAY = 200;   //hur länge en sprite är genomskinlig efter att ha blivit slagen
+const INVINCIBLE_DELAY = 150;   //hur länge en sprite är genomskinlig efter att ha blivit slagen
 const GRAVITY = 50; //projektiler
 const ABILITY_MAX_LVL = 4; //max lvl för abilities 
 const CASTLE_MAX_LVL = 3; //max lvl för slottet
@@ -98,7 +109,7 @@ const CLOUD_SPEED = 0.3;   //hur snabba molnen är
 const CLOUD_MIN_HEIGHT = 0;
 const CLOUD_MAX_HEIGHT = 50;    //hur långt ner molnen kan skapas
 const CLOUD_DIST_FACTOR = 3;      //clouds at y=CLOUD_HEIGHT are X bigger and X faster than those at y=0
-const CLOUD_MAX_COUNT = 10; // make an educated guess
+const CLOUD_MAX_COUNT = 8; // make an educated guess
 
 //===PERFORMACE===\\\
 const CLOUDS_ENABLED = true
@@ -109,7 +120,7 @@ const ARROW_GRAPHICS_LEVEL = 1; //0 for only white lines, 1 for texure, 2 for te
 
 
 //===ONLINE===\\
-const SYNC_INTERVAL = 10;   //how ofter we sync the entire game
+const SYNC_INTERVAL = 30;   //how ofter we sync the entire game
 var LAST_GLOBAL_UPDATE = Date.now(); // we dont want the game to sync right after someone used an ability
 const GLOBAL_UPDATE_MARGIN = 250; // how long time of no actions are needed for global updates to pass trough
 
@@ -283,14 +294,15 @@ const BTN_FOLDER = {
     },
     2: {    //upgrades
         0: { txt: "upgrade", txt2: "Gold", cost: "%upggold%", action: "upgrade", upgrade: "maxGold", data: "upgGold", img: "knight_img", icon: "goldUpg" },
-        1: { txt: "", action: "hidden", data: -1, img: null },
+        1: { txt: "Repair", txt2: "Castle", cost: "%repaircastle%", action: "upgrade", upgrade: "repairCastle", data: "repairCastle", img: "knight_img", icon: "repair" },
         2: { txt: "unlock", txt2: "Knight", cost: 50, subText: "50", action: "upgrade", upgrade: "upgKnight", data: "upgKnight", img: "knight_img" },
         3: { txt: "upgrade", txt2: "Castle", cost: "%upgcastle%", action: "upgrade", upgrade: "upgCastle", data: "upgCastle", img: "knight_img", icon: "castleUpg" },
         4: { txt: "back", action: "folder", data: 0, img: "buttonBack_img" },
         5: { txt: "unlock", txt2: "Veteran", cost: 50, subText: "50", action: "upgrade", upgrade: "upgVeteran", data: "upgVeteran", img: "veteran_img" },
     },
     3: {
-        0: { txt: "Arrows", cost: 2, action: "ability", data: "arrows", abilityCooldown: 1, lvl: 2, img: "soldier_img" },
+        0: { txt: "Take Dmg", cost: 1, action: "ability", data: "takedmg", abilityCooldown: 0, lvl: 2, img: "soldier_img" },
+        // 0: { txt: "Arrows", cost: 2, action: "ability", data: "arrows", abilityCooldown: 1, lvl: 2, img: "soldier_img" },
         1: { txt: "Invincible", cost: 4, action: "ability", data: "invincible", abilityCooldown: 6, lvl: 3, img: "icons_img", icon: "invincible" },
         2: { txt: "Target", cost: 4, action: "ability", data: "target", abilityCooldown: 8, lvl: 4, img: "archer_img", icon: "target" },
         3: { txt: "Sprint", cost: 3, action: "ability", data: "sprint", abilityCooldown: 4, lvl: 1, img: "soldier_img" },

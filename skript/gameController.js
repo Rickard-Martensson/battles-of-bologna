@@ -28,8 +28,8 @@ function activateGameController() {
             local_UI.buttonAction(BUTTON_DICT[key].id, BUTTON_DICT[key].team);
         }
         else if (key = "m") {
-            if (VOLUME != 0.0) { VOLUME = 0.0; audio.volume = VOLUME }
-            else { VOLUME = 0.2; audio.volume = VOLUME }
+            if (VOLUME != 0.0) { VOLUME = 0.0; musicPlayer.volume = VOLUME }
+            else { VOLUME = 0.2; musicPlayer.volume = VOLUME }
         }
     }
 

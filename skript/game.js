@@ -119,10 +119,10 @@ class Game {
         // }
         let lastGoldTime = this.lastGoldTime
         //pubnubAction("upDateGame", 1, sprites, projectiles, players, lastGoldTime);
-        send("syncGame", { team: 0, sprites: sprites, projectiles: projectiles, lastGoldTime: lastGoldTime });
+        send("syncGame", { team: 0, sprites: sprites, projectiles: projectiles, buyQueue: this.buyQueue, lastGoldTime: lastGoldTime });
     }
 
-    updateGame(sprites, projectiles, lastGoldTime) {
+    updateGame(sprites, projectiles, buyQueue, lastGoldTime) {
         if (Date.now() - LAST_GLOBAL_UPDATE > GLOBAL_UPDATE_MARGIN) {
             this.sprites = [];
             for (var i in sprites) {
@@ -134,6 +134,10 @@ class Game {
             for (var i in projectiles) {
                 this.projectiles.push(new Projectile(0, 0, 0, 0, 0, 0, true, projectiles[i])
                 )
+            }
+
+            if (mySide == 1) {
+                this.buyQueue = buyQueue;
             }
 
             // for (var key in this.players) {
@@ -204,6 +208,13 @@ class Game {
                     team, 2, IS_ONLINE
                 );
             }
+        }
+        else if (name == "takedmg") {
+            this.players[team].takeDmg(20);
+        }
+        else if (name == "repair") {
+            this.players[team].repairCastle(15);
+            playSoundEffect("repair")
         }
         else if (name == "invincible") {
             for (var key in this.sprites) {
@@ -278,6 +289,7 @@ class Game {
         fpsCoefficient = 144 / fps;
 
         //draw stuff
+        if (CLOUDS_ENABLED) { local_UI.drawScenery(); };
 
 
         if (GRAPHICS_LEVEL != 0) { ctx.filter = UNIT_DARKNESS; };
@@ -433,6 +445,9 @@ class Game {
     addSprite(name, team, posShift = 0) {
         // console.log("yeye", posShift, getDirection(team))
         this.sprites.push(new Sprite(BASE_POS[team].x + posShift * getDirection(team), BASE_POS[team].y, name, team))
+        if (mySide == 1) {
+            this.buyQueue[team].shift()
+        }
     }
 
     drawSprites() {

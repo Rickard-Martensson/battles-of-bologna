@@ -164,7 +164,6 @@ class UIHandler {
 
 
         if (DAY_NIGHT_ENABLED) { this.changeBackground(Date.now() - game.startTime); };
-        if (CLOUDS_ENABLED) { this.drawScenery(); };
         if (CLOUDS_ENABLED && this.sceneryCount < CLOUD_MAX_COUNT) { this.tryMakeCloud(); };
 
         this.drawUI(fps)
@@ -255,7 +254,7 @@ class UIHandler {
     //=== user action ===\\
 
     buyUnit(unitName, player, team, cost) {
-        if (player.tryBuy(cost)) {
+        if (player.tryBuy(cost, true, true)) {
             // game.addToBuyQueue(unitName, team)
             //some pubnub shit
             if (this.isOnline) {
@@ -274,6 +273,12 @@ class UIHandler {
             if (player.tryBuy(cost2) && player.goldPerTurn < GOLD_UPG_MAX) {
                 //if (this.isOnline) { pubnubAction("upgGold", team, player); }
                 player.upgGoldPerTurn();
+            }
+        }
+        else if (upgradeName == "repairCastle") {
+            console.log("hejjj")
+            if (player.tryBuy(player.repairCost)) {
+                player.repairCastle(15);
             }
         }
         else if (upgradeName == "upgCastle") {
@@ -316,6 +321,7 @@ class UIHandler {
 
         if (!this.btnIsEnabled(btnAction, player, upgRequired, lvl)) {
             console.log("either btn is hidden, or its not researched")
+            return
         }
         else if (btnAction == 'folder') {
             player.changeFolder(btnData)
@@ -337,6 +343,7 @@ class UIHandler {
                 this.castAbility(btnData, team, abilityCooldown)
             }
         }
+        playSoundEffect("btn_press");
         this.activeButtons[team][id] = Date.now();
 
     }
@@ -383,25 +390,35 @@ class UIHandler {
         ctx.fillText(Math.floor((Date.now() - lastRecievedPing) / 1000), 300 * S, 65 * S);
 
         if (this.winner != -1) {
-            let resultText = "Victory!"
+            let audio = "win"
+
+            let resultText = "Victory!";
 
 
-            if (this.winner == 0) { ctx.fillStyle = "#3B6BCB" }
-            else if (this.winner == 1) { ctx.fillStyle = "#CB0000" }
-            ctx.font = 25 * S + "px 'Press Start 2P'";
+
             //console.log(this.players)
             if (this.players == [0, 1]) {
-                playAudio("win")
+                audio = "win";
                 resultText = "Victory!"
             }
             else if (this.players[0] == this.winner) {
-                playAudio("win")
+                audio = "win";
                 resultText = "Victory!"
             }
             else if (this.players[0] != this.winner) {
-                playAudio("defeat")
+                audio = "defeat";
                 resultText = "Defeat!"
             }
+            if (!GAME_OVER) {
+                playAudio(audio);
+                GAME_OVER = true;
+            }
+            ctx.font = 25 * S + "px 'Press Start 2P'";
+            ctx.fillStyle = "#FFFFFF"
+            ctx.fillText(resultText, (UI_POS[0].winScreen.x + 2) * S, (UI_POS[0].winScreen.y + 2) * S);
+
+            if (this.winner == 0) { ctx.fillStyle = "#3B6BCB" }
+            else if (this.winner == 1) { ctx.fillStyle = "#CB0000" }
             ctx.fillText(resultText, UI_POS[0].winScreen.x * S, UI_POS[0].winScreen.y * S);
 
         }
@@ -440,25 +457,80 @@ class UIHandler {
                 goldIconSize * S
             );
 
-
-            ctx.font = 4 * S + "px 'Press Start 2P'";
-            ctx.fillStyle = "#CC5285";
-            ctx.fillText(Math.floor(player.hp),
-                UI_POS[playerKey].hp.x * S,
-                UI_POS[playerKey].hp.y * S
-            );
-            ctx.drawImage(Images["gold"],
-                32,
-                16,
-                16,
-                16,
-                (UI_POS[playerKey].hpIcon.x) * S,
-                (UI_POS[playerKey].hpIcon.y - goldIconSize / 2) * S,
-                goldIconSize * S,
-                goldIconSize * S
-            );
+            this.drawHpBars(playerKey, player)
 
         }
+    }
+
+    drawHpBars(playerKey, player) {
+
+        let hpBarWidth = 20.8;
+        let hpBarHeight = 3
+        let hpBarImgWidth = 44;
+        let hpBarImgHeight = 8;
+
+        let hpBarJump = 0;
+        let invertColors = 0
+        let dmgFrac = player.hp / PLAYER_HP_MAX;
+        let prevDmgFrac = 0
+        let timeSinceLastDmg = Date.now() - player.lastDmgdTime
+        if (timeSinceLastDmg < 125) {
+            invertColors = 1;
+        }
+        if (timeSinceLastDmg < 400) {
+            prevDmgFrac = Math.max(player.prevHp, player.hp) / PLAYER_HP_MAX;
+            prevDmgFrac -= (prevDmgFrac - dmgFrac) * ((Date.now() - player.lastDmgdTime) / 400)
+            dmgFrac = Math.min(player.prevHp, player.hp) / PLAYER_HP_MAX;
+
+        }
+
+        console.log()
+
+        if (timeSinceLastDmg < 275 && timeSinceLastDmg > 175) {
+            hpBarJump = -0.5;
+            console.log("jumpy jump")
+
+        }
+
+        let hpBarColor = 0
+
+        if (dmgFrac < 0.2) { hpBarColor = 3 }
+        else if (dmgFrac < 0.4) { hpBarColor = 2 }
+        else if (dmgFrac < 0.6) { hpBarColor = 1 }
+
+        ctx.drawImage(Images["hpBars"], //just the outline
+            hpBarImgWidth * invertColors,
+            hpBarImgHeight * 5,
+            hpBarImgWidth,
+            hpBarImgHeight,
+            (UI_POS[playerKey].hpBar.x) * S,
+            (UI_POS[playerKey].hpBar.y - hpBarHeight / 2 + hpBarJump) * S,
+            hpBarWidth * S,
+            hpBarHeight * S
+        );
+        ctx.drawImage(Images["hpBars"], //previous dmg
+            hpBarImgWidth * invertColors,
+            hpBarImgHeight * 4,
+            hpBarImgWidth * prevDmgFrac,
+            hpBarImgHeight,
+            (UI_POS[playerKey].hpBar.x) * S,
+            (UI_POS[playerKey].hpBar.y - hpBarHeight / 2 + hpBarJump) * S,
+            hpBarWidth * S * prevDmgFrac,
+            hpBarHeight * S
+        );
+
+        ctx.drawImage(Images["hpBars"],
+            hpBarImgWidth * invertColors,
+            hpBarImgHeight * hpBarColor,
+            hpBarImgWidth * dmgFrac,
+            hpBarImgHeight,
+            (UI_POS[playerKey].hpBar.x) * S,
+            (UI_POS[playerKey].hpBar.y - hpBarHeight / 2 + hpBarJump) * S,
+            hpBarWidth * S * dmgFrac,
+            hpBarHeight * S
+        );
+
+
     }
 
     btnIsEnabled(action, player, upgRequired, lvl) {
@@ -593,6 +665,7 @@ class UIHandler {
         if (text2 !== undefined) { this.writeBtnText(text2, button, "txt2", frame) }
 
         if (cost == "%upggold%") { cost = player.goldPerTurn + 5; }
+        else if (cost == "%repaircastle%") { cost = player.repairCost; }
         else if (cost == "%upgcastle%") { cost = 50; }
         else if (cost == "%upgability%") { cost = 25 + player.btnLvl * 5 }
 

@@ -107,9 +107,10 @@ pubnub.addListener({
             let content = event.message.content
             let sprites = content.sprites;
             let projectiles = content.projectiles;
+            let buyQueue = content.buyQueue;
             // let players = content.players;
             let lastGoldTime = content.lastGoldTime;
-            game.updateGame(sprites, projectiles, lastGoldTime)
+            game.updateGame(sprites, projectiles, buyQueue, lastGoldTime)
         }
         else if (event.message.type == "ping") {
             // console.log("pingpong", uuid, event.message.sender, Date.now() - lastRecievedPing)
