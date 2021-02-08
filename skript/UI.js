@@ -231,6 +231,7 @@ class UIHandler {
     //=== user controlls ===\\
 
     mouseClicked() {
+        this.checkMouseWithinButton() 
         var id = this.currentButton.id;
         var team = this.currentButton.team;
         if (team != -1) {
