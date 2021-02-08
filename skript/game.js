@@ -110,9 +110,12 @@ class Game {
             sprites.push(this.sprites[i].getData());
         }
         let projectiles = []
-        for (var i in this.projectiles) {
-            projectiles.push(this.projectiles[i].getData())
+        if (SYNC_PROJECTILES) {
+            for (var i in this.projectiles) {
+                projectiles.push(this.projectiles[i].getData())
+            }
         }
+
         // let players = []
         // for (var i in this.players) {
         //     players.push(this.players[i].getData());
@@ -131,11 +134,12 @@ class Game {
                 )
             }
             this.projectiles = [];
-            for (var i in projectiles) {
-                this.projectiles.push(new Projectile(0, 0, 0, 0, 0, 0, true, projectiles[i])
-                )
+            if (SYNC_PROJECTILES) {
+                for (var i in projectiles) {
+                    this.projectiles.push(new Projectile(0, 0, 0, 0, 0, 0, true, projectiles[i])
+                    )
+                }
             }
-
             if (mySide == 1) {
                 this.buyQueue = buyQueue;
             }
@@ -457,8 +461,11 @@ class Game {
             sprite.canMove(this);
             sprite.move();
             sprite.draw();
-            sprite.checkIfAtEnemyCastle(this);
             sprite.checkDead(game, i);
+            
+            sprite.checkIfAtEnemyCastle(this);
+    
+
         }
         for (var i in this.players) {
             let player = this.players[i];

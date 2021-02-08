@@ -199,7 +199,7 @@ body {
 img {
     -webkit-animation: mover 4.89795918367346938s infinite normal;
     animation: mover 4.89795918367346938s infinite normal;
-    animation-delay: 0.55s;
+    animation-delay: 0.25s;
 }
 
 @-webkit-keyframes mover {

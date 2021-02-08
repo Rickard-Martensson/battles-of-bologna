@@ -7,7 +7,7 @@ var SOUND_DICTIONARY = [
     ["ingame_hurry", './bilder/audio/ingame_fast.mp3']
 ]
 
-var VOLUME = 0.5
+var VOLUME = 0.2
 
 //===AUDIO===\\
 var curAudio = "none"
@@ -31,33 +31,33 @@ function playAudio(song = "title") {
         curAudio = song
         // console.log(song)
         if (song == "title") {
-            musicPlayer.src = './bilder/audio/title_music.mp3';
+            musicPlayer.src = './bilder/audio/musik/title_music.mp3';
         }
         else if (song == "ingame") {
-            musicPlayer.src = './bilder/audio/ingame_music.mp3';
+            musicPlayer.src = './bilder/audio/musik/ingame_music.mp3';
         }
         else if (song == "ingame_hurry") {
-            musicPlayer.src = './bilder/audio/ingame_fast.mp3';
+            musicPlayer.src = './bilder/audio/musik/ingame_fast.mp3';
         }
         else if (song == "win") {
             musicPlayer.loop = false
-            musicPlayer.src = './bilder/audio/victory_theme.mp3';
+            musicPlayer.src = './bilder/audio/musik/victory_theme.mp3';
         }
         else if (song == "defeat") {
             musicPlayer.loop = false
-            musicPlayer.src = './bilder/audio/DEFEAT THEME MP3.mp3';
+            musicPlayer.src = './bilder/audio/musik/defeat_theme.mp3';
         }
         else {
             console.log("unknown sound", song)
         }
         if (song == "ingame_hurry") {
-            setTimeout(function () { musicPlayer.play(); }, 800);
+            setTimeout(function () { musicPlayer.play(); }, 2400);
         }
         else {
             musicPlayer.play();
         }
         musicPlayer.loop = true
-        musicPlayer.volume = 0.5
+        musicPlayer.volume = VOLUME
         console.log(music)
     }
 
@@ -100,7 +100,7 @@ function playSoundEffect(sound) {
     }
     audio = new Audio(audioSrc);
 
-    audio.volume = vol
+    audio.volume = vol * VOLUME * 2
 
     audio.loop = false
     audio.play();

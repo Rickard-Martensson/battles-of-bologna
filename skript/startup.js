@@ -22,6 +22,7 @@ var game;
  **********************/
 
 
+
 window.onload = function () {
     getCanvas();
     getBackgrounds();

@@ -150,10 +150,8 @@ class Sprite {
 
         this.activeEffects = new Set();
 
-        if (isUpdate) {
-            this.updateData(newData);
-        }
-        this.speed *= 5
+        if (isUpdate) {this.updateData(newData);}
+        // this.speed *= 5
     }
 
     updateData(newData) {
@@ -284,8 +282,10 @@ class Sprite {
         let factor = (2 * this.team - 1) //-1 if team:0, 1 if team:1.
 
         if (this.pos.x * factor < enemyBasePos * factor) { // -100 < -40 //prolog inte imperativt
-            game.players[enemyPlayer].attackCastle(this.hp)
-            game.players[this.team].changeGoldPerTurn(1)
+            if ((mySide == 0 ^ IS_ONLINE) != 1) {
+                game.players[enemyPlayer].attackCastle(this.hp)
+                game.players[this.team].changeGoldPerTurn(1) 
+            }
             this.hp = 0
             //remove gold, add gold
         }

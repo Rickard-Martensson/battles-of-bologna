@@ -123,6 +123,7 @@ const ARROW_GRAPHICS_LEVEL = 1; //0 for only white lines, 1 for texure, 2 for te
 const SYNC_INTERVAL = 30;   //how ofter we sync the entire game
 var LAST_GLOBAL_UPDATE = Date.now(); // we dont want the game to sync right after someone used an ability
 const GLOBAL_UPDATE_MARGIN = 250; // how long time of no actions are needed for global updates to pass trough
+const SYNC_PROJECTILES = false // wethero r not to update projectile position when syncing. should be set to false
 
 
 class Animation {

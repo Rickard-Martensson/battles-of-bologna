@@ -35,13 +35,7 @@ class Player {
         this.lastCastleAtk = -Infinity;
         if (this.team == 0) { this.img += "_blue" };
 
-
-
         this.DRAW_SIZE = 64;
-    }
-
-    repairCastle(hp) {
-
     }
 
     syncMyself(syncData = "all") {
@@ -157,17 +151,16 @@ class Player {
         console.log(hp, this.hp)
         this.repairCost += 10;
         if (this.hp > PLAYER_HP_MAX) { this.hp = PLAYER_HP_MAX };
-        if (IS_ONLINE) { this.syncMyself("hp") }
+        if (IS_ONLINE) { this.syncMyself("hp"); }
     }
 
 
     takeDmg(dmg) {
         this.lastDmgdTime = Date.now()
         this.prevHp = this.hp;
-        this.hp -= dmg
+        this.hp = (this.hp <= 0) ? 0 : this.hp - dmg
+        
         if (this.hp < PLAYER_HP_MAX * 0.4 && this.isHurry == 0) {
-            this.hp = 0;
-            this.prevHp = 0;
             this.isHurry = 1;
             playSoundEffect("hurry_up");
             console.log("hurry hurry")
