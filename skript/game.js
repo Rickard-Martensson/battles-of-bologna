@@ -159,6 +159,10 @@ class Game {
 
     }
 
+    damageCastle(team, dmg){
+        this.players[team].takeDmg(dmg)
+    }
+
     checkAbilities() {
         for (var key in this.activeAbilites) {
             let ability = this.activeAbilites[key];
@@ -214,7 +218,7 @@ class Game {
             }
         }
         else if (name == "takedmg") {
-            this.players[team].takeDmg(20);
+            this.players[team].sendDmgPackage(20);
         }
         else if (name == "repair") {
             this.players[team].repairCastle(15);
@@ -247,9 +251,6 @@ class Game {
             }
         }
     }
-
-
-
 
 
     start() {
@@ -461,9 +462,9 @@ class Game {
             sprite.canMove(this);
             sprite.move();
             sprite.draw();
+            sprite.checkIfAtEnemyCastle(this);
             sprite.checkDead(game, i);
             
-            sprite.checkIfAtEnemyCastle(this);
     
 
         }

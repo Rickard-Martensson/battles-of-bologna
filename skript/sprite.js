@@ -284,7 +284,7 @@ class Sprite {
         if (this.pos.x * factor < enemyBasePos * factor) { // -100 < -40 //prolog inte imperativt
             if ((mySide == 0 ^ IS_ONLINE) != 1) {
                 game.players[enemyPlayer].attackCastle(this.hp)
-                game.players[this.team].changeGoldPerTurn(1) 
+                game.players[this.team].onlineChangeGold(0, 1, true)
             }
             this.hp = 0
             //remove gold, add gold

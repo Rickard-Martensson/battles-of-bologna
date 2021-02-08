@@ -1,13 +1,13 @@
 
 
 
-var SOUND_DICTIONARY = [
-    ["title_music", './bilder/audio/title_music.mp3'],
-    ["ingame_music", './bilder/audio/ingame_music.mp3'],
-    ["ingame_hurry", './bilder/audio/ingame_fast.mp3']
-]
-
-var VOLUME = 0.2
+// const SOUND_DICTIONARY = [
+//     ["title_music", './bilder/audio/title_music.mp3'],
+//     ["ingame_music", './bilder/audio/ingame_music.mp3'],
+//     ["ingame_hurry", './bilder/audio/ingame_fast.mp3']
+// ]
+const GAME_VOLUME = 1
+var VOLUME = GAME_VOLUME
 
 //===AUDIO===\\
 var curAudio = "none"

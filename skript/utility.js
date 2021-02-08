@@ -64,6 +64,7 @@ function getOtherTeam(team) {
     else if (team == 1) {
         return 0
     }
+    console.log("wrong team, should be 1 or 0, is:", team)
     return -1;
 }
 

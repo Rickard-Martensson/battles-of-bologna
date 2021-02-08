@@ -124,7 +124,7 @@ const SYNC_INTERVAL = 30;   //how ofter we sync the entire game
 var LAST_GLOBAL_UPDATE = Date.now(); // we dont want the game to sync right after someone used an ability
 const GLOBAL_UPDATE_MARGIN = 250; // how long time of no actions are needed for global updates to pass trough
 const SYNC_PROJECTILES = false // wethero r not to update projectile position when syncing. should be set to false
-
+const LOBBY_CODE_LEN = 1
 
 class Animation {
     //size of each square, how many rows down in spritesheet, number of frames, frameRate, isAloop(false on atk animations)
@@ -174,10 +174,10 @@ const STATS = {
         animations: { idle: new Animation(32, 0, 8, 60, true), walk: new Animation(32, 1, 8, 19.1804, true), attack: new Animation(32, 2, 7, 20, false) }
     },
     knight: {
-        hp: 15, dmg: 3, meleRange: 12, range: 0, atkSpeed: 1200, atkDelay: 450, speed: 10,
+        hp: 15, dmg: 3, meleRange: 12, range: 0, atkSpeed: 1200, atkDelay: 450, speed: 25,
         abilities: ["coolShoes", "changeRow"], row: 1, img: "knight_img", imageSize: 32, size: 7,
         animations: { idle: new Animation(32, 0, 8, 60, true), walk: new Animation(32, 1, 8, 8, true), attack: new Animation(32, 2, 7, 20, false) }
-    },
+    }, //speed ska va 10
     veteran: {
         hp: 15, dmg: 10, meleRange: 12, range: 0, atkSpeed: 2200, atkDelay: 1100, speed: 4,
         abilities: [], row: 0, img: "veteran_img", imageSize: 32, size: 7,

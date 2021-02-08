@@ -80,7 +80,7 @@ function menuHostLobby() {
     console.log("myside is:", mySide)
     currentMenu = "hostlobby";
 
-    thisLobbyCode = generateKey(4);
+    thisLobbyCode = generateKey(LOBBY_CODE_LEN);
     elemId("host_code").innerHTML = thisLobbyCode
     joinChannel(thisLobbyCode);
 

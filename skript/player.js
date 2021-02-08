@@ -44,7 +44,7 @@ class Player {
         else if (syncData = "eco") { data = this.getEcoData() }
         else if (syncData = "hp") { data = this.getHpData() }
         send("syncPlayer", { team: this.team, data: data })
-        console.log("synicing:", syncData)
+        //console.log("synicing:", syncData)
     }
 
     getData() {
@@ -154,8 +154,14 @@ class Player {
         if (IS_ONLINE) { this.syncMyself("hp"); }
     }
 
+    stealGoldPerTurn(amount) {
+        send("stealGold", {team:this.team, victim: getOtherTeam(this.team), amount: amount})
+    }
+
+
 
     takeDmg(dmg) {
+        console.log("damage taken")
         this.lastDmgdTime = Date.now()
         this.prevHp = this.hp;
         this.hp = (this.hp <= 0) ? 0 : this.hp - dmg
@@ -166,10 +172,48 @@ class Player {
             console.log("hurry hurry")
             setTimeout(playAudio("ingame_hurry"), 1000);
         }
-        if (IS_ONLINE) { this.syncMyself("hp") }
+        //if (IS_ONLINE) { this.syncMyself("hp") }
+    }
+
+    sendPackage(type, data) {
+        
+    }
+
+    sendDmgPackage(dmg){
+        if (IS_ONLINE && mySide == 0) {
+            console.log("player", this.team, "sent dmg package");
+            send("castleDmg", { team: this.team, dmg: dmg, sender: 1, goldDmg: -1 })
+
+        }
+        else if (!IS_ONLINE) {
+            this.takeDmg(dmg)
+        }
+
+
+    }
+
+    onlineChangeGold(totGoldChange, perTurnChange, isSteal) {
+        if ((mySide == 0 ^ IS_ONLINE) != 1) { // antingen online och spelare 0, eller offline o vilket som helst.
+            if (IS_ONLINE) {
+                send("changeGold", {team: this.team, total: totGoldChange, perTurn: perTurnChange, isSteal: isSteal})
+            }
+
+            else {
+                this.localGoldChange(totGoldChange, perTurnChange, isSteal)
+            }
+        }
+    }
+
+    localGoldChange(totGoldChange, perTurnChange, isSteal) {
+        this.gold += totGoldChange
+        this.changeGoldPerTurn(perTurnChange, false)
+        if (isSteal) {
+            game.players[getOtherTeam(this.team)].changeGoldPerTurn(-perTurnChange)
+        }
     }
 
     changeGold(amount) {
+        console.log("old function, should be phased out")
         this.gold += amount
     }
 
@@ -182,7 +226,7 @@ class Player {
         }
         this.goldPerTurn = Math.max(5, Math.min(this.goldPerTurn + amount, GOLD_UPG_MAX));
         local_UI.justGaveGold[this.team] = Date.now();
-        if (IS_ONLINE && shouldSync) { this.syncMyself("eco") }
+        //if (IS_ONLINE && shouldSync) { this.syncMyself("eco") }
     }
 
 
@@ -193,7 +237,7 @@ class Player {
         }
         if (this.gold >= amount) {
 
-            if (local_UI.isOnline) {
+            if (IS_ONLINE) {
                 this.changeGold(-amount);
                 // pubnubAction("upPlayer", this.team, this.getData(), 0, 0);
                 if (shouldSync) { this.syncMyself("eco") }
@@ -209,7 +253,8 @@ class Player {
 
     giveGoldPerTurn() {
         local_UI.justGaveGold[this.team] = Date.now();
-        this.changeGold(this.goldPerTurn);
+        // this.changeGold(this.goldPerTurn);
+        this.localGoldChange(this.goldPerTurn, 0, 0);
         playSoundEffect("buy")
 
 
@@ -220,8 +265,9 @@ class Player {
     }
 
     attackCastle(unitHealth) {
-        this.changeGoldPerTurn(-1)
-        this.takeDmg(Math.floor(unitHealth / 2)) //unitHealth
+        //this.changeGoldPerTurn(-1)
+        this.sendDmgPackage(unitHealth / 2)
+        this.onlineChangeGold(0, 1, true)
     }
 
     drawCastle() {

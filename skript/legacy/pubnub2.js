@@ -1,3 +1,6 @@
+
+//wtf denhär anbänd inte, legacy
+
 const uuid = PubNub.generateUUID();
 var myChannel = "none";
 var amHost = "false";
@@ -30,12 +33,13 @@ function joinChannel(channel) {
 
 
 function send(type, content) {
+    console.log("hejhej")
     pubnub.publish({
         channel: myChannel,
         message: { "sender": uuid, "type": type, "content": content, name: myName }
     }, function (status, response) {
         //Handle error here
-        console.log(status)
+        console.log("msg of type:", type, "status:", status)
     });
 }
 
@@ -65,13 +69,13 @@ pubnub.addListener({
         let channel = m.channel;
         let msg = m.message;
         let type = msg.type;
+        console.log("new dmg message")
 
         // switch(type) {
         //     case "addSprite":
         // }
 
         if (channel == "all") {
-
 
         }
 
@@ -104,6 +108,12 @@ pubnub.addListener({
                 game.updatePlayer(msg.team, msg.data1)
             }
 
+        }
+        else if (type == "castleDmg") {
+            console.log("recieved dmg message");
+            team = msg.team
+            dmg = msg.dmg
+            game.damageCastle(team, dmg)
 
         }
 

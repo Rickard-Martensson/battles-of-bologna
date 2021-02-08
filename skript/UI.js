@@ -488,7 +488,6 @@ class UIHandler {
 
         if (timeSinceLastDmg < 275 && timeSinceLastDmg > 175) {
             hpBarJump = -0.5;
-            console.log("jumpy jump")
 
         }
 
