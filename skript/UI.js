@@ -34,6 +34,7 @@ class UIHandler {
         this.curMsg = "";
         this.lastTypingBlink = Date.now();
         this.isTyping = false;
+        this.isHurry = false;
     }
 
     setLoser(key) {
@@ -203,7 +204,15 @@ class UIHandler {
         if (randNum < 1) {
             this.sceneryCount++;
             let yPos = CLOUD_MIN_HEIGHT + Math.random() * (CLOUD_MAX_HEIGHT - CLOUD_MIN_HEIGHT)
-            this.scenery.push(new Scenery(0, yPos, "cloud"));
+            this.scenery.push(new Scenery(0, yPos, "cloud", this.isHurry));
+        }
+    }
+
+    hurryUp() {
+        this.isHurry = true
+        for (var key in this.scenery) {
+            let cloud = this.scenery[key];
+            cloud.speed *= 2
         }
     }
 
@@ -640,7 +649,7 @@ class UIHandler {
             );
         }
 
-        ctx.imageSmoothingEnabled = true
+        ctx.imageSmoothingEnabled = DRAW_ICONS_SMOOTH
         if (icon != undefined) {
             drawIcon(icon, player.team, { x: button.x, y: button.y + 1 * frame });
         }

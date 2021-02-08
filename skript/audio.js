@@ -69,6 +69,7 @@ function playSoundEffect(sound) {
     let vol = 0.3
     let audioSrc = './bilder/audio/'
     if (sound == "sword") {
+        setTimeout(function () { audio.play(); }, 220);
         audioSrc += 'zap/sword_strike2.mp3'
     }
     else if (sound == "arrow") {

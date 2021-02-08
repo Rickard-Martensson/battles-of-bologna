@@ -102,6 +102,8 @@ const DEFAULT_DARKNESS = 'brightness(100%)';    //kommer ej ihåg
 var DUSK_OPACITY = 0;   //används för moln, säger hur dusk-iga molnen ska va 
 var IS_NIGHT = false;   //används för moln, säger om det ska va dag eller nattmoln
 
+//===VISUAL ===\\
+const DRAW_ICONS_SMOOTH = false // if the icons on buttons sghould be drawn smoothly
 
 //=== clouds ===\\
 const CLOUD_RATE = 0.00175;  //hur ofta det kommer moln
@@ -124,7 +126,7 @@ const SYNC_INTERVAL = 30;   //how ofter we sync the entire game
 var LAST_GLOBAL_UPDATE = Date.now(); // we dont want the game to sync right after someone used an ability
 const GLOBAL_UPDATE_MARGIN = 250; // how long time of no actions are needed for global updates to pass trough
 const SYNC_PROJECTILES = false // wethero r not to update projectile position when syncing. should be set to false
-const LOBBY_CODE_LEN = 1
+const LOBBY_CODE_LEN = 4
 
 class Animation {
     //size of each square, how many rows down in spritesheet, number of frames, frameRate, isAloop(false on atk animations)

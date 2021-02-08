@@ -1,19 +1,19 @@
 const bild = document.getElementById('');
 
 class Scenery {
-    constructor(x, y, name) {
+    constructor(x, y, name, isHurry) {
         this.pos = { x: x, y: y }
         this.name = name
         this.img = this.name + "_img"
         this.imageSize = 64;
         let images = 8
         this.distFactor = CLOUD_DIST_FACTOR - (CLOUD_DIST_FACTOR - 1) * (y / CLOUD_MAX_HEIGHT);
-        this.speed = 1 * CLOUD_SPEED * this.distFactor;
+        this.speed = 1 * CLOUD_SPEED * this.distFactor * (isHurry ? 2 : 1);
 
         this.id = Math.floor(images * Math.random());
 
         this.DRAW_SIZE = 32
-        let drawSize = this.DRAW_SIZE * this.distFactor * S
+        let drawSize = this.DRAW_SIZE * this.distFactor * S;
         // console.log(y, drawSize,)
     }
 
@@ -93,6 +93,7 @@ class Game {
         this.lastTriedPing = Date.now();
 
         this.gameOver = false
+        this.isHurry = false
 
     }
 
