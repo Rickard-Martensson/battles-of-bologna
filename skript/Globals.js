@@ -1,5 +1,6 @@
 //==========================================================================================================================================================================================================================================================================================================================================================================\\
 
+
 var IMAGE_DIRECTORY = [
     ["buttonBack_img", "./bilder/ui/btnBack.png"],
     ["buttonBack_img_blue", "./bilder/ui/btnBack.png"],
@@ -54,14 +55,14 @@ const UI_POS = [
     {
         winScreen: { x: 160, y: 90 }, gold: { x: 30, y: 23 }, goldPerTurn: { x: 30, y: 18 }, goldIcon: { x: 30, y: 20.2 },
         hp: { x: 30, y: 25 }, hpIcon: { x: 30, y: 22.2 }, heart: { x: 35, y: 15 }, hpBar: { x: 14.6, y: 25 },
-        infoBox: {topleft: {x: 10, y: 10}, botright: {x: 40, y: 30}},
-        chatBox: { chat: { pos1: { x: 200, y: 130 }, pos2: { x: 315, y: 175 } }, input: { x: 205, y: 160 } }
+        statsBox: {topleft: {x: 10, y: 10}, botright: {x: 40, y: 30}},
+        chatBox: { chat: { pos1: { x: 230, y: 135 }, pos2: { x: 315, y: 175 } }, input: { x: 205, y: 160 } }
     },
     {
         winScreen: { x: 160, y: 90 }, gold: { x: 300, y: 23 }, goldPerTurn: { x: 300, y: 18 }, goldIcon: { x: 300, y: 20.2 },
         hp: { x: 300, y: 25 }, hpIcon: { x: 300, y: 22.2 }, heart: { x: 305, y: 15 }, hpBar: { x: 284.6, y: 25 },
-        infoBox: {topleft: {x: 310, y: 10}, botright: {x: 280, y: 30}},
-        chatBox: { chat: { pos1: { x: 5, y: 130 }, pos2: { x: 120, y: 175 } }, input: { x: 10, y: 160 } }
+        statsBox: {topleft: {x: 310, y: 10}, botright: {x: 280, y: 30}},
+        chatBox: { chat: { pos1: { x: 5, y: 135 }, pos2: { x: 90, y: 175 } }, input: { x: 10, y: 160 } }
     }];
 const UI_POS_BTN = { img: { x: 0, y: 1.5 }, txt: { x: 0, y: -8 }, txt2: { x: 0, y: -5 }, subText: { x: 0, y: 10.7 }, gold: { x: 1, y: 9.2 } }
 const BUTTON_SIZE = 30; //hur stora knapparna är
@@ -178,7 +179,7 @@ const STATS = {
         animations: { idle: new Animation(32, 0, 8, 60, true), walk: new Animation(32, 1, 8, 19.1804, true), attack: new Animation(32, 2, 7, 20, false) }
     },
     knight: {
-        hp: 15, dmg: 3, meleRange: 12, range: 0, atkSpeed: 1200, atkDelay: 450, speed: 25,
+        hp: 15, dmg: 3, meleRange: 12, range: 0, atkSpeed: 1200, atkDelay: 450, speed: 10,
         abilities: ["coolShoes", "changeRow"], row: 1, img: "knight_img", imageSize: 32, size: 7,
         animations: { idle: new Animation(32, 0, 8, 60, true), walk: new Animation(32, 1, 8, 8, true), attack: new Animation(32, 2, 7, 20, false) }
     }, //speed ska va 10
@@ -290,7 +291,7 @@ const BTN_FOLDER = {
     },
     1: {    // sprites
         0: { txt: "soldier", cost: 15, action: "buyUnit", data: "soldier", img: "soldier_img", info: "solders are basic mele units" },
-        1: { txt: "archer", cost: 10, action: "buyUnit", data: "archer", img: "archer_img", info: "archers are ranged units that \nshoot 3 - 8 units forward" },
+        1: { txt: "archer", cost: 10, action: "buyUnit", data: "archer", img: "archer_img", info: "archers are ranged units that \nshoot 3 - 6 units forward" },
         2: { txt: "knight", cost: 35, action: "buyUnit", data: "knight", upgrade: "upgKnight", img: "knight_img", info: "knights are fast and strong,\nand will run past all your units\nto the front of the battlefield" }, // require: "upgKnight",
         3: { txt: "back", action: "folder", data: 0, img: "buttonBack_img" },
         4: { txt: "veteran", cost: 50, action: "buyUnit", data: "veteran", upgrade: "upgVeteran", img: "veteran_img", info: "veterans are very strong and \none-hits most units" },

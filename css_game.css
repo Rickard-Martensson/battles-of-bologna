@@ -82,3 +82,20 @@ canvas {
     background-size: cover;
     display: block;
 }
+
+
+/* img {
+    -webkit-animation: mover 0.2s infinite normal;
+    animation: mover 4.89795918367346938s infinite normal;
+    animation-delay: 0.25s;
+}
+
+@-webkit-keyframes mover {
+    0% {
+        transform: translate(-50%, 0);
+    }
+
+    100% {
+        transform: translate(-50%, -2%);
+    }
+} */

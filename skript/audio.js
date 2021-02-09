@@ -47,9 +47,7 @@ function playAudio(song = "title") {
             musicPlayer.loop = false
             musicPlayer.src = './bilder/audio/musik/defeat_theme.mp3';
         }
-        else if (song = "none") {
-            musicPlayer.pause()
-        }
+
         else {
             console.log("unknown sound", song)
             musicPlayer.pause()
@@ -64,6 +62,9 @@ function playAudio(song = "title") {
         musicPlayer.loop = true
         musicPlayer.volume = VOLUME
         console.log(music)
+        if (song == "none") {
+            musicPlayer.pause()
+        }
     }
 
 

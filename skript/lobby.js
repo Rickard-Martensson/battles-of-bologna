@@ -16,7 +16,7 @@ function enterLobby() {
 
 }
 
-var myName = "bob"
+var myName = "player bob"
 function generateName() {
     surnames = ["Bert", "Kjell", "Edward", "Leif GW", "Harald", "Loket"];
     myName = surnames[Math.floor(Math.random() * surnames.length)] + " "
@@ -145,6 +145,8 @@ function promptJoin() {
         }
         else {
             console.log("No lobby found!");
+            // joinChannel(thisLobbyCode);
+            // send("start", myName);
         }
     });
 

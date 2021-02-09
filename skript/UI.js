@@ -1,10 +1,6 @@
 
 const CHAT_MSG_ROW_PAD = 4;
 const CHAT_MSG_NAME_PAD = 20;
-let AA = 0
-let BB = 0
-let CC = 0
-let DD = 0
 
 const MAX_CHAT = 6;
 
@@ -118,20 +114,21 @@ class UIHandler {
     }
 
 
-    drawInfoBox() {
+    drawInfoBox(team) {
         this.drawBox({x: 95, y: 135}, {x: 225, y: 175}, "#000", "#000", 0.2);
         // console.log(this.players[0].btnLvl)
         //console.log("yooy")
         ctx.textAlign = "start";
         ctx.fillStyle = "#eee"
-        let player = game.players[0]
-        let button =  BTN_FOLDER[player.currentFolder][this.currentButton.id]
+        let infoPlayer = game.players[team]
+
+        let button =  BTN_FOLDER[infoPlayer.currentFolder][this.currentButton.id]
         let x_pos = 110
         let y_pos = 150
-        if (player.currentFolder == 3 && this.currentButton.id == 2 && player.btnLvl < 4) {
-            button = BTN_FOLDER[player.currentFolder][6]
+        if (infoPlayer.currentFolder == 3 && this.currentButton.id == 2 && infoPlayer.btnLvl < 4) {
+            button = BTN_FOLDER[infoPlayer.currentFolder][6]
         }
-        if (button != undefined && this.btnIsEnabled(button.action, player, button.upgrade, button.lvl) && "info" in button) {
+        if (button != undefined && ( this.currentButton.team == 0 || this.isOnline) && this.btnIsEnabled(button.action, infoPlayer, button.upgrade, button.lvl) && "info" in button) {
             let title = button.txt + " " + (button.txt2 ? button.txt2 : "")
             ctx.font = 8 * S + "px 'iFlash 705'";
             ctx.fillText(title,
@@ -151,10 +148,10 @@ class UIHandler {
             // let img = ((player.team == 0) ? btnGlob.img + "_blue" : btnGlob.img);
             
             if (button.icon != undefined) {
-                drawIcon(button.icon, 0, { x: x_pos - 5, y: y_pos - 4}, 1.8);
+                drawIcon(button.icon, team, { x: x_pos - 5, y: y_pos - 4}, 1.8);
             }
             else if (button.img != undefined) {
-                ctx.drawImage(Images[button.img + "_blue"],
+                ctx.drawImage(Images[button.img + (team == 0 ? "_blue" : "")],
                     32 * 0, //frame
                     0 * 0,
                     32,
@@ -179,23 +176,32 @@ class UIHandler {
     }
 
     drawChatBox2(team) {
+        this.drawBox(UI_POS[team].chatBox.chat.pos1, UI_POS[team].chatBox.chat.pos2, "#000", "#000", 0.2)
         ctx.textAlign = "start";
         ctx.font = 5 * S + "px 'iFlash 705'";
-        ctx.fillStyle = "#F2F2AA"
+        ctx.fillStyle = "#eee"
         let namePos = UI_POS[team].chatBox.chat.pos1.x + 3
-        let msgPos = UI_POS[team].chatBox.chat.pos1.x + 40
+        let msgPos = UI_POS[team].chatBox.chat.pos1.x + 2
         for (var i in this.chats) {
             let msg = this.chats[i].msg;
             let sender = this.chats[i].sender;
 
-            ctx.fillText(sender,
-                (namePos) * S,
-                (137 + 5 * i) * S,
-            );
-            ctx.fillText(msg,
+            ctx.font = 4 * S + "px 'iFlash 705'";
+            if (myName == sender) {
+                ctx.fillStyle = "#eee"
+            }
+            else {
+                ctx.fillStyle = "#999"
+            }
+            ctx.fillText(sender + ": " + msg,
                 (msgPos) * S,
-                (137 + 5 * i) * S,
+                (140 + 5 * i) * S,
             );
+            // ctx.font = 4 * S + "px 'iFlash 705'";
+            // ctx.fillText(msg,
+            //     (msgPos + 30) * S,
+            //     (140 + 5 * i) * S,
+            // );
         }
         let typingBlink = ""
         if (this.isTyping) {
@@ -207,27 +213,33 @@ class UIHandler {
             }
         }
 
-        ctx.fillText(myName,
-            (namePos) * S,
-            (140 + 5 * 6) * S,
-        );
-        ctx.fillText(this.curMsg + typingBlink,
-            (msgPos) * S,
-            (140 + 5 * 6) * S,
+        // ctx.fillText(myName,
+        //     (namePos) * S,
+        //     (142 + 5 * 6) * S,
+        // );
+        ctx.font = 5 * S + "px 'iFlash 705'";
+        ctx.fillStyle = "#eee";
+        let displayMsg = (this.curMsg == "" ? "..." : this.curMsg)
+        ctx.fillText(myName + ": " + displayMsg + typingBlink,
+            (namePos - 1) * S,
+            (143 + 5 * 6) * S,
         );
     }
 
     drawEverything(fps) {
+        
         for (var key in this.players) {
             let team = this.players[key]
             this.drawButtons(team);
-            this.drawInfoBox()
             if (this.isOnline) {
                 // this.drawChatBox(team)
-
-                this.drawBox(UI_POS[team].chatBox.chat.pos1, UI_POS[team].chatBox.chat.pos2, "#B5A18C", "#F2F2AA")
+                this.drawInfoBox(team)
                 this.drawChatBox2(team);
             }
+            
+        }
+        if (!this.isOnline) {
+            this.drawInfoBox(0)
         }
 
 
@@ -464,7 +476,7 @@ class UIHandler {
         if (this.deSynced) {
             // console.log("desynced!!!")
             ctx.fillStyle = "#cb0000";
-            ctx.fillText("Desynced!", 160 * S, 26 * S)
+            ctx.fillText("Desynced!", 160 * S, 30 * S)
         }
         ctx.fillText(Math.floor((Date.now() - lastRecievedPing) / 1000), 300 * S, 65 * S);
 
@@ -507,7 +519,7 @@ class UIHandler {
         ctx.textAlign = "end";
 
         for (var playerKey in game.players) {
-            this.drawBox(UI_POS[playerKey].infoBox.topleft, UI_POS[playerKey].infoBox.botright, "#000", "#000", .1);
+            this.drawBox(UI_POS[playerKey].statsBox.topleft, UI_POS[playerKey].statsBox.botright, "#000", "#000", .1);
 
 
             ctx.font = 5 * S + "px 'Press Start 2P'";
