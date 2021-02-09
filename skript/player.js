@@ -169,9 +169,11 @@ class Player {
         if (this.hp < PLAYER_HP_MAX * 0.4 && this.isHurry == 0) {
             this.isHurry = 1;
             playSoundEffect("hurry_up");
-            local_UI.hurryUp();
             console.log("hurry hurry")
-            setTimeout(playAudio("ingame_hurry"), 1000);
+            playAudio("none");
+            setTimeout(function() {playAudio("ingame_hurry"); local_UI.hurryUp();}, 2400);
+            
+
         }
         //if (IS_ONLINE) { this.syncMyself("hp") }
     }

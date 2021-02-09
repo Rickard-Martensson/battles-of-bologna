@@ -111,6 +111,10 @@ class UIHandler {
         this.chatmsgs.push({ sender: sender, msg: msg })
     }
 
+    drawInfoBox() {
+        
+    }
+
     drawChatBox2(team) {
         ctx.textAlign = "start";
         ctx.font = 5 * S + "px 'iFlash 705'";
