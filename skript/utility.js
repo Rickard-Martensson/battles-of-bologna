@@ -108,7 +108,7 @@ function getDirection(team) {
     return (team == 0) ? 1 : -1;
 }
 
-function drawIcon(name, team, pos) {
+function drawIcon(name, team, pos, size = 1) {
     if (!(name in ICON_SS_POS)) {
         console.log("sorry, this icon", name, "is missing")
         return false;
@@ -124,8 +124,8 @@ function drawIcon(name, team, pos) {
 
         (pos.x - ICON_SIZE / 2) * S,
         (pos.y - ICON_SIZE / 2) * S,
-        ICON_SIZE * S,
-        ICON_SIZE * S,
+        ICON_SIZE * size * S,
+        ICON_SIZE * size * S,
     );
 }
 

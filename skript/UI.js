@@ -1,7 +1,10 @@
 
 const CHAT_MSG_ROW_PAD = 4;
 const CHAT_MSG_NAME_PAD = 20;
-
+let AA = 0
+let BB = 0
+let CC = 0
+let DD = 0
 
 const MAX_CHAT = 6;
 
@@ -35,6 +38,7 @@ class UIHandler {
         this.lastTypingBlink = Date.now();
         this.isTyping = false;
         this.isHurry = false;
+        this.isTouch = true;    
     }
 
     setLoser(key) {
@@ -87,32 +91,91 @@ class UIHandler {
     }
 
 
-    drawBox(pos1, pos2, color) {
-        ctx.fillStyle = "#B5A18C";
+    drawBox(pos1, pos2, fill, border, alpha = 1) {
+        ctx.globalAlpha = alpha
+        ctx.fillStyle = fill;
         ctx.fillRect(pos1.x * S,
             pos1.y * S,
             (pos2.x - pos1.x) * S,
             (pos2.y - pos1.y) * S
         )
-        ctx.strokeStyle = "#4D2E37";
+        ctx.strokeStyle = border;
 
-        ctx.lineWidth = S;
-        ctx.lineJoin = 'bevel';
+        // ctx.lineWidth = S;
+        // ctx.lineJoin = 'bevel';
 
-        ctx.strokeRect(pos1.x * S,
-            pos1.y * S,
-            (pos2.x - pos1.x) * S,
-            (pos2.y - pos1.y) * S
-        )
-        console.log()
+        // ctx.strokeRect(pos1.x * S,
+        //     pos1.y * S,
+        //     (pos2.x - pos1.x) * S,
+        //     (pos2.y - pos1.y) * S
+        // )
+        ctx.globalAlpha = 1
+
     }
 
     addChatMsg(sender, msg) {
         this.chatmsgs.push({ sender: sender, msg: msg })
     }
 
+
     drawInfoBox() {
+        this.drawBox({x: 95, y: 135}, {x: 225, y: 175}, "#000", "#000", 0.2);
+        // console.log(this.players[0].btnLvl)
+        //console.log("yooy")
+        ctx.textAlign = "start";
+        ctx.fillStyle = "#eee"
+        let player = game.players[0]
+        let button =  BTN_FOLDER[player.currentFolder][this.currentButton.id]
+        let x_pos = 110
+        let y_pos = 150
+        if (player.currentFolder == 3 && this.currentButton.id == 2 && player.btnLvl < 4) {
+            button = BTN_FOLDER[player.currentFolder][6]
+        }
+        if (button != undefined && this.btnIsEnabled(button.action, player, button.upgrade, button.lvl) && "info" in button) {
+            let title = button.txt + " " + (button.txt2 ? button.txt2 : "")
+            ctx.font = 8 * S + "px 'iFlash 705'";
+            ctx.fillText(title,
+                (132) * S,
+                (145) * S,
+            );
+            let info = button.info.split("\n")
+            ctx.font = 5* S + "px 'iFlash 705'";
+            for (var i in info) {
+                ctx.fillText(info[i],
+                    (132) * S,
+                    (151 + 5*i) * S,
+                );
+            }
+
+
+            // let img = ((player.team == 0) ? btnGlob.img + "_blue" : btnGlob.img);
+            
+            if (button.icon != undefined) {
+                drawIcon(button.icon, 0, { x: x_pos - 5, y: y_pos - 4}, 1.8);
+            }
+            else if (button.img != undefined) {
+                ctx.drawImage(Images[button.img + "_blue"],
+                    32 * 0, //frame
+                    0 * 0,
+                    32,
+                    32,
+                    (x_pos - 5 - ICON_SIZE / 2) * S,
+                    (y_pos - 3 - ICON_SIZE / 2) * S,
+                    ICON_SIZE * 2* S,
+                    ICON_SIZE * 2*S
+                );
+            }
+
+        }
+
+        // console.log( BTN_FOLDER[this.players[0].btnLvl] )
+        // if (BTN_FOLDER[this.currentButton.team][this.currentButton.id]) {
         
+        // if (BTN_FOLDER[0][1]) {
+        //     console.log("yä gäng gäng")
+        // }
+
+
     }
 
     drawChatBox2(team) {
@@ -158,10 +221,11 @@ class UIHandler {
         for (var key in this.players) {
             let team = this.players[key]
             this.drawButtons(team);
+            this.drawInfoBox()
             if (this.isOnline) {
                 // this.drawChatBox(team)
 
-                this.drawBox(UI_POS[team].chatBox.chat.pos1, UI_POS[team].chatBox.chat.pos2)
+                this.drawBox(UI_POS[team].chatBox.chat.pos1, UI_POS[team].chatBox.chat.pos2, "#B5A18C", "#F2F2AA")
                 this.drawChatBox2(team);
             }
         }
@@ -388,10 +452,11 @@ class UIHandler {
 
     drawUI(fps) {
         this.checkMouseWithinButton()
+        this.drawBox({x:145, y: 10}, {x:175, y: 30}, "#000", "#000", .1);
         ctx.textAlign = "center";
         ctx.fillStyle = "#ffffff";
         ctx.font = 5 * S + "px 'Press Start 2P'";
-        ctx.fillText(Math.floor(GOLD_INTERVAL + 1 + (game.lastGoldTime - Date.now()) / 1000), 160 * S, 20 * S)
+        ctx.fillText(Math.floor(GOLD_INTERVAL + 1 + (game.lastGoldTime - Date.now()) / 1000), 160 * S, 22.7 * S)
         ctx.fillText(Math.floor(fps), 300 * S, 60 * S);
         if (IS_SPECTATOR) {
             ctx.fillText("Spectator", 160 * S, 26 * S);
@@ -403,6 +468,7 @@ class UIHandler {
         }
         ctx.fillText(Math.floor((Date.now() - lastRecievedPing) / 1000), 300 * S, 65 * S);
 
+        // === win / lose screen ===\\
         if (this.winner != -1) {
             let audio = "win"
 
@@ -441,6 +507,9 @@ class UIHandler {
         ctx.textAlign = "end";
 
         for (var playerKey in game.players) {
+            this.drawBox(UI_POS[playerKey].infoBox.topleft, UI_POS[playerKey].infoBox.botright, "#000", "#000", .1);
+
+
             ctx.font = 5 * S + "px 'Press Start 2P'";
             var player = game.players[playerKey]
 
@@ -654,10 +723,10 @@ class UIHandler {
         }
 
         ctx.imageSmoothingEnabled = DRAW_ICONS_SMOOTH
-        if (icon != undefined) {
+        if (icon != undefined) { //kollar om det finns en ikon med rätt namn o allt
             drawIcon(icon, player.team, { x: button.x, y: button.y + 1 * frame });
         }
-        else {
+        else { // om det inte finnsen ikon å ritar vi img istället. viktigt att skilja på för att allt ska få rätt färg
             ctx.drawImage(Images[img],
                 32 * 0, //frame
                 0 * 0,

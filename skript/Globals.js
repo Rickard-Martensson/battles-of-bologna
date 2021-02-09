@@ -52,13 +52,15 @@ const ICON_SS_POS = {
 const BASE_POS = [{ x: 20, y: 100 }, { x: 300, y: 100 }]
 const UI_POS = [
     {
-        winScreen: { x: 160, y: 90 }, gold: { x: 30, y: 20 }, goldPerTurn: { x: 30, y: 15 }, goldIcon: { x: 30, y: 17.2 },
-        hp: { x: 30, y: 25 }, hpIcon: { x: 30, y: 22.2 }, heart: { x: 35, y: 15 }, hpBar: { x: 14.6, y: 22 },
+        winScreen: { x: 160, y: 90 }, gold: { x: 30, y: 23 }, goldPerTurn: { x: 30, y: 18 }, goldIcon: { x: 30, y: 20.2 },
+        hp: { x: 30, y: 25 }, hpIcon: { x: 30, y: 22.2 }, heart: { x: 35, y: 15 }, hpBar: { x: 14.6, y: 25 },
+        infoBox: {topleft: {x: 10, y: 10}, botright: {x: 40, y: 30}},
         chatBox: { chat: { pos1: { x: 200, y: 130 }, pos2: { x: 315, y: 175 } }, input: { x: 205, y: 160 } }
     },
     {
-        winScreen: { x: 160, y: 90 }, gold: { x: 300, y: 20 }, goldPerTurn: { x: 300, y: 15 }, goldIcon: { x: 300, y: 17.2 },
-        hp: { x: 300, y: 25 }, hpIcon: { x: 300, y: 22.2 }, heart: { x: 305, y: 15 }, hpBar: { x: 284.6, y: 22 },
+        winScreen: { x: 160, y: 90 }, gold: { x: 300, y: 23 }, goldPerTurn: { x: 300, y: 18 }, goldIcon: { x: 300, y: 20.2 },
+        hp: { x: 300, y: 25 }, hpIcon: { x: 300, y: 22.2 }, heart: { x: 305, y: 15 }, hpBar: { x: 284.6, y: 25 },
+        infoBox: {topleft: {x: 310, y: 10}, botright: {x: 280, y: 30}},
         chatBox: { chat: { pos1: { x: 5, y: 130 }, pos2: { x: 120, y: 175 } }, input: { x: 10, y: 160 } }
     }];
 const UI_POS_BTN = { img: { x: 0, y: 1.5 }, txt: { x: 0, y: -8 }, txt2: { x: 0, y: -5 }, subText: { x: 0, y: 10.7 }, gold: { x: 1, y: 9.2 } }
@@ -287,31 +289,31 @@ const BTN_FOLDER = {
         5: { txt: "abilities", action: "folder", data: 3, img: "soldier_img", icon: "target" },
     },
     1: {    // sprites
-        0: { txt: "soldier", cost: 15, action: "buyUnit", data: "soldier", img: "soldier_img" },
-        1: { txt: "archer", cost: 10, action: "buyUnit", data: "archer", img: "archer_img" },
-        2: { txt: "knight", cost: 35, action: "buyUnit", data: "knight", upgrade: "upgKnight", img: "knight_img" }, // require: "upgKnight",
+        0: { txt: "soldier", cost: 15, action: "buyUnit", data: "soldier", img: "soldier_img", info: "solders are basic mele units" },
+        1: { txt: "archer", cost: 10, action: "buyUnit", data: "archer", img: "archer_img", info: "archers are ranged units that \nshoot 3 - 8 units forward" },
+        2: { txt: "knight", cost: 35, action: "buyUnit", data: "knight", upgrade: "upgKnight", img: "knight_img", info: "knights are fast and strong,\nand will run past all your units\nto the front of the battlefield" }, // require: "upgKnight",
         3: { txt: "back", action: "folder", data: 0, img: "buttonBack_img" },
-        4: { txt: "veteran", cost: 50, action: "buyUnit", data: "veteran", upgrade: "upgVeteran", img: "veteran_img" },
+        4: { txt: "veteran", cost: 50, action: "buyUnit", data: "veteran", upgrade: "upgVeteran", img: "veteran_img", info: "veterans are very strong and \none-hits most units" },
         5: { txt: "", action: "hidden", data: -1, img: null },
 
     },
     2: {    //upgrades
-        0: { txt: "upgrade", txt2: "Gold", cost: "%upggold%", action: "upgrade", upgrade: "maxGold", data: "upgGold", img: "knight_img", icon: "goldUpg" },
-        1: { txt: "Repair", txt2: "Castle", cost: "%repaircastle%", action: "upgrade", upgrade: "repairCastle", data: "repairCastle", img: "knight_img", icon: "repair" },
-        2: { txt: "unlock", txt2: "Knight", cost: 50, subText: "50", action: "upgrade", upgrade: "upgKnight", data: "upgKnight", img: "knight_img" },
-        3: { txt: "upgrade", txt2: "Castle", cost: "%upgcastle%", action: "upgrade", upgrade: "upgCastle", data: "upgCastle", img: "knight_img", icon: "castleUpg" },
+        0: { txt: "upgrade", txt2: "gold", cost: "%upggold%", action: "upgrade", upgrade: "maxGold", data: "upgGold", img: "knight_img", icon: "goldUpg", info: "will increase the gold you get \nevery 15 seconds. \nthe cost of this ability increases" },
+        1: { txt: "repair", txt2: "castle", cost: "%repaircastle%", action: "upgrade", upgrade: "repairCastle", data: "repairCastle", img: "knight_img", icon: "repair" , info: "will repair the castle by 15 hp. \nthe cost of this ability increases"},
+        2: { txt: "unlock", txt2: "knight", cost: 50, subText: "50", action: "upgrade", upgrade: "upgKnight", data: "upgKnight", img: "knight_img" , info: "unlocks the knight, a fast and \nstrong frontline unit that runs \npast the battlefield"},
+        3: { txt: "upgrade", txt2: "castle", cost: "%upgcastle%", action: "upgrade", upgrade: "upgCastle", data: "upgCastle", img: "knight_img", icon: "castleUpg", info: "upgrades the castle, making it \nshoot projectiles at the enemy\nhas 3 levels."},
         4: { txt: "back", action: "folder", data: 0, img: "buttonBack_img" },
-        5: { txt: "unlock", txt2: "Veteran", cost: 50, subText: "50", action: "upgrade", upgrade: "upgVeteran", data: "upgVeteran", img: "veteran_img" },
+        5: { txt: "unlock", txt2: "veteran", cost: 50, subText: "50", action: "upgrade", upgrade: "upgVeteran", data: "upgVeteran", img: "veteran_img", info: "unlocks the knight, a very \nstrong mele unit that one hits \nmost enemies"},
     },
     3: {
         0: { txt: "Take Dmg", cost: 1, action: "ability", data: "takedmg", abilityCooldown: 0, lvl: 2, img: "soldier_img" },
         // 0: { txt: "Arrows", cost: 2, action: "ability", data: "arrows", abilityCooldown: 1, lvl: 2, img: "soldier_img" },
-        1: { txt: "Invincible", cost: 4, action: "ability", data: "invincible", abilityCooldown: 6, lvl: 3, img: "icons_img", icon: "invincible" },
-        2: { txt: "Target", cost: 4, action: "ability", data: "target", abilityCooldown: 8, lvl: 4, img: "archer_img", icon: "target" },
+        1: { txt: "Invincible", cost: 4, action: "ability", data: "invincible", abilityCooldown: 6, lvl: 3, img: "icons_img", icon: "invincible", info: "makes your units invincible for \na short while. \ntime it well!" },
+        2: { txt: "Target", cost: 4, action: "ability", data: "target", abilityCooldown: 8, lvl: 4, img: "archer_img", icon: "target", info: "makes your archers shoot with \npin-point accuracy for a while" },
         3: { txt: "Sprint", cost: 3, action: "ability", data: "sprint", abilityCooldown: 4, lvl: 1, img: "soldier_img" },
-        4: { txt: "Sprint", cost: 3, action: "ability", data: "sprint", abilityCooldown: 4, lvl: 0, img: "soldier_img", icon: "sprint" },
+        4: { txt: "Sprint", cost: 3, action: "ability", data: "sprint", abilityCooldown: 4, lvl: 0, img: "soldier_img", icon: "sprint", info: "makes all units on the battlefield \n sprint forward"},
         5: { txt: "back", action: "folder", data: 0, img: "buttonBack_img" },
-        6: { txt: "upgrade", txt2: "ability", cost: "%upgability%", action: "upgrade", upgrade: "upgAbility", data: "upgAbility", img: "archer_img" },
+        6: { txt: "upgrade", txt2: "ability", cost: "%upgability%", action: "upgrade", upgrade: "upgAbility", data: "upgAbility", img: "archer_img", info: "unlocks another ability"},
 
     },
 
