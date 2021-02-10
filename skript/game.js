@@ -399,7 +399,7 @@ class Game {
         // console.log("arrow:", pos, vel)
         if (isOnline) {
             if (mySide == 0) {
-                send("sendProjectile", { team: team, pos: pos, vel: vel, dmg: dmg })
+                send("sendProjectile", { team: team, pos: pos, vel: vel, dmg: dmg, type: type })
             }
         }
         else { this.projectiles.push(new Projectile(pos, vel, team, dmg, false, false, type)) }

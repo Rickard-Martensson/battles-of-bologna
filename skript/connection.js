@@ -159,8 +159,9 @@ pubnub.addListener({
             let pos = content.pos;
             let vel = content.vel;
             let dmg = content.dmg;
+            let type = content.type;
 
-            game.shootProjectile(pos, vel, team, dmg, false)
+            game.shootProjectile(pos, vel, team, dmg, false, type)
         }
         else if (type == "castleDmg") {
             let team = content.team
