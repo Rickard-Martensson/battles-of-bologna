@@ -33,10 +33,12 @@ class Player {
         this.imageSize = 64;
         this.castleLvl = 0;
         this.lastCastleAtk = -Infinity;
+        this.lastCastleBalAtk = -Infinity;
         if (this.team == 0) { this.img += "_blue" };
 
         this.DRAW_SIZE = 64;
     }
+    
 
     syncMyself(syncData = "all") {
         let data = this.getData();
@@ -79,7 +81,29 @@ class Player {
         this.changeGoldPerTurn(UPGRADES["upgGold"].costIncrease) //.goldPerTurn += UPGRADES["upgGold"].goldIncrease;}
     }
 
-    castleAttack() {
+    castleTryAttack() {
+        if (Date.now() - this.lastCastleAtk > CASTLE_ARROW_DELAY[this.castleLvl] * 1000) {
+            let dmg = 3;
+            this.lastCastleAtk = Date.now()
+            let pos = { x: this.pos.x, y: this.pos.y }
+            let vel = { vx: 35 * (Math.random() + 1) * (1 - 2 * this.team), vy: -15 * (Math.random() * 1 + 4.5) }
+            console.log("yea")
+            game.shootProjectile(pos, vel, this.team, dmg, IS_ONLINE, "arrow")   
+        }
+        if (this.castleLvl > 2 && Date.now() - this.lastCastleBalAtk > CASTLE_BAL_DELAY[this.castleLvl] * 1000) {
+            let dmg = 1;
+            this.lastCastleBalAtk = Date.now()
+            let pos = { x: this.pos.x, y: this.pos.y }
+            let vel = { vx: 35 * (Math.random() + 1) * (1 - 2 * this.team), vy: -15 * (Math.random() * 1 + 4.5) }
+            console.log("nah")
+
+            game.shootProjectile(pos, vel, this.team, dmg, IS_ONLINE, "ballista")   
+        }
+
+    }
+
+    castleAttack(type) {
+        console.log("old function ,shoudl be phased out")
         let dmg = 3;
         this.lastCastleAtk = Date.now()
         let pos = { x: this.pos.x, y: this.pos.y }

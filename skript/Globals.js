@@ -8,10 +8,13 @@ var IMAGE_DIRECTORY = [
     ["archer_img", "./bilder/sprites/archer2.png"],
     ["knight_img", "./bilder/sprites/knight.png"],
     ["veteran_img", "./bilder/sprites/veteran.png"],
+    ["ballista_img", "./bilder/sprites/ballista.png"],
     ["soldier_img_blue", "./bilder/sprites/soldier_blue2.png"],
     ["archer_img_blue", "./bilder/sprites/archer_blue2.png"],
     ["knight_img_blue", "./bilder/sprites/knight_blue.png"],
     ["veteran_img_blue", "./bilder/sprites/veteran_blue.png"],
+    ["ballista_img_blue", "./bilder/sprites/ballista_blue.png"],
+    ["ballista_projectile", "./bilder/sprites/ballista_projectile.png"],
     //["image_not_found", "./bilder/ui/wtf.png"],
     ["exitButton", "./bilder/ui/ExitButton.png"],
     ["button1", "./bilder/ui/button3.png"],
@@ -90,7 +93,10 @@ const ARCHER_TRAJECTORY = 1.25;  //arctan av detta är vinkeln den skjuts med
 const ARCHER_TARGET_MAX_RANGE = 100 // maxrange när archers använder target fire abilityn.
 const SPRINT_ABILITY_SPEED = 4;
 
-const CASTLE_ARROW_DELAY = [NaN, 15, 10, 10]
+const CASTLE_ARROW_DELAY = [NaN, 15, 10, 10];
+
+
+const CASTLE_BAL_DELAY = [NaN, NaN, NaN, 12];
 
 //===DAY NIGHT ===\\
 const MAXDARKNESS = 0.5 //hur mörka sprites blir på natten. används endast i graphics_level 1+
@@ -188,6 +194,11 @@ const STATS = {
         abilities: [], row: 0, img: "veteran_img", imageSize: 32, size: 7,
         animations: { idle: new Animation(32, 0, 8, 60, true), walk: new Animation(32, 1, 8, 19.1804, true), attack: new Animation(32, 2, 12, 18, false) }
     },
+    ballista: {
+        hp: 20, dmg: 2, meleRange: 20, range: 5, atkSpeed: 4000, atkDelay: 50, speed: 2.5,
+        abilities: ["ballista"], row: 0, img: "ballista_img", imageSize: 32, size: 14,
+        animations: { idle: new Animation(32, 0, 8, 60, true), walk: new Animation(32, 1, 8, 19.1804, true), attack: new Animation(32, 2, 8, 18, false) }
+    },
     sprinter: {
         hp: 6, dmg: 2, meleRange: 12, range: 0, atkSpeed: 1000, atkDelay: 500, speed: 15,
         abilities: [], row: 0, img: "soldier_img", imageSize: 32, size: 7,
@@ -209,11 +220,12 @@ const STATS = {
 //     attack: new Animation(32, 2, 7, 20, false),
 // };
 
-const UNIQE = {
-    knight: ["coolShoes", "changeRow"],
-    archer: ["targetfire"],
-    wizard: ["zap"]
-}
+// const UNIQE = {
+//     knight: ["coolShoes", "changeRow"],
+//     archer: ["targetfire"],
+//     ballista: ["ballista"],
+//     wizard: ["zap"]
+// }
 //antingen finns statementet i box, eller nån i barnen
 //vi kan patternmatcha
 //hur scope funkar är att säg att vi står o chillar här
@@ -295,7 +307,8 @@ const BTN_FOLDER = {
         2: { txt: "knight", cost: 35, action: "buyUnit", data: "knight", upgrade: "upgKnight", img: "knight_img", info: "knights are fast and strong,\nand will run past all your units\nto the front of the battlefield" }, // require: "upgKnight",
         3: { txt: "back", action: "folder", data: 0, img: "buttonBack_img" },
         4: { txt: "veteran", cost: 50, action: "buyUnit", data: "veteran", upgrade: "upgVeteran", img: "veteran_img", info: "veterans are very strong and \none-hits most units" },
-        5: { txt: "", action: "hidden", data: -1, img: null },
+        5: { txt: "ballista", cost: 30, action: "buyUnit", data: "ballista", upgrade: "upgBallista", img: "ballista_img", info: "ballistas shooty at castle" }
+
 
     },
     2: {    //upgrades

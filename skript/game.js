@@ -94,6 +94,7 @@ class Game {
 
         this.gameOver = false
         this.isHurry = false
+        this.daysPast = 0;
 
     }
 
@@ -394,14 +395,14 @@ class Game {
         return getMillisecondsPassed;
     }
 
-    shootProjectile(pos, vel, team, dmg, isOnline) {
+    shootProjectile(pos, vel, team, dmg, isOnline, type="arrow") {
         // console.log("arrow:", pos, vel)
         if (isOnline) {
             if (mySide == 0) {
                 send("sendProjectile", { team: team, pos: pos, vel: vel, dmg: dmg })
             }
         }
-        else { this.projectiles.push(new Projectile(pos, vel, team, dmg)) }
+        else { this.projectiles.push(new Projectile(pos, vel, team, dmg, false, false, type)) }
     }
 
     distToNextSprite2(team, pos, row = 0) {
@@ -472,8 +473,8 @@ class Game {
         for (var i in this.players) {
             let player = this.players[i];
             player.drawCastle();
-            if (player.castleLvl != 0 && Date.now() - player.lastCastleAtk > CASTLE_ARROW_DELAY[player.castleLvl] * 1000) {
-                player.castleAttack();
+            if (player.castleLvl != 0 ) { //&& Date.now() - player.lastCastleAtk > CASTLE_ARROW_DELAY[player.castleLvl] * 1000) {
+                player.castleTryAttack();
             }
         }
 
@@ -501,8 +502,10 @@ class Game {
     goldIntervalCheck() {
         if (Date.now() - this.lastGoldTime > GOLD_INTERVAL * 1000) {
             this.lastGoldTime = Date.now();
+            this.daysPast += 1
             for (var key in this.players) {
                 let player = this.players[key]
+                if (this.daysPast >= 3) {player.addUpgrade("upgBallista")}
                 player.giveGoldPerTurn()
 
                 player.decreaseCoolDowns(this);

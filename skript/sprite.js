@@ -2,12 +2,21 @@ const ARROW_CONSTS = {
 
 }
 
+
 class Projectile {
-    constructor(pos, vel, team, dmg, isUpdate, newData) {
+    constructor(pos, vel, team, dmg, isUpdate=false, newData=false, type="arrow") {
         this.pos = { x: pos.x, y: pos.y };
         this.vel = { vx: vel.vx, vy: vel.vy };
         this.team = team;
         this.dmg = dmg;
+        this.type = type;
+        if (this.type =="ballista") {
+            this.DRAW_SIZE = 14;
+            this.startPos = this.pos.x;
+            this.deathFrame = 0
+            this.lastDeathFrame = Date.now()
+        }
+
 
         this.ARROW_LEN = [0.6, 3, 1];
         //this.ARROW_COLORS = ['#DDDDDD', '#8B3F2B', '#FFFFFF'];
@@ -16,6 +25,7 @@ class Projectile {
         this.ARROW_SIZE = .6;
         this.dead = false;
         // this.colors = ['#DDDDDD', '#6F2B1F', '#8B3F2B', '#8B3F2B', '#8B3F2B', '#8B3F2B', '#FFFFFF']
+
 
         if (isUpdate) { this.updateData(newData) }
         else { playSoundEffect("arrow") }
@@ -35,7 +45,18 @@ class Projectile {
         return data;
     }
 
+    moveBal() {
+        let a = 10
+        let castelHeight = 59
+        this.pos.x += this.vel.vx * fpsCoefficient / 100;
+        this.pos.y += (castelHeight-this.pos.y) / 40
+    }
+
     move() {
+        if (this.type == "ballista") {
+            this.moveBal();
+            return
+        }
         this.pos.x += this.vel.vx * fpsCoefficient / 100;
         this.pos.y += this.vel.vy * fpsCoefficient / 100;
         this.vel.vy += GRAVITY * fpsCoefficient / 100;
@@ -43,7 +64,51 @@ class Projectile {
         //this.predictTouchDown()
     }
 
+    checkHitBallista() {
+        if (this.deathFrame == 0) {
+            if (this.team == 0 && this.pos.x > 270) {
+                game.players[getOtherTeam(this.team)].takeDmg(this.dmg)
+                this.ballistaDeathAnim();
+            }
+            else if (this.team == 1 && this.pos.x < 50) {
+                game.players[getOtherTeam(this.team)].takeDmg(this.dmg)
+                this.ballistaDeathAnim();
+            }
+            for (var i in game.projectiles) {
+                let target = game.projectiles[i];
+                if (target.type =="ballista" &&  this.team != target.team) {
+                    //console.log("disty:", dist(this.pos, game.projectiles[i].pos), game.projectiles[i].size);
+                    if (dist(this.pos, target.pos) < 5) {
+                        console.log("hejhej")
+                        target.ballistaDeathAnim() // kom på nåt sätt så den inte kör hela tiden
+                        playSoundEffect("arrow_hit")
+                        this.ballistaDeathAnim()
+                    }
+                }
+            }
+        }
+
+
+    }
+
+
+    ballistaDeathAnim() {
+        if (Date.now() - this.lastDeathFrame > 0.02 *1000) {
+            this.deathFrame += 1
+            this.lastDeathFrame = Date.now()
+            if (this.deathFrame > 5) {
+                this.dead = true
+            }
+        }
+
+
+    }
+
     checkHit(index) {
+        if (this.type == "ballista") {
+            this.checkHitBallista()
+            return;
+        }
         if (this.pos.y > HEIGHT - 5) {
             for (var i in game.sprites) {
                 if (this.team != game.sprites[i].team) {
@@ -76,7 +141,49 @@ class Projectile {
         console.log(this.vel.vx * t_0 + this.pos.x)
     }
 
+    drawBallista() {
+        let castelHeight = 59
+
+        let frame = 1
+        let imageSize = 16
+        let isDying = 0
+
+        if (this.pos.y - castelHeight < 5) {
+            frame = 4
+        }
+        else if (this.pos.y - castelHeight < 12) {
+            frame = 3
+        }
+        else if (this.pos.y - castelHeight < 18) {
+            frame = 2
+        }
+        if (this.deathFrame != 0 ) {
+            frame = this.deathFrame
+            console.log("wtf mannen")
+            isDying = 32;
+            this.ballistaDeathAnim();
+        }
+
+
+        ctx.drawImage(Images["ballista_projectile"],
+            imageSize * frame,
+            imageSize * (this.team) + isDying,
+            imageSize,
+            imageSize,
+
+            (this.pos.x - this.DRAW_SIZE / 2) * S,
+            (this.pos.y - this.DRAW_SIZE / 2) * S,
+            this.DRAW_SIZE * S,
+            this.DRAW_SIZE * S
+        );
+
+    }
+
     draw() {
+        if (this.type == "ballista") {
+            this.drawBallista();
+            return
+        }
         let lastPos = { x: this.pos.x, y: this.pos.y }
         let { dx, dy } = this.getVec();
         ctx.lineWidth = this.ARROW_SIZE * S;
@@ -214,6 +321,18 @@ class Sprite {
                 )
                 return;
             }
+        }
+        if (this.abilities.includes("ballista")) {
+            console.log("den skjuter en ballista iaf")
+            game.shootProjectile(
+                { x: this.pos.x, y: this.pos.y - 5 },
+                {
+                    vx: (this.range * (1 + RANGE_RANDOMNESS * Math.random())) * 10 * this.direction,
+                    vy: (this.range * (1 + RANGE_RANDOMNESS * Math.random())) * -10 * ARCHER_TRAJECTORY
+                },
+                this.team, this.dmg,
+                IS_ONLINE, "ballista");
+                return
         }
         game.shootProjectile(
             { x: this.pos.x, y: this.pos.y - 5 },
@@ -357,6 +476,7 @@ class Sprite {
                     this.attack(nextEnemy.sprite)
                 }
                 else if (this.abilities.includes("changeRow")) {
+                    console.log("what the fucc", this.abilities)
                     this.row = 0;
                 }
             }
