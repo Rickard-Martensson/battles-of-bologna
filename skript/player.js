@@ -6,7 +6,7 @@ const PLAYER_HP_MAX = 50;
 class Player {
     constructor(name, team, img, x, y) {
         this.name = name
-        this.gold = 500;
+        this.gold = 150;
         this.goldPerTurn = 5;
         this.repairCost = 50;
         this.team = team; //0 = blue

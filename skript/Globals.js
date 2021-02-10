@@ -91,7 +91,7 @@ const RANGE_RANDOMNESS = 0.5    //0.5 = arrows flyger mellan 100% & 150% av rang
 const INVINCIBLE_DURATION = 2;
 const ARCHER_TRAJECTORY = 1.25;  //arctan av detta är vinkeln den skjuts med
 const ARCHER_TARGET_MAX_RANGE = 100 // maxrange när archers använder target fire abilityn.
-const SPRINT_ABILITY_SPEED = 4;
+const SPRINT_ABILITY_SPEED = 10;
 
 const CASTLE_ARROW_DELAY = [NaN, 15, 10, 10];
 
@@ -323,9 +323,9 @@ const BTN_FOLDER = {
         0: { txt: "Take Dmg", cost: 1, action: "ability", data: "takedmg", abilityCooldown: 0, lvl: 2, img: "soldier_img" },
         // 0: { txt: "Arrows", cost: 2, action: "ability", data: "arrows", abilityCooldown: 1, lvl: 2, img: "soldier_img" },
         1: { txt: "Invincible", cost: 4, action: "ability", data: "invincible", abilityCooldown: 6, lvl: 3, img: "icons_img", icon: "invincible", info: "makes your units invincible for \na short while. \ntime it well!" },
-        2: { txt: "Target", cost: 4, action: "ability", data: "target", abilityCooldown: 8, lvl: 4, img: "archer_img", icon: "target", info: "makes your archers shoot with \npin-point accuracy for a while" },
-        3: { txt: "Sprint", cost: 3, action: "ability", data: "sprint", abilityCooldown: 4, lvl: 1, img: "soldier_img" },
-        4: { txt: "Sprint", cost: 3, action: "ability", data: "sprint", abilityCooldown: 4, lvl: 0, img: "soldier_img", icon: "sprint", info: "makes all units on the battlefield \n sprint forward"},
+        2: { txt: "Target", cost: 4, action: "ability", data: "target", abilityCooldown: 12, lvl: 4, img: "archer_img", icon: "target", info: "makes your archers shoot with \npin-point accuracy for a while" },
+        3: { txt: "Sprint", cost: 3, action: "ability", data: "sprint", abilityCooldown: 12, lvl: 1, img: "soldier_img" },
+        4: { txt: "Sprint", cost: 3, action: "ability", data: "sprint", abilityCooldown: 8, lvl: 0, img: "soldier_img", icon: "sprint", info: "makes all units on the battlefield \n sprint forward"},
         5: { txt: "back", action: "folder", data: 0, img: "buttonBack_img" },
         6: { txt: "upgrade", txt2: "ability", cost: "%upgability%", action: "upgrade", upgrade: "upgAbility", data: "upgAbility", img: "archer_img", info: "unlocks another ability"},
 

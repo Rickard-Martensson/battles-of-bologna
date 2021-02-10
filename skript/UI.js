@@ -591,6 +591,7 @@ class UIHandler {
         if (dmgFrac < 0.2) { hpBarColor = 3 }
         else if (dmgFrac < 0.4) { hpBarColor = 2 }
         else if (dmgFrac < 0.6) { hpBarColor = 1 }
+        ctx.imageSmoothingEnabled = false
 
         ctx.drawImage(Images["hpBars"], //just the outline
             hpBarImgWidth * invertColors,
