@@ -226,6 +226,7 @@ class Player {
             }
 
             else {
+                console.log("yea")
                 this.localGoldChange(totGoldChange, perTurnChange, isSteal)
             }
         }
@@ -234,7 +235,9 @@ class Player {
     localGoldChange(totGoldChange, perTurnChange, isSteal) {
         this.gold += totGoldChange
         this.changeGoldPerTurn(perTurnChange, false)
+        console.log("yoyo", isSteal, perTurnChange)
         if (isSteal) {
+            console.log("this should increase")
             game.players[getOtherTeam(this.team)].changeGoldPerTurn(-perTurnChange)
         }
     }
@@ -294,7 +297,7 @@ class Player {
     attackCastle(unitHealth) {
         //this.changeGoldPerTurn(-1)
         this.sendDmgPackage(unitHealth / 2)
-        this.onlineChangeGold(0, 1, true)
+        this.onlineChangeGold(0, -1, true)
     }
 
     drawCastle() {

@@ -403,8 +403,10 @@ class Sprite {
         if (this.pos.x * factor < enemyBasePos * factor) { // -100 < -40 //prolog inte imperativt
             if ((mySide == 0 ^ IS_ONLINE) != 1) {
                 game.players[enemyPlayer].attackCastle(this.hp)
-                game.players[this.team].onlineChangeGold(0, 1, true)
+                //game.players[this.team].onlineChangeGold(0, 1, true)
             }
+            console.log("chening at enemy castle")
+
             this.hp = 0
             //remove gold, add gold
         }
