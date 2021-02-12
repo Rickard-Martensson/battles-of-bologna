@@ -37,6 +37,7 @@ window.onload = function () {
     showTitleScreen()
 
     setupAudio()
+    // document.getElementById("titleText").style.left = "0"
 
     playAudio("title")
 
@@ -183,7 +184,7 @@ function startGame() {
     hideTitleScreen()
     game = new Game();
     game.start()
-    activateGameController()
+    activateGameController();
     playAudio("ingame")
 }
 

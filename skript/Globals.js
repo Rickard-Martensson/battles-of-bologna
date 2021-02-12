@@ -91,11 +91,9 @@ const RANGE_RANDOMNESS = 0.5    //0.5 = arrows flyger mellan 100% & 150% av rang
 const INVINCIBLE_DURATION = 2;
 const ARCHER_TRAJECTORY = 1.25;  //arctan av detta är vinkeln den skjuts med
 const ARCHER_TARGET_MAX_RANGE = 100 // maxrange när archers använder target fire abilityn.
-const SPRINT_ABILITY_SPEED = 10;
-
+const SPRINT_ABILITY_SPEED = 10; 
+const BALLISTA_UNLOCK_DAY = 5; //how many days pass before ballista is unlocked.
 const CASTLE_ARROW_DELAY = [NaN, 15, 10, 10];
-
-
 const CASTLE_BAL_DELAY = [NaN, NaN, NaN, 12];
 
 //===DAY NIGHT ===\\
@@ -172,6 +170,11 @@ class Animation {
 //     console.log("nej")
 // }
 
+const UPGRADES = {
+    upgGold: { goldIncrease: 5, costDelta: 10 }
+}
+
+
 
 const STATS = {
     soldier: {
@@ -195,7 +198,7 @@ const STATS = {
         animations: { idle: new Animation(32, 0, 8, 60, true), walk: new Animation(32, 1, 8, 19.1804, true), attack: new Animation(32, 2, 12, 18, false) }
     },
     ballista: {
-        hp: 20, dmg: 2, meleRange: 20, range: 5, atkSpeed: 4000, atkDelay: 50, speed: 2.5,
+        hp: 12, dmg: 1, meleRange: 20, range: 5, atkSpeed: 4000, atkDelay: 50, speed: 2.5,
         abilities: ["ballista"], row: 0, img: "ballista_img", imageSize: 32, size: 14,
         animations: { idle: new Animation(32, 0, 8, 60, true), walk: new Animation(32, 1, 8, 19.1804, true), attack: new Animation(32, 2, 8, 18, false) }
     },
@@ -236,10 +239,6 @@ const STATS = {
 // [O, O, O, O, O, O, o]
 //                 ^
 //stora O är i scope, små o är inte i scope
-
-const UPGRADES = {
-    upgGold: { goldIncrease: 5, costIncrease: 5 }
-}
 
 
 const BUTTON_LAYOUT = [
@@ -327,7 +326,7 @@ const BTN_FOLDER = {
         3: { txt: "Sprint", cost: 3, action: "ability", data: "sprint", abilityCooldown: 12, lvl: 1, img: "soldier_img" },
         4: { txt: "Sprint", cost: 3, action: "ability", data: "sprint", abilityCooldown: 8, lvl: 0, img: "soldier_img", icon: "sprint", info: "makes all units on the battlefield \n sprint forward"},
         5: { txt: "back", action: "folder", data: 0, img: "buttonBack_img" },
-        6: { txt: "upgrade", txt2: "ability", cost: "%upgability%", action: "upgrade", upgrade: "upgAbility", data: "upgAbility", img: "archer_img", info: "unlocks another ability"},
+        6: { txt: "upgrade", txt2: "ability", cost: "%upgability%", action: "upgrade", upgrade: "upgAbility", data: "upgAbility", img: "archer_img", info: "unlocks another ability \n(%abilitylevel%/5 unlocked) "},
 
     },
 

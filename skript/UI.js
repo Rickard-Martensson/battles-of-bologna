@@ -136,6 +136,11 @@ class UIHandler {
                 (145) * S,
             );
             let info = button.info.split("\n")
+            if (infoPlayer.currentFolder == 3 && this.currentButton.id == 2 && infoPlayer.btnLvl < 4) {
+                let level = infoPlayer.btnLvl + 1
+                info[1] = info[1].replace("%abilitylevel%", level)
+                console.log(info[1])
+            }
             ctx.font = 5* S + "px 'iFlash 705'";
             for (var i in info) {
                 ctx.fillText(info[i],
@@ -359,7 +364,7 @@ class UIHandler {
 
     buyUpgrade(upgradeName, player, cost, team) {
         if (upgradeName == "upgGold") {
-            let cost2 = player.goldPerTurn + UPGRADES["upgGold"].costIncrease;
+            let cost2 = player.goldPerTurn + UPGRADES["upgGold"].costDelta;
             if (player.tryBuy(cost2) && player.goldPerTurn < GOLD_UPG_MAX) {
                 //if (this.isOnline) { pubnubAction("upgGold", team, player); }
                 player.upgGoldPerTurn();
@@ -759,7 +764,7 @@ class UIHandler {
         this.writeBtnText(text, button, "txt", frame)
         if (text2 !== undefined) { this.writeBtnText(text2, button, "txt2", frame) }
 
-        if (cost == "%upggold%") { cost = player.goldPerTurn + 5; }
+        if (cost == "%upggold%") { cost = player.goldPerTurn +  UPGRADES["upgGold"].costDelta; }
         else if (cost == "%repaircastle%") { cost = player.repairCost; }
         else if (cost == "%upgcastle%") { cost = 50; }
         else if (cost == "%upgability%") { cost = 25 + player.btnLvl * 5 }

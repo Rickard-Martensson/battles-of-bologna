@@ -39,6 +39,7 @@ function activateGameController() {
     document.onmousedown = function (e) {
         local_UI.mousePos = getMousePos(canvas, e);
         local_UI.mouseClicked();
+        console.log("the mouse was clicked")
 
     }
 }

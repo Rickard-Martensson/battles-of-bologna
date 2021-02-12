@@ -237,7 +237,7 @@ class Game {
         else if (name == "target") {
             for (var key in this.sprites) {
                 let sprite = this.sprites[key];
-                if (sprite.team == team && sprite.range != 0) {
+                if (sprite.team == team && sprite.range != 0 && sprite.hasAbility("targetfire"))  {
                     sprite.activeEffects.add("target")
                 }
             }
@@ -505,7 +505,7 @@ class Game {
             this.daysPast += 1
             for (var key in this.players) {
                 let player = this.players[key]
-                if (this.daysPast >= 3) {player.addUpgrade("upgBallista")}
+                if (this.daysPast >= BALLISTA_UNLOCK_DAY) {player.addUpgrade("upgBallista")}
                 player.giveGoldPerTurn()
 
                 player.decreaseCoolDowns(this);

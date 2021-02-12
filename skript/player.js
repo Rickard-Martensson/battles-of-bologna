@@ -78,7 +78,7 @@ class Player {
 
 
     upgGoldPerTurn() {
-        this.changeGoldPerTurn(UPGRADES["upgGold"].costIncrease) //.goldPerTurn += UPGRADES["upgGold"].goldIncrease;}
+        this.changeGoldPerTurn(UPGRADES["upgGold"].goldIncrease) //.goldPerTurn += UPGRADES["upgGold"].goldIncrease;}
     }
 
     castleTryAttack() {

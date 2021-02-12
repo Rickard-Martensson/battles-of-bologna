@@ -10,6 +10,24 @@
 }
 
 
+#titleText {
+    src: url('bilder/ui/Logo.png');
+    display: block;
+    position: fixed;
+    margin-left: auto;
+    margin-right: auto;
+
+    width: calc(var(--S) *200);
+    height: calc(var(--S) *200);
+
+    transform: translate(-50%, 0);
+    position: absolute;
+
+    left: 50%;
+    top: -20%;
+
+}
+
 @font-face {
     font-family: 'FR73 Pixel';
     src: url('FR73\ Pixel\ W00\ Regular.ttf');
@@ -179,23 +197,7 @@ body {
 
 
 
-#titleText {
-    src: url('bilder/ui/Logo.png');
-    display: block;
-    position: fixed;
-    margin-left: auto;
-    margin-right: auto;
 
-    width: calc(var(--S) *200);
-    height: calc(var(--S) *200);
-
-    transform: translate(-50%, 0);
-    position: absolute;
-
-    left: 50%;
-    top: -20%;
-
-}
 
 img {
     -webkit-animation: mover 4.89795918367346938s infinite normal;
