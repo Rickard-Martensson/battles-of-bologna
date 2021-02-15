@@ -33,7 +33,7 @@ var IMAGE_DIRECTORY = [
 
 const BTN_SIZE = 32
 
-var ICON_DIRECTORY = {
+var ICON_DIRECTORY = { //legacy
     target: { x: 0, y: 1 },
     invis: { x: 0, y: 0 },
     castle: { x: 0, y: 0 },
@@ -171,7 +171,8 @@ class Animation {
 // }
 
 const UPGRADES = {
-    upgGold: { goldIncrease: 5, costDelta: 10 }
+    upgGold: { goldIncrease: 5, costDelta: 10 },
+    upgAbility: {costDelta: 5}
 }
 
 
@@ -319,11 +320,11 @@ const BTN_FOLDER = {
         5: { txt: "unlock", txt2: "veteran", cost: 50, subText: "50", action: "upgrade", upgrade: "upgVeteran", data: "upgVeteran", img: "veteran_img", info: "unlocks the knight, a very \nstrong mele unit that one hits \nmost enemies"},
     },
     3: {
-        0: { txt: "Take Dmg", cost: 1, action: "ability", data: "takedmg", abilityCooldown: 0, lvl: 2, img: "soldier_img" },
+        0: { txt: "Take Dmg", cost: 1, action: "ability", data: "takedmg", abilityCooldown: 0, lvl: 2, img: "soldier_img" , info: "makes your own tower take dmg \ngood if youre debugging" },
         // 0: { txt: "Arrows", cost: 2, action: "ability", data: "arrows", abilityCooldown: 1, lvl: 2, img: "soldier_img" },
         1: { txt: "Invincible", cost: 4, action: "ability", data: "invincible", abilityCooldown: 6, lvl: 3, img: "icons_img", icon: "invincible", info: "makes your units invincible for \na short while. \ntime it well!" },
         2: { txt: "Target", cost: 4, action: "ability", data: "target", abilityCooldown: 12, lvl: 4, img: "archer_img", icon: "target", info: "makes your archers shoot with \npin-point accuracy for a while" },
-        3: { txt: "Sprint", cost: 3, action: "ability", data: "sprint", abilityCooldown: 12, lvl: 1, img: "soldier_img" },
+        3: { txt: "placeholder", cost: 3, action: "ability", data: "none", abilityCooldown: 12, lvl: 1, img: "soldier_img" },
         4: { txt: "Sprint", cost: 3, action: "ability", data: "sprint", abilityCooldown: 8, lvl: 0, img: "soldier_img", icon: "sprint", info: "makes all units on the battlefield \n sprint forward"},
         5: { txt: "back", action: "folder", data: 0, img: "buttonBack_img" },
         6: { txt: "upgrade", txt2: "ability", cost: "%upgability%", action: "upgrade", upgrade: "upgAbility", data: "upgAbility", img: "archer_img", info: "unlocks another ability \n(%abilitylevel%/5 unlocked) "},
