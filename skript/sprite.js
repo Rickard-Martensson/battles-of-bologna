@@ -356,7 +356,7 @@ class Sprite {
 
         let timeSinceLastAttackCycle = Date.now() - this.lastAtkCycleDate;
         if (timeSinceLastAttackCycle > this.atkSpeed) { //start attack animation
-            //console.log("attack 1")
+            console.log("attack 1")
             this.currentFrame = 0;
             this.currentAnimation = "attack"
             this.lastAtkCycleDate = Date.now();
@@ -364,8 +364,8 @@ class Sprite {
         }
 
         let timeSinceStartOfAtk = Date.now() - this.lastStartOfAtkCycleDate;
-        if (timeSinceStartOfAtk > this.atkDelay - 100 && this.lastStartOfAtkCycleDate !== null) { // atks if its enough time since atkstart
-            //console.log("attack 2")
+        if (timeSinceStartOfAtk > this.atkDelay && this.lastStartOfAtkCycleDate !== null) { // atks if its enough time since atkstart
+            console.log("attack 2")
             if (this.range > 0) {
                 this.spriteShootProjectile();
             }
@@ -430,6 +430,10 @@ class Sprite {
             this.currentSpeed = this.speed
             this.state = "walk"
             this.currentAnimation = "walk"
+            if (this.range != 0 && this.abilities.includes("ballista") && this.pos.x > 120) {
+                this.attack(self);
+                this.setState("attack", -1);
+            }
         }
         else if (newState == "idle") {
             if (this.range != 0) {
@@ -483,7 +487,9 @@ class Sprite {
                 }
             }
             else {
-                this.setState("walk", -1, "movetopos")
+                if (!(this.range != 0 && this.abilities.includes("ballista") && this.pos.x > 120 && this.state == "attack")) {
+                    this.setState("walk", -1, "movetopos")
+                }
             }
         }
     }

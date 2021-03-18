@@ -325,7 +325,7 @@ const BTN_FOLDER = {
         1: { txt: "Invincible", cost: 4, action: "ability", data: "invincible", abilityCooldown: 6, lvl: 3, img: "icons_img", icon: "invincible", info: "makes your units invincible for \na short while. \ntime it well!" },
         2: { txt: "Target", cost: 4, action: "ability", data: "target", abilityCooldown: 12, lvl: 4, img: "archer_img", icon: "target", info: "makes your archers shoot with \npin-point accuracy for a while" },
         3: { txt: "placeholder", cost: 3, action: "ability", data: "none", abilityCooldown: 12, lvl: 1, img: "soldier_img" },
-        4: { txt: "Sprint", cost: 3, action: "ability", data: "sprint", abilityCooldown: 8, lvl: 0, img: "soldier_img", icon: "sprint", info: "makes all units on the battlefield \n sprint forward"},
+        4: { txt: "Sprint", cost: 3, action: "ability", data: "sprint", abilityCooldown: 8, lvl: 0, img: "soldier_img", icon: "sprint", info: "makes all units sprint across\nthe battlefield"},
         5: { txt: "back", action: "folder", data: 0, img: "buttonBack_img" },
         6: { txt: "upgrade", txt2: "ability", cost: "%upgability%", action: "upgrade", upgrade: "upgAbility", data: "upgAbility", img: "archer_img", info: "unlocks another ability \n(%abilitylevel%/5 unlocked) "},
 
