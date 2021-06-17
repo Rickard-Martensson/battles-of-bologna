@@ -31,6 +31,7 @@ var IMAGE_DIRECTORY = [
 
 ];
 
+
 const BTN_SIZE = 32
 
 var ICON_DIRECTORY = { //legacy

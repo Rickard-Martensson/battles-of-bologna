@@ -70,10 +70,36 @@ function playAudio(song = "title") {
 
 }
 
+
+let curSoundsPlaying = [];
+
 function playSoundEffect(sound) {
     // let audio = elemId("soundEffects");
     let vol = 0.3
     let audioSrc = './bilder/audio/'
+
+    var i = curSoundsPlaying.length
+    var similarSoundsPlaying = 0
+    while (i--) {
+        let loop_idx = curSoundsPlaying[i]
+        if (Date.now() - loop_idx.date > 25) {
+            curSoundsPlaying.splice(i, 1);
+        }
+        else {
+            if (loop_idx.soundeffect == sound) {
+                similarSoundsPlaying += 1
+                //console.log("similar sound")
+            }
+        }
+    }
+    if (similarSoundsPlaying > 3) {
+        console.log("too many sounds")
+        return
+    }
+    let thisSound = {soundeffect: sound, date: Date.now()}
+    curSoundsPlaying.push(thisSound)
+    console.log("hoppsan", curSoundsPlaying)
+
     if (sound == "sword") {
         setTimeout(function () { audio.play(); }, 220);
         audioSrc += 'zap/sword_strike2.mp3'
