@@ -92,9 +92,11 @@ const INVINCIBLE_DURATION = 2;
 const ARCHER_TRAJECTORY = 1.25;  //arctan av detta är vinkeln den skjuts med
 const ARCHER_TARGET_MAX_RANGE = 100 // maxrange när archers använder target fire abilityn.
 const SPRINT_ABILITY_SPEED = 10; 
-const BALLISTA_UNLOCK_DAY = 5; //how many days pass before ballista is unlocked.
+const BALLISTA_UNLOCK_DAY = 0; //how many days pass before ballista is unlocked.
+const BALLISTA_SIEGE_RANGE = 120 //how far away from own castle the ballista should start shooting
 const CASTLE_ARROW_DELAY = [NaN, 15, 10, 10];
 const CASTLE_BAL_DELAY = [NaN, NaN, NaN, 12];
+const IS_DEBUGGING = true //låser upp allting
 
 //===DAY NIGHT ===\\
 const MAXDARKNESS = 0.5 //hur mörka sprites blir på natten. används endast i graphics_level 1+
@@ -199,7 +201,7 @@ const STATS = {
         animations: { idle: new Animation(32, 0, 8, 60, true), walk: new Animation(32, 1, 8, 19.1804, true), attack: new Animation(32, 2, 12, 18, false) }
     },
     ballista: {
-        hp: 12, dmg: 1, meleRange: 20, range: 5, atkSpeed: 4000, atkDelay: 50, speed: 2.5,
+        hp: 12, dmg: 1, meleRange: 20, range: 5, atkSpeed: 4000, atkDelay: 400, speed: 2.5,
         abilities: ["ballista"], row: 0, img: "ballista_img", imageSize: 32, size: 14,
         animations: { idle: new Animation(32, 0, 8, 60, true), walk: new Animation(32, 1, 8, 19.1804, true), attack: new Animation(32, 2, 8, 18, false) }
     },

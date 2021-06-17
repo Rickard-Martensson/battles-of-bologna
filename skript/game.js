@@ -237,7 +237,7 @@ class Game {
         else if (name == "target") {
             for (var key in this.sprites) {
                 let sprite = this.sprites[key];
-                if (sprite.team == team && sprite.range != 0 && sprite.hasAbility("targetfire"))  {
+                if (sprite.team == team && sprite.range != 0 && sprite.abilities.includes("targetfire"))  {
                     sprite.activeEffects.add("target")
                 }
             }
@@ -256,6 +256,7 @@ class Game {
 
 
     start() {
+        this.debugMode(IS_DEBUGGING)
         ctx.fillStyle = "white";
         ctx.textAlign = "center";
         ctx.font = 20 * S + "px 'Press Start 2P'";
@@ -515,6 +516,16 @@ class Game {
         for (var i in this.players) {
             if (local_UI.justGaveGold[i] != null && Date.now() - local_UI.justGaveGold[i] > 200) {
                 local_UI.justGaveGold[i] = null;
+            }
+        }
+    }
+
+    debugMode(bool) {
+        if (bool) {
+            for (var key in this.players) {
+                let player = this.players[key]
+                player.gold = 99999
+                player.addUpgrade("upgBallista")
             }
         }
     }

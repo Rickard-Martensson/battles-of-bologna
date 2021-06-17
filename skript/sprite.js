@@ -305,6 +305,7 @@ class Sprite {
 
     move() {
         this.pos.x += this.direction * this.currentSpeed * fpsCoefficient / 100;
+        // this.setState("walk", -1, "mooove")
         this.state = "walk"
     }
 
@@ -345,6 +346,8 @@ class Sprite {
     }
 
 
+    
+
 
     attack(victim) {
         this.currentSpeed = 0;
@@ -352,7 +355,7 @@ class Sprite {
             this.isWalking = false;
             this.currentAnimation = "idle"
         }
-        this.setState("attack", -1, "attacking");
+        //this.setState("attack", -1, "attacking");
 
         let timeSinceLastAttackCycle = Date.now() - this.lastAtkCycleDate;
         if (timeSinceLastAttackCycle > this.atkSpeed) { //start attack animation
@@ -395,6 +398,13 @@ class Sprite {
         }
     }
 
+    distFromOwnCastle() {
+        let myTeam = this.team
+        let basePos = BASE_POS[myTeam].x
+        let dist = Math.abs(this.pos.x-basePos)
+        return dist
+    }
+
     checkIfAtEnemyCastle(game) {
         let enemyPlayer = this.getOtherTeam();
         let enemyBasePos = BASE_POS[enemyPlayer].x
@@ -424,16 +434,25 @@ class Sprite {
             newState = "idle";
         }
         if (newState == "walk") {
-            this.isWalking = true;
-            this.lastStartOfAtkCycleDate = null;
-            this.lastAtkCycleDate = START_TIME;
-            this.currentSpeed = this.speed
-            this.state = "walk"
-            this.currentAnimation = "walk"
-            if (this.range != 0 && this.abilities.includes("ballista") && this.pos.x > 120) {
+            if (this.range != 0 && this.abilities.includes("ballista") && this.distFromOwnCastle() > BALLISTA_SIEGE_RANGE) {
+                // if (this.state)
                 this.attack(self);
-                this.setState("attack", -1);
+                this.state = "attack"
+                // this.setState("attack", -1);
             }
+            // else if (this.range != 0) {
+            //     pass
+            // }
+            else {
+                this.isWalking = true;
+                this.lastStartOfAtkCycleDate = null;
+                this.lastAtkCycleDate = START_TIME;
+                this.currentSpeed = this.speed
+                this.state = "walk"
+                this.currentAnimation = "walk"
+            }
+           
+
         }
         else if (newState == "idle") {
             if (this.range != 0) {
@@ -455,6 +474,11 @@ class Sprite {
         if (speed != -1) {
             this.currentSpeed = speed
         }
+        // if(this.name == "archer") {
+        //     console.log("newstate:", newState, "from:", txt, "final state:", this.state)
+
+        // }
+
     }
 
     canMove(game) {
@@ -464,7 +488,7 @@ class Sprite {
             if (nextFriend.len < this.meleRange + PERSONAL_SPACE && nextFriend.sprite.row == 0) {
                 //eventuellt gör en attack här ifall spriten är ranged. Ja det kommer här:
                 if (nextFriend.len < this.meleRange) {
-                    this.setState("idle", -1);
+                    this.setState("idle", -1, "idlar");
                 }
                 else {
                     this.setState("walk", Math.min(nextFriend.sprite.currentSpeed, this.speed), "stalk")
@@ -472,13 +496,16 @@ class Sprite {
             }
             else {
                 //this.currentSpeed = this.speed
-                this.setState("walk", -1, "1")
+                if (!(this.range != 0 && this.abilities.includes("ballista") && this.distFromOwnCastle() > BALLISTA_SIEGE_RANGE && this.state == "attack")) {
+                    this.setState("walk", -1, "catching up i guess")
+                }
+                // this.setState("walk", -1, "catching up")
             }
         }
         else {
             if (nextEnemy.len + MELE_RANGE_BUFFER < this.meleRange) {
                 if (nextEnemy.sprite.row == this.row) {
-                    this.setState("attack", -1, "movetopos")
+                    this.setState("attack", -1, "movetopos mele")
                     this.attack(nextEnemy.sprite)
                 }
                 else if (this.abilities.includes("changeRow")) {
@@ -487,8 +514,10 @@ class Sprite {
                 }
             }
             else {
-                if (!(this.range != 0 && this.abilities.includes("ballista") && this.pos.x > 120 && this.state == "attack")) {
-                    this.setState("walk", -1, "movetopos")
+                // console.log("this fukin state is", this.state)
+                if (!(this.range != 0 && this.abilities.includes("ballista") && this.distFromOwnCastle() > BALLISTA_SIEGE_RANGE && this.state == "attack")) {
+                    // console.log(this.range != 0, this.abilities.includes("ballista") , this.pos.x > BALLISTA_SIEGE_RANGE , this.state == "attack")
+                    this.setState("walk", -1, "movetopos ranged")
                 }
             }
         }
