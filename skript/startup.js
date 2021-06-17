@@ -4,7 +4,6 @@ var background2;
 
 var ctx;
 var titleScreen;
-var Images = {};
 
 var buttonClass;
 
@@ -32,6 +31,7 @@ window.onload = function () {
 
     window.onresize = function () { resizeCanvas(); resizeTitleScreen(); resizeBackgrounds(); };
     loadImages();
+    loadSounds();
     loadStats();
 
     showTitleScreen()
@@ -147,7 +147,7 @@ function hideTitleScreen() {
 
 
 
-
+var Images = {};
 var imagesLoaded = 0;
 function loadImages() {
     for (let i = 0; i < IMAGE_DIRECTORY.length; i++) {
@@ -163,6 +163,18 @@ function loadImage(name, src) {
     }, false);
     img.src = src; // Set source path   
 }
+
+var Sounds = {};
+var soundsLoaded = 0;
+function loadSounds() {
+    for (let i = 0; i < SOUND_DICTIONARY.length; i++) {
+        loadSound(SOUND_DICTIONARY[i][0], SOUND_DICTIONARY[i][1], SOUND_DICTIONARY[i][2])
+    }
+}
+function loadSound(name, src, vol) {
+    Sounds[name] = {name: name, src: src, vol: vol}
+}
+
 
 function loadStats() {
     //console.log(STATS["soldier"].hp)

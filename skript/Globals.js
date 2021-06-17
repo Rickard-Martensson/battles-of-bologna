@@ -1,7 +1,7 @@
 //==========================================================================================================================================================================================================================================================================================================================================================================\\
 
 
-var IMAGE_DIRECTORY = [
+const IMAGE_DIRECTORY = [
     ["buttonBack_img", "./bilder/ui/btnBack.png"],
     ["buttonBack_img_blue", "./bilder/ui/btnBack.png"],
     ["soldier_img", "./bilder/sprites/soldier2.png"],
@@ -30,6 +30,25 @@ var IMAGE_DIRECTORY = [
     ["hpBars", "./bilder/ui/hpBars2.png"]
 
 ];
+
+
+
+const SOUND_DICTIONARY = [
+    ["sword", './bilder/audio/zap/sword_strike2.mp3', 1],
+    ["arrow", './bilder/audio/zap/arrow_fly.mp3', 1],
+    ["buy", './bilder/audio/SIDSNARE.wav', 0],
+    ["damage", './bilder/audio/zap/body_hit2.mp3', 1],
+    ["hurry_up", './bilder/audio/hurry_up.mp3', 1],
+    ["btn_press", './bilder/audio/click.wav', 1],
+    ["repair", './bilder/audio/hammer3.mp3', 1],
+    ["arrow_hit", './bilder/audio/zap/arrow_hit5.mp3', 1],
+    ["title", './bilder/audio/musik/title_music.mp3'],
+    ["ingame", './bilder/audio/musik/ingame_music.mp3'],
+    ["ingame_hurry", './bilder/audio/musik/ingame_fast.mp3'],
+    ["win", './bilder/audio/musik/victory_theme.mp3'],
+    ["defeat", './bilder/audio/musik/defeat_theme.mp3']
+
+]
 
 
 const BTN_SIZE = 32
