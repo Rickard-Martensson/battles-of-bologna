@@ -13,7 +13,7 @@ class Player {
         this.currentFolder = 0;
         this.race = "human";
 
-        //===HP===\
+        //===HP===\\
         this.hp = PLAYER_HP_MAX;
         this.prevHp = PLAYER_HP_MAX;
         this.lastDmgdTime = Date.now();
@@ -243,7 +243,9 @@ class Player {
     }
 
     changeGold(amount) {
-        console.log("old function, should be phased out")
+        /**
+         * 
+         */
         this.gold += amount
     }
 
