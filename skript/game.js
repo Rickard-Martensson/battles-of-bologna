@@ -106,7 +106,7 @@ class Game {
         return this.lastGoldTime + GOLD_INTERVAL * 1000 - Date.now()
     }
 
-    sendGameState() {
+    sendGameState(team = 0) {
         let sprites = []
         for (var i in this.sprites) {
             sprites.push(this.sprites[i].getData());
@@ -124,7 +124,7 @@ class Game {
         // }
         let lastGoldTime = this.lastGoldTime
         //pubnubAction("upDateGame", 1, sprites, projectiles, players, lastGoldTime);
-        send("syncGame", { team: 0, sprites: sprites, projectiles: projectiles, buyQueue: this.buyQueue, lastGoldTime: lastGoldTime });
+        send("syncGame", { team: team, sprites: sprites, projectiles: projectiles, buyQueue: this.buyQueue, lastGoldTime: lastGoldTime });
     }
 
     updateGame(sprites, projectiles, buyQueue, lastGoldTime) {
@@ -135,8 +135,9 @@ class Game {
                     new Sprite(0, 0, 0, 0, true, sprites[i])
                 )
             }
-            this.projectiles = [];
+
             if (SYNC_PROJECTILES) {
+                this.projectiles = [];
                 for (var i in projectiles) {
                     this.projectiles.push(new Projectile(0, 0, 0, 0, 0, 0, true, projectiles[i])
                     )
@@ -252,6 +253,7 @@ class Game {
                 }
             }
         }
+        //this.sendGameState() //osäker på om detta fungerar. andra spelaren kan också synka, och det kan leda till problem...
     }
 
 

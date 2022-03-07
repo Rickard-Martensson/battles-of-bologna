@@ -75,10 +75,8 @@ pubnub.addListener({
             lastRecievedPing = Date.now()
         }
         if (type == "chat") {
-            //ui.handleChat(event.message.content, event.message.name);
             let sender = event.message.name;
             let msg = event.message.content;
-            // console.log(sender, msg);
             local_UI.handleChat(sender, msg);
         }
         else if (type == "gameUpdate") {
@@ -87,21 +85,12 @@ pubnub.addListener({
         }
         else if (type == "start") {
             console.log(event.message);
-            //myName = elem("nameInput").value || getRandomName();
             send("startingInfo", mySide);
         }
         else if (type == "startingInfo") {
             IS_ONLINE = true; //behövs inte
-            //console.log(event.message);
             if (uuid != event.message.sender) {
                 myOpponent = event.message.name;
-                // if (event.message.content != -1) { //if opponent has side
-                //     if (event.message.content == 0) { //other players team
-                //         mySide = 1;
-                //     } else {
-                //         mySide = 0;
-                //     }
-                // } startGame2(mySide);
                 if (event.message.content != -1) { }
                 else if (event.message.content == 0) { mySide = 1 }
                 else { mySide = 0 }

@@ -1,9 +1,11 @@
 var canvas;
 var background1;
 var background2;
+var hasInteractedBefore = false
 
 var ctx;
 var titleScreen;
+var isBootup = false; // wether the bootupscreen is active, aka if the user has clicked
 
 var buttonClass;
 
@@ -34,13 +36,24 @@ window.onload = function () {
     loadSounds();
     loadStats();
 
-    showTitleScreen()
 
-    setupAudio()
-    // document.getElementById("titleText").style.left = "0"
 
-    playAudio("title")
 
+}
+
+window.onclick = function() {
+    if (!hasInteractedBefore) {
+        console.log("hehe starting up!")
+        showTitleScreen()
+    
+        setupAudio()
+    
+        toggleTitleBootupScreen()
+        
+        
+        playAudio("title")
+        hasInteractedBefore = true
+    }
 
 }
 
@@ -108,6 +121,9 @@ function resizeCanvas() {
     document.documentElement.style.setProperty('--S', S + "px");
 }
 
+/**
+ * Title screen things
+ */
 function resizeTitleScreen() {
     titleScreen = document.getElementById("titleScreen");
     let { height, width } = getAspectRatio();
@@ -115,13 +131,34 @@ function resizeTitleScreen() {
     titleScreen.style.height = height
 
     var buttons = document.getElementsByClassName("button");
-    // for (var i = 0; i < buttons.length; i++) {
-    //     buttons[i].style.height = 30 * S + "px";
-    //     buttons[i].style.width = 30 * S + "px";
-    // }
 
 
 }
+
+function showTitleScreen() {
+    titleScreen.style.zIndex = "1";
+    canvas.style.zIndex = "-10";
+}
+
+function hideTitleScreen() {
+    titleScreen.style.zIndex = "-10";
+    canvas.style.zIndex = "1";
+}
+
+function toggleTitleBootupScreen() {
+    titleElements = document.getElementsByClassName('title');
+    console.log(titleElements)
+    for (let e = 0; e < titleElements.length; e++) {
+        const elem = titleElements[e];
+        elem.style.visibility = isBootup == true ? "hidden" : "visible";
+        
+    }
+    titleScreen.style.backgroundImage = isBootup ? 'url("bilder/bootupScreen.png")' : 'url("bilder/ui/titleScreen2.png")';
+    isBootup = ! isBootup
+}
+
+
+
 
 function resizeBackgrounds() {
     var screenHeight = window.innerHeight;
@@ -134,15 +171,8 @@ function resizeBackgrounds() {
     background2.style.width = width
 }
 
-function showTitleScreen() {
-    titleScreen.style.zIndex = "1";
-    canvas.style.zIndex = "-10";
-}
 
-function hideTitleScreen() {
-    titleScreen.style.zIndex = "-10";
-    canvas.style.zIndex = "1";
-}
+
 
 
 

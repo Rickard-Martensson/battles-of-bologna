@@ -51,11 +51,10 @@ function playSoundEffect(sound) {
     }
     let thisSound = {soundeffect: sound, date: Date.now()}
     curSoundsPlaying.push(thisSound)
-    console.log("hoppsan", curSoundsPlaying)
+    // console.log("currently playing", curSoundsPlaying, Sounds[sound])
 
     let audioSrc = Sounds[sound].src
     vol = Sounds[sound].vol
-    console.log(Sounds[sound])
 
 
     audio = new Audio(audioSrc);

@@ -444,9 +444,9 @@ class UIHandler {
     }
 
     castAbility(abilityName, team, abilityCooldown) {
+        console.log("casting ability")
         if (this.isOnline) {
             //some pubnub shit
-            // pubnubAction("castAbility", team, abilityName, abilityCooldown);
             send("castAbility", { team: team, ability: abilityName, cooldown: abilityCooldown })
         }
         else {
