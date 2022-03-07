@@ -309,8 +309,8 @@ class Sprite {
         this.state = "walk"
     }
 
-    spriteShootProjectile() {
-        if (this.activeEffects.has("target")) {
+    spriteShootProjectile(shouldTargetNext = false) {
+        if (this.activeEffects.has("target") || shouldTargetNext) {
             let nextEnemy = game.distToNextSprite(this, this.getOtherTeam())
             if (nextEnemy.len < 80) {
                 let { vel_x, vel_y } = calcProjectilePower(this.pos, nextEnemy.sprite.pos, ARCHER_TRAJECTORY);
@@ -370,7 +370,12 @@ class Sprite {
         if (timeSinceStartOfAtk > this.atkDelay && this.lastStartOfAtkCycleDate !== null) { // atks if its enough time since atkstart
             console.log("attack 2")
             if (this.range > 0) {
-                this.spriteShootProjectile();
+                if (victim.range > 0) {
+                    this.spriteShootProjectile(true);
+                }
+                else {
+                    this.spriteShootProjectile();
+                }
             }
             else {
                 playSoundEffect("sword")
@@ -485,6 +490,7 @@ class Sprite {
         let nextFriend = game.distToNextSprite(this, this.team)
         let nextEnemy = game.distToNextSprite(this, this.getOtherTeam())
         if (nextFriend.len < nextEnemy.len && this.row == 0) {
+            // ifall den står bakom en friendly
             if (nextFriend.len < this.meleRange + PERSONAL_SPACE && nextFriend.sprite.row == 0) {
                 //eventuellt gör en attack här ifall spriten är ranged. Ja det kommer här:
                 if (nextFriend.len < this.meleRange) {
@@ -503,6 +509,7 @@ class Sprite {
             }
         }
         else {
+            //ifall mitt emot en enemy
             if (nextEnemy.len + MELE_RANGE_BUFFER < this.meleRange) {
                 if (nextEnemy.sprite.row == this.row) {
                     this.setState("attack", -1, "movetopos mele")
