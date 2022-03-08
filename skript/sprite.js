@@ -4,13 +4,13 @@ const ARROW_CONSTS = {
 
 
 class Projectile {
-    constructor(pos, vel, team, dmg, isUpdate=false, newData=false, type="arrow") {
+    constructor(pos, vel, team, dmg, isUpdate = false, newData = false, type = "arrow") {
         this.pos = { x: pos.x, y: pos.y };
         this.vel = { vx: vel.vx, vy: vel.vy };
         this.team = team;
         this.dmg = dmg;
         this.type = type;
-        if (this.type =="ballista") {
+        if (this.type == "ballista") {
             this.DRAW_SIZE = 14;
             this.startPos = this.pos.x;
             this.deathFrame = 0
@@ -49,7 +49,7 @@ class Projectile {
         let a = 10
         let castelHeight = 59
         this.pos.x += this.vel.vx * fpsCoefficient / 100;
-        this.pos.y += (castelHeight-this.pos.y) / 40
+        this.pos.y += (castelHeight - this.pos.y) / 40
     }
 
     move() {
@@ -76,7 +76,7 @@ class Projectile {
             }
             for (var i in game.projectiles) {
                 let target = game.projectiles[i];
-                if (target.type =="ballista" &&  this.team != target.team) {
+                if (target.type == "ballista" && this.team != target.team) {
                     //console.log("disty:", dist(this.pos, game.projectiles[i].pos), game.projectiles[i].size);
                     if (dist(this.pos, target.pos) < 5) {
                         console.log("hejhej")
@@ -93,7 +93,7 @@ class Projectile {
 
 
     ballistaDeathAnim() {
-        if (Date.now() - this.lastDeathFrame > 0.02 *1000) {
+        if (Date.now() - this.lastDeathFrame > 0.02 * 1000) {
             this.deathFrame += 1
             this.lastDeathFrame = Date.now()
             if (this.deathFrame > 5) {
@@ -157,7 +157,7 @@ class Projectile {
         else if (this.pos.y - castelHeight < 18) {
             frame = 2
         }
-        if (this.deathFrame != 0 ) {
+        if (this.deathFrame != 0) {
             frame = this.deathFrame
             console.log("wtf mannen")
             isDying = 32;
@@ -258,7 +258,7 @@ class Sprite {
 
         this.activeEffects = new Set();
 
-        if (isUpdate) {this.updateData(newData);}
+        if (isUpdate) { this.updateData(newData); }
         // this.speed *= 5
     }
 
@@ -292,7 +292,7 @@ class Sprite {
             // this.abilities = new Set(UNIQE[this.name])
         }
         else { console.log("unknown sprite", this.name) };
-        this.atkDelay = (IS_ONLINE) ? this.atkDelay - 100 : this.atkDelay;
+        this.atkDelay = (IS_ONLINE) ? this.atkDelay - ATK_DELAY_REDUCED_ONLINE : this.atkDelay;
 
 
         if (this.team == 0) {
@@ -334,7 +334,7 @@ class Sprite {
                 },
                 this.team, this.dmg,
                 IS_ONLINE, "ballista");
-                return
+            return
         }
         game.shootProjectile(
             { x: this.pos.x, y: this.pos.y - 5 },
@@ -347,7 +347,7 @@ class Sprite {
     }
 
 
-    
+
 
 
     attack(victim) {
@@ -398,7 +398,7 @@ class Sprite {
                 this.lastDmgdTime = Date.now()
             }
         }
-        
+
 
     }
 
@@ -414,7 +414,7 @@ class Sprite {
     distFromOwnCastle() {
         let myTeam = this.team
         let basePos = BASE_POS[myTeam].x
-        let dist = Math.abs(this.pos.x-basePos)
+        let dist = Math.abs(this.pos.x - basePos)
         return dist
     }
 
@@ -464,7 +464,7 @@ class Sprite {
                 this.state = "walk"
                 this.currentAnimation = "walk"
             }
-           
+
 
         }
         else if (newState == "idle") {
