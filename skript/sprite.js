@@ -378,15 +378,18 @@ class Sprite {
                 }
             }
             else {
-                playSoundEffect("sword")
-                victim.takeDmg(this.dmg)
+                victim.takeDmg(this.dmg, "sword")
                 playSoundEffect("damage");
             }
             this.lastStartOfAtkCycleDate = null //efter denhär så står spriten bara still o vibear
         }
     }
 
-    takeDmg(dmg) {
+    takeDmg(dmg, sound) {
+        /**
+         * 
+         */
+        playSoundEffect(sound)
         if (this.startInvincibleDate == null) {
             this.hp -= dmg
             this.invincible = false;
