@@ -151,9 +151,15 @@ function toggleTitleBootupScreen() {
     for (let e = 0; e < titleElements.length; e++) {
         const elem = titleElements[e];
         elem.style.visibility = isBootup == true ? "hidden" : "visible";
+    }
+    bootupElement = document.getElementsByClassName('bootup');
+    console.log(bootupElement)
+    for (let e = 0; e < bootupElement.length; e++) {
+        const elem = bootupElement[e];
+        elem.style.visibility = isBootup == true ?  "visible" : "hidden";
         
     }
-    titleScreen.style.backgroundImage = isBootup ? 'url("bilder/bootupScreen.png")' : 'url("bilder/ui/titleScreen2.png")';
+    titleScreen.style.backgroundImage = isBootup ? 'url("bilder/bootupScreen.png")' : 'url("bilder/background_wheat.png")';
     isBootup = ! isBootup
 }
 

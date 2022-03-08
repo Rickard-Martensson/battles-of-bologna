@@ -114,9 +114,9 @@ const ARCHER_TARGET_MAX_RANGE = 100 // maxrange när archers använder target fi
 const SPRINT_ABILITY_SPEED = 10; 
 const BALLISTA_UNLOCK_DAY = 0; //how many days pass before ballista is unlocked.
 const BALLISTA_SIEGE_RANGE = 120 //how far away from own castle the ballista should start shooting
-const CASTLE_ARROW_DELAY = [NaN, 15, 10, 10];
+const CASTLE_ARROW_DELAY = [NaN, 12, 7, 7];
 const CASTLE_BAL_DELAY = [NaN, NaN, NaN, 12];
-const IS_DEBUGGING = true //låser upp allting
+const IS_DEBUGGING = false //låser upp allting
 
 //===DAY NIGHT ===\\
 const MAXDARKNESS = 0.5 //hur mörka sprites blir på natten. används endast i graphics_level 1+
@@ -135,7 +135,7 @@ var IS_NIGHT = false;   //används för moln, säger om det ska va dag eller nat
 const DRAW_ICONS_SMOOTH = false // if the icons on buttons sghould be drawn smoothly
 
 //=== clouds ===\\
-const CLOUD_RATE = 0.00175;  //hur ofta det kommer moln
+const CLOUD_RATE = 0.003;  //hur ofta det kommer moln
 const CLOUD_SPEED = 0.3;   //hur snabba molnen är
 const CLOUD_MIN_HEIGHT = 0;
 const CLOUD_MAX_HEIGHT = 50;    //hur långt ner molnen kan skapas

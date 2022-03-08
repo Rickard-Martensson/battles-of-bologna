@@ -398,6 +398,44 @@ class Game {
         return getMillisecondsPassed;
     }
 
+    damageSprite(sprite, dmg) {
+        if (IS_ONLINE) {
+            if (mySide == 0) {
+                let spriteId = sprite.uniqeId
+                send("damageSprite", {spriteId: spriteId, dmg: dmg})
+            }
+        }
+        else {
+            sprite.takeDmg()
+
+        }
+    }
+
+    damageSpriteFromId(spriteId, dmg) {
+        let sprite = this.getSpriteFromSpriteId(spriteId)
+        sprite.takeDmg(dmg, true)
+    }
+
+    getSpriteFromSpriteId(spriteId) {
+        for (let i = 0; i < this.sprites.length; i++) {
+            var sprite = this.sprites[i];
+            if (sprite.uniqeId == spriteId) {
+                return sprite
+            }
+        }
+        console.log("could not find a sprite with id", spriteId)
+    }
+
+
+
+
+
+
+
+
+
+
+
     shootProjectile(pos, vel, team, dmg, isOnline, type="arrow") {
         // console.log("arrow:", pos, vel)
         if (isOnline) {

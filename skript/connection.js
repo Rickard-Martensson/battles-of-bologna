@@ -158,6 +158,14 @@ pubnub.addListener({
             console.log("damage", team, "by", dmg, "content", content)
             game.damageCastle(team, dmg)
         }
+        else if (type == "damageSprite") {
+            let spriteId = content.spriteId;
+            let dmg = content.dmg;
+            game.damageSpriteFromId(spriteId, dmg);
+        }
+        else if (type == "spriteKill") {
+
+        }
         else if (type == "changeGold") {
             let team = content.team
             let totGoldChange = content.total

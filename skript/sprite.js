@@ -221,6 +221,7 @@ class Sprite {
         this.pos = { x: x, y: y };
         this.name = name
         this.imageName = this.name;
+        this.uniqeId = Math.floor(100000000 * Math.random());
         // this.animations = {
         //     idle: new Animation(32, 0, 8, 60, true),
         //     walk: new Animation(32, 1, 8, 20, true),
@@ -378,23 +379,27 @@ class Sprite {
                 }
             }
             else {
-                victim.takeDmg(this.dmg, "sword")
+                playSoundEffect("sword")
+                victim.takeDmg(this.dmg)
                 playSoundEffect("damage");
             }
             this.lastStartOfAtkCycleDate = null //efter denhär så står spriten bara still o vibear
         }
     }
 
-    takeDmg(dmg, sound) {
-        /**
-         * 
-         */
-        playSoundEffect(sound)
+    takeDmg(dmg, haveBouncedPubNub = false) {
         if (this.startInvincibleDate == null) {
-            this.hp -= dmg
-            this.invincible = false;
-            this.lastDmgdTime = Date.now()
+            if (IS_ONLINE && !haveBouncedPubNub) {
+                game.damageSprite(this, dmg)
+            }
+            else {
+                this.hp -= dmg
+                this.invincible = false;
+                this.lastDmgdTime = Date.now()
+            }
         }
+        
+
     }
 
     checkDead(game, index) {

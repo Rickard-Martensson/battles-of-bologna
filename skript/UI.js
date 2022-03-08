@@ -87,25 +87,27 @@ class UIHandler {
     }
 
 
-    drawBox(pos1, pos2, fill, border, alpha = 1) {
+    drawBox(pos1, pos2, fillColor, borderColor, alpha = 1, borderalpha = 0) {
         ctx.globalAlpha = alpha
-        ctx.fillStyle = fill;
+        ctx.fillStyle = fillColor;
         ctx.fillRect(pos1.x * S,
             pos1.y * S,
             (pos2.x - pos1.x) * S,
             (pos2.y - pos1.y) * S
         )
-        ctx.strokeStyle = border;
-
-        // ctx.lineWidth = S;
-        // ctx.lineJoin = 'bevel';
-
-        // ctx.strokeRect(pos1.x * S,
-        //     pos1.y * S,
-        //     (pos2.x - pos1.x) * S,
-        //     (pos2.y - pos1.y) * S
-        // )
+        if (borderalpha != 0) {
+            ctx.strokeStyle = borderColor;
+            ctx.globalAlpha = borderalpha;
+            ctx.lineWidth = S;
+            ctx.lineJoin = 'miter';
+            ctx.strokeRect(pos1.x * S,
+                pos1.y * S,
+                (pos2.x - pos1.x) * S,
+                (pos2.y - pos1.y) * S
+            )
+        }
         ctx.globalAlpha = 1
+
 
     }
 
@@ -181,7 +183,20 @@ class UIHandler {
     }
 
     drawChatBox2(team) {
-        this.drawBox(UI_POS[team].chatBox.chat.pos1, UI_POS[team].chatBox.chat.pos2, "#000", "#000", 0.2)
+        let typingBlink = ""
+        if (this.isTyping) {
+            if (Date.now() - this.lastTypingBlink > 500) {
+                typingBlink = "|";
+            }
+            if (Date.now() - this.lastTypingBlink > 1000) {
+                this.lastTypingBlink = Date.now();
+            }
+            this.drawBox(UI_POS[team].chatBox.chat.pos1, UI_POS[team].chatBox.chat.pos2, "#000", "#fff", 0.2, 1)
+
+        }
+        else {
+            this.drawBox(UI_POS[team].chatBox.chat.pos1, UI_POS[team].chatBox.chat.pos2, "#000", "#fff", 0.2)
+        }
         ctx.textAlign = "start";
         ctx.font = 5 * S + "px 'iFlash 705'";
         ctx.fillStyle = "#eee"
@@ -208,15 +223,7 @@ class UIHandler {
             //     (140 + 5 * i) * S,
             // );
         }
-        let typingBlink = ""
-        if (this.isTyping) {
-            if (Date.now() - this.lastTypingBlink > 500) {
-                typingBlink = "|";
-            }
-            if (Date.now() - this.lastTypingBlink > 1000) {
-                this.lastTypingBlink = Date.now();
-            }
-        }
+
 
         // ctx.fillText(myName,
         //     (namePos) * S,
@@ -224,7 +231,7 @@ class UIHandler {
         // );
         ctx.font = 5 * S + "px 'iFlash 705'";
         ctx.fillStyle = "#eee";
-        let displayMsg = (this.curMsg == "" ? "..." : this.curMsg)
+        let displayMsg = (!this.isTyping ? "..." : this.curMsg)
         ctx.fillText(myName + ": " + displayMsg + typingBlink,
             (namePos - 1) * S,
             (143 + 5 * 6) * S,
@@ -286,7 +293,7 @@ class UIHandler {
 
     tryMakeCloud() {
         let randNum = Math.random()
-        if (randNum < 1) {
+        if (randNum < CLOUD_RATE) {
             this.sceneryCount++;
             let yPos = CLOUD_MIN_HEIGHT + Math.random() * (CLOUD_MAX_HEIGHT - CLOUD_MIN_HEIGHT)
             this.scenery.push(new Scenery(0, yPos, "cloud", this.isHurry));
@@ -474,7 +481,6 @@ class UIHandler {
         ctx.fillStyle = "#ffffff";
         ctx.font = 5 * S + "px 'Press Start 2P'";
         ctx.fillText(Math.floor(GOLD_INTERVAL + 1 + (game.lastGoldTime - Date.now()) / 1000), 160 * S, 22.7 * S)
-        ctx.fillText(Math.floor(fps), 300 * S, 60 * S);
         if (IS_SPECTATOR) {
             ctx.fillText("Spectator", 160 * S, 26 * S);
         }
@@ -483,7 +489,10 @@ class UIHandler {
             ctx.fillStyle = "#cb0000";
             ctx.fillText("Desynced!", 160 * S, 30 * S)
         }
-        ctx.fillText(Math.floor((Date.now() - lastRecievedPing) / 1000), 300 * S, 65 * S);
+        if (IS_DEBUGGING) {
+            ctx.fillText(Math.floor(fps), 300 * S, 60 * S);
+            ctx.fillText(Math.floor((Date.now() - lastRecievedPing) / 1000), 300 * S, 65 * S);      
+        }
 
         // === win / lose screen ===\\
         if (this.winner != -1) {
@@ -586,7 +595,7 @@ class UIHandler {
 
         console.log()
 
-        if (timeSinceLastDmg < 275 && timeSinceLastDmg > 175) {
+        if (timeSinceLastDmg < 275 && timeSinceLastDmg > 50) {
             hpBarJump = -0.5;
 
         }

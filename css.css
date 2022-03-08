@@ -180,6 +180,15 @@ body {
   background-image: url("bilder/ui/joinMultiplayerDown.png");
 }
 
+#bootupText {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  color: white;
+  visibility: visible;
+}
+
 .navbar {
   z-index: 10;
   width: 100%;
