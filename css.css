@@ -143,11 +143,11 @@ body {
   left: var(--btnLeft);
   top: var(--btnHeight);
   display: none;
-  background-image: url("bilder/ui/singleplayer.png");
+  background-image: url("bilder/ui/backButton.png");
 }
 
 #button_back:hover {
-  background-image: url("bilder/ui/singleplayerDown.png");
+  background-image: url("bilder/ui/backButtonDown.png");
 }
 
 #button1 {
@@ -187,6 +187,16 @@ body {
   height: 100%;
   color: white;
   visibility: visible;
+}
+
+.blink_me {
+  animation: blinker 1.5s linear infinite;
+}
+
+@keyframes blinker {
+  60% {
+    opacity: 0.2;
+  }
 }
 
 .navbar {

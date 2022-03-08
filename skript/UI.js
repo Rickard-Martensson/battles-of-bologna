@@ -34,7 +34,9 @@ class UIHandler {
         this.lastTypingBlink = Date.now();
         this.isTyping = false;
         this.isHurry = false;
-        this.isTouch = true;    
+        this.isTouch = true;
+
+        this.dateQueueShow = { 0: Date.now(), 1: Date.now() }
     }
 
     setLoser(key) {
@@ -117,20 +119,20 @@ class UIHandler {
 
 
     drawInfoBox(team) {
-        this.drawBox({x: 95, y: 135}, {x: 225, y: 175}, "#000", "#000", 0.2);
+        this.drawBox({ x: 95, y: 135 }, { x: 225, y: 175 }, "#000", "#000", 0.2);
         // console.log(this.players[0].btnLvl)
         //console.log("yooy")
         ctx.textAlign = "start";
         ctx.fillStyle = "#eee"
         let infoPlayer = game.players[team]
 
-        let button =  BTN_FOLDER[infoPlayer.currentFolder][this.currentButton.id]
+        let button = BTN_FOLDER[infoPlayer.currentFolder][this.currentButton.id]
         let x_pos = 110
         let y_pos = 150
         if (infoPlayer.currentFolder == 3 && this.currentButton.id == 2 && infoPlayer.btnLvl < 4) {
             button = BTN_FOLDER[infoPlayer.currentFolder][6]
         }
-        if (button != undefined && ( this.currentButton.team == 0 || this.isOnline) && this.btnIsEnabled(button.action, infoPlayer, button.upgrade, button.lvl) && "info" in button) {
+        if (button != undefined && (this.currentButton.team == 0 || this.isOnline) && this.btnIsEnabled(button.action, infoPlayer, button.upgrade, button.lvl) && "info" in button) {
             let title = button.txt + " " + (button.txt2 ? button.txt2 : "")
             ctx.font = 8 * S + "px 'iFlash 705'";
             ctx.fillText(title,
@@ -141,21 +143,20 @@ class UIHandler {
             if (infoPlayer.currentFolder == 3 && this.currentButton.id == 2 && infoPlayer.btnLvl < 4) {
                 let level = infoPlayer.btnLvl + 1
                 info[1] = info[1].replace("%abilitylevel%", level)
-                console.log(info[1])
             }
-            ctx.font = 5* S + "px 'iFlash 705'";
+            ctx.font = 5 * S + "px 'iFlash 705'";
             for (var i in info) {
                 ctx.fillText(info[i],
                     (132) * S,
-                    (151 + 5*i) * S,
+                    (151 + 5 * i) * S,
                 );
             }
 
 
             // let img = ((player.team == 0) ? btnGlob.img + "_blue" : btnGlob.img);
-            
+
             if (button.icon != undefined) {
-                drawIcon(button.icon, team, { x: x_pos - 5, y: y_pos - 4}, 1.8);
+                drawIcon(button.icon, team, { x: x_pos - 5, y: y_pos - 4 }, 1.8);
             }
             else if (button.img != undefined) {
                 ctx.drawImage(Images[button.img + (team == 0 ? "_blue" : "")],
@@ -165,8 +166,8 @@ class UIHandler {
                     32,
                     (x_pos - 5 - ICON_SIZE / 2) * S,
                     (y_pos - 3 - ICON_SIZE / 2) * S,
-                    ICON_SIZE * 2* S,
-                    ICON_SIZE * 2*S
+                    ICON_SIZE * 2 * S,
+                    ICON_SIZE * 2 * S
                 );
             }
 
@@ -174,7 +175,7 @@ class UIHandler {
 
         // console.log( BTN_FOLDER[this.players[0].btnLvl] )
         // if (BTN_FOLDER[this.currentButton.team][this.currentButton.id]) {
-        
+
         // if (BTN_FOLDER[0][1]) {
         //     console.log("yä gäng gäng")
         // }
@@ -239,7 +240,7 @@ class UIHandler {
     }
 
     drawEverything(fps) {
-        
+
         for (var key in this.players) {
             let team = this.players[key]
             this.drawButtons(team);
@@ -248,7 +249,7 @@ class UIHandler {
                 this.drawInfoBox(team)
                 this.drawChatBox2(team);
             }
-            
+
         }
         if (!this.isOnline) {
             this.drawInfoBox(0)
@@ -332,7 +333,7 @@ class UIHandler {
     //=== user controlls ===\\
 
     mouseClicked() {
-        this.checkMouseWithinButton() 
+        this.checkMouseWithinButton()
         var id = this.currentButton.id;
         var team = this.currentButton.team;
         if (team != -1) {
@@ -476,7 +477,7 @@ class UIHandler {
 
     drawUI(fps) {
         this.checkMouseWithinButton()
-        this.drawBox({x:145, y: 10}, {x:175, y: 30}, "#000", "#000", .1);
+        this.drawBox({ x: 145, y: 10 }, { x: 175, y: 30 }, "#000", "#000", .1);
         ctx.textAlign = "center";
         ctx.fillStyle = "#ffffff";
         ctx.font = 5 * S + "px 'Press Start 2P'";
@@ -491,8 +492,10 @@ class UIHandler {
         }
         if (IS_DEBUGGING) {
             ctx.fillText(Math.floor(fps), 300 * S, 60 * S);
-            ctx.fillText(Math.floor((Date.now() - lastRecievedPing) / 1000), 300 * S, 65 * S);      
+            ctx.fillText(Math.floor((Date.now() - lastRecievedPing) / 1000), 300 * S, 65 * S);
         }
+
+
 
         // === win / lose screen ===\\
         if (this.winner != -1) {
@@ -533,11 +536,28 @@ class UIHandler {
         ctx.textAlign = "end";
 
         for (var playerKey in game.players) {
+
             this.drawBox(UI_POS[playerKey].statsBox.topleft, UI_POS[playerKey].statsBox.botright, "#000", "#000", .1);
 
 
+            this.drawSmallIcon("queue", playerKey, 16);
+
             ctx.font = 5 * S + "px 'Press Start 2P'";
             var player = game.players[playerKey]
+
+            var playerQueueLen = game.buyQueue[playerKey].length
+            if (playerQueueLen >= 2 || (Date.now() - this.dateQueueShow[playerKey] < 0.5 * 1000)) {
+                if (playerQueueLen != 0) {
+                    this.dateQueueShow[playerKey] = Date.now()
+                }
+                for (let i = 0; i < 5; i++) {
+                    let iconName = playerQueueLen <= i ? "queue" : "queueFull";
+                    let x_pos = UI_POS[playerKey].queueIcon.x
+                    let y_pos = UI_POS[playerKey].queueIcon.y
+                    this.drawSmallIcon(iconName, playerKey, x_pos + (playerKey * -2 + 1) * 4 * i, y_pos)
+                }
+            }
+            ctx.imageSmoothingEnabled = true
 
             if (this.justGaveGold[playerKey]) { ctx.fillStyle = "#FFFFFF"; }
             else { ctx.fillStyle = "#F2F2AA"; };
@@ -553,7 +573,7 @@ class UIHandler {
                 UI_POS[playerKey].goldPerTurn.x * S,
                 UI_POS[playerKey].goldPerTurn.y * S
             );
-            ctx.imageSmoothingEnabled = true
+
             let goldIconSize = 6
             ctx.drawImage(Images["gold"],
                 0,
@@ -569,6 +589,21 @@ class UIHandler {
             this.drawHpBars(playerKey, player)
 
         }
+    }
+
+    drawSmallIcon(name, playerKey, x, y) {
+        let xpos = ICON_SMALL_POS[name].x;
+        let ypos = ICON_SMALL_POS[name].y;
+        let iconSize = 5
+        ctx.drawImage(Images["icons_small"],
+            xpos,
+            ypos,
+            8,
+            8,
+            (x) * S,
+            (y - iconSize / 2 + 15) * S,
+            iconSize * S,
+            iconSize * S)
     }
 
     drawHpBars(playerKey, player) {
@@ -773,7 +808,7 @@ class UIHandler {
         this.writeBtnText(text, button, "txt", frame)
         if (text2 !== undefined) { this.writeBtnText(text2, button, "txt2", frame) }
 
-        if (cost == "%upggold%") { cost = player.goldPerTurn +  UPGRADES["upgGold"].costDelta; }
+        if (cost == "%upggold%") { cost = player.goldPerTurn + UPGRADES["upgGold"].costDelta; }
         else if (cost == "%repaircastle%") { cost = player.repairCost; }
         else if (cost == "%upgcastle%") { cost = 50; }
         else if (cost == "%upgability%") { cost = 25 + player.btnLvl * 5 }
