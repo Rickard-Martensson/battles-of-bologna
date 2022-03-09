@@ -257,8 +257,13 @@ class Sprite {
         this.invincible = false;
 
         this.activeEffects = new Set();
+        console.log(game.players[this.team].activeAbilities)
+        if (game.players[this.team].checkAbility("sprint")) {
+            this.activateAbility("sprint")
+        }
 
         if (isUpdate) { this.updateData(newData); }
+        console.log(this, "this")
         // this.speed *= 5
     }
 
@@ -304,6 +309,16 @@ class Sprite {
         }
     }
 
+    activateAbility(name) {
+        if (name == "sprint") {
+            this.activeEffects.add("sprint")
+            this.speed += SPRINT_ABILITY_SPEED
+            this.animTimeMult /= 2
+        }
+    }
+
+
+
     move() {
         this.pos.x += this.direction * this.currentSpeed * fpsCoefficient / 100;
         // this.setState("walk", -1, "mooove")
@@ -311,7 +326,7 @@ class Sprite {
     }
 
     spriteShootProjectile(shouldTargetNext = false) {
-        if (this.activeEffects.has("target") || shouldTargetNext) {
+        if (this.activeEffects.has("target") || (shouldTargetNext && !this.abilities.includes("ballista"))) {
             let nextEnemy = game.distToNextSprite(this, this.getOtherTeam())
             if (nextEnemy.len < 80) {
                 let { vel_x, vel_y } = calcProjectilePower(this.pos, nextEnemy.sprite.pos, ARCHER_TRAJECTORY);
@@ -360,7 +375,6 @@ class Sprite {
 
         let timeSinceLastAttackCycle = Date.now() - this.lastAtkCycleDate;
         if (timeSinceLastAttackCycle > this.atkSpeed) { //start attack animation
-            console.log("attack 1")
             this.currentFrame = 0;
             this.currentAnimation = "attack"
             this.lastAtkCycleDate = Date.now();
@@ -369,13 +383,14 @@ class Sprite {
 
         let timeSinceStartOfAtk = Date.now() - this.lastStartOfAtkCycleDate;
         if (timeSinceStartOfAtk > this.atkDelay && this.lastStartOfAtkCycleDate !== null) { // atks if its enough time since atkstart
-            console.log("attack 2")
             if (this.range > 0) {
-                if (victim.range > 0) {
+                // this.spriteShootProjectile(true)
+                console.log(victim)
+                if (victim != undefined) {
                     this.spriteShootProjectile(true);
                 }
                 else {
-                    this.spriteShootProjectile();
+                    this.spriteShootProjectile(false);
                 }
             }
             else {
@@ -449,7 +464,7 @@ class Sprite {
         if (newState == "walk") {
             if (this.range != 0 && this.abilities.includes("ballista") && this.distFromOwnCastle() > BALLISTA_SIEGE_RANGE) {
                 // if (this.state)
-                this.attack(self);
+                this.attack(undefined);
                 this.state = "attack"
                 // this.setState("attack", -1);
             }
@@ -469,7 +484,7 @@ class Sprite {
         }
         else if (newState == "idle") {
             if (this.range != 0) {
-                this.attack(self);
+                this.attack(undefined);
                 this.setState("attack", -1);
             }
             else {

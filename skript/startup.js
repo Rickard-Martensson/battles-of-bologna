@@ -41,16 +41,16 @@ window.onload = function () {
 
 }
 
-window.onclick = function() {
+window.onclick = function () {
     if (!hasInteractedBefore) {
         console.log("hehe starting up!")
         showTitleScreen()
-    
+
         setupAudio()
-    
+
         toggleTitleBootupScreen()
-        
-        
+
+
         playAudio("title")
         hasInteractedBefore = true
     }
@@ -98,7 +98,33 @@ function getAspectRatio() {
 const SCREEN_SIZE = 1
 
 
+/**
+ * popupThings
+ */
 
+var popupShowing = "none"
+const CREDITS = "Developer: <br>Rickard Mårtensson <br><br> Music & Sound: <br>Daniel Sterner <br><br>";
+const TUTORIAL = "You know how it is"
+
+
+function toggleCredits() {
+    if (popupShowing == "credits") {
+        closePopup()
+    }
+    else {
+        popupShowing = "credits"
+        document.getElementById("popup").style.visibility = "visible";
+        document.getElementById("popupTitle").innerHTML = "&nbsp;Credits";
+        document.getElementById("popupData").innerHTML = CREDITS
+
+    }
+}
+
+function closePopup() {
+    popupShowing = "none"
+    document.getElementById("popup").style.visibility = "hidden";
+
+}
 
 
 var S;
@@ -156,11 +182,11 @@ function toggleTitleBootupScreen() {
     console.log(bootupElement)
     for (let e = 0; e < bootupElement.length; e++) {
         const elem = bootupElement[e];
-        elem.style.visibility = isBootup == true ?  "visible" : "hidden";
-        
+        elem.style.visibility = isBootup == true ? "visible" : "hidden";
+
     }
     titleScreen.style.backgroundImage = isBootup ? 'url("bilder/bootupScreen.png")' : 'url("bilder/background_wheat.png")';
-    isBootup = ! isBootup
+    isBootup = !isBootup
 }
 
 
@@ -208,7 +234,7 @@ function loadSounds() {
     }
 }
 function loadSound(name, src, vol) {
-    Sounds[name] = {name: name, src: src, vol: vol}
+    Sounds[name] = { name: name, src: src, vol: vol }
 }
 
 

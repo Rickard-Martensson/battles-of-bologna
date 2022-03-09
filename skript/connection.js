@@ -55,7 +55,6 @@ function send(type, content) {
         message: { "sender": uuid, "type": type, "content": content, name: myName }
     }, function (status, response) {
         //Handle error here
-        //console.log(status)
         if (status.error) {
             console.log("oops, we got an error")
         }
@@ -136,7 +135,7 @@ pubnub.addListener({
             LAST_GLOBAL_UPDATE = Date.now()
             let team = content.team;
             let unit = content.unit;
-            console.log(unit, team, "unit & team")
+            // console.log(unit, team, "unit & team")
             game.addToBuyQueue(unit, team);
 
         }
@@ -188,5 +187,5 @@ pubnub.addListener({
     },
     presence: function (event) {
         //console.log(event);
-    } 
+    }
 });

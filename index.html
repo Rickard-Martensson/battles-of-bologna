@@ -60,6 +60,14 @@
             <span id="button1" class="all title button" onclick="startGameLocal()"><span> Play </span></span>
             <span id="button2" class="all title button" onclick="menuHostLobby()"><span>Host</span></span>
             <span id="button3" class="all title button" onclick="menuJoinLobby()"><span>Join</span></span>
+            <span id="creditsButton" class="all title button" onclick="toggleCredits()"><span>Credits</span></span>
+
+
+            <div id="popup" class="Absolute-Center noselect">
+                <div id="popupCloseButton" onclick="closePopup()">X</div>
+                <div id="popupTitle"></div>
+                <div id="popupData"></div>
+            </div>
 
 
             <div id="host_code" class="all hostlobby">ABCD</div>
@@ -74,7 +82,9 @@
 
 
 
+
         </div>
+        <div></div>
         <div id="bg2" class="bg-day"></div>
         <div id="bg1" class="bg-dusk"></div>
         <canvas id="canvas">

@@ -26,6 +26,7 @@ class Player {
         this.upgsResearched = new Set([]);
         this.buyQueue = [];
         this.lastQueueShift = Date.now()
+        this.activeAbilities = [];
 
         //===castle===\\
         this.pos = { x: x, y: y };
@@ -38,7 +39,7 @@ class Player {
 
         this.DRAW_SIZE = 64;
     }
-    
+
 
     syncMyself(syncData = "all") {
         let data = this.getData();
@@ -76,6 +77,34 @@ class Player {
         }
     }
 
+    addAbility(name) {
+        if (!this.activeAbilities.includes(name)) {
+            this.activeAbilities.push(name)
+        }
+        else {
+            console.log("the ability", name, "is already active")
+        }
+    }
+
+    checkAbility(name) {
+        if (this.activeAbilities.includes(name)) {
+            return true
+        }
+        return false
+    }
+
+    removeAbility(name) {
+        if (this.activeAbilities.includes(name)) {
+            const index = this.activeAbilities.indexOf(name);
+            if (index > -1) {
+                this.activeAbilities.splice(index, 1); // 2nd parameter means remove one item only
+            }
+        }
+        else {
+            console.log("could not find ability", name, "in list", this.activeAbilities)
+        }
+    }
+
 
     upgGoldPerTurn() {
         this.changeGoldPerTurn(UPGRADES["upgGold"].goldIncrease) //.goldPerTurn += UPGRADES["upgGold"].goldIncrease;}
@@ -88,7 +117,7 @@ class Player {
             let pos = { x: this.pos.x, y: this.pos.y }
             let vel = { vx: 35 * (Math.random() + 1) * (1 - 2 * this.team), vy: -15 * (Math.random() * 1 + 4.5) }
             console.log("yea")
-            game.shootProjectile(pos, vel, this.team, dmg, IS_ONLINE, "arrow")   
+            game.shootProjectile(pos, vel, this.team, dmg, IS_ONLINE, "arrow")
         }
         if (this.castleLvl > 2 && Date.now() - this.lastCastleBalAtk > CASTLE_BAL_DELAY[this.castleLvl] * 1000) {
             let dmg = 1;
@@ -97,7 +126,7 @@ class Player {
             let vel = { vx: 35 * (Math.random() + 1) * (1 - 2 * this.team), vy: -15 * (Math.random() * 1 + 4.5) }
             console.log("nah")
 
-            game.shootProjectile(pos, vel, this.team, dmg, IS_ONLINE, "ballista")   
+            game.shootProjectile(pos, vel, this.team, dmg, IS_ONLINE, "ballista")
         }
 
     }
@@ -179,7 +208,7 @@ class Player {
     }
 
     stealGoldPerTurn(amount) {
-        send("stealGold", {team:this.team, victim: getOtherTeam(this.team), amount: amount})
+        send("stealGold", { team: this.team, victim: getOtherTeam(this.team), amount: amount })
     }
 
 
@@ -189,24 +218,24 @@ class Player {
         this.lastDmgdTime = Date.now()
         this.prevHp = this.hp;
         this.hp = (this.hp <= 0) ? 0 : this.hp - dmg
-        
+
         if (this.hp < PLAYER_HP_MAX * 0.4 && this.isHurry == 0) {
             this.isHurry = 1;
             playSoundEffect("hurry_up");
             console.log("hurry hurry")
             playAudio("none");
-            setTimeout(function() {playAudio("ingame_hurry"); local_UI.hurryUp();}, 2400);
-            
+            setTimeout(function () { playAudio("ingame_hurry"); local_UI.hurryUp(); }, 2400);
+
 
         }
         //if (IS_ONLINE) { this.syncMyself("hp") }
     }
 
     sendPackage(type, data) {
-        
+
     }
 
-    sendDmgPackage(dmg){
+    sendDmgPackage(dmg) {
         if (IS_ONLINE && mySide == 0) {
             console.log("player", this.team, "sent dmg package");
             send("castleDmg", { team: this.team, dmg: dmg, sender: 1, goldDmg: -1 })
@@ -222,7 +251,7 @@ class Player {
     onlineChangeGold(totGoldChange, perTurnChange, isSteal) {
         if ((mySide == 0 ^ IS_ONLINE) != 1) { // antingen online och spelare 0, eller offline o vilket som helst.
             if (IS_ONLINE) {
-                send("changeGold", {team: this.team, total: totGoldChange, perTurn: perTurnChange, isSteal: isSteal})
+                send("changeGold", { team: this.team, total: totGoldChange, perTurn: perTurnChange, isSteal: isSteal })
             }
 
             else {

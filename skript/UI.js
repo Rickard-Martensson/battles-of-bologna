@@ -37,6 +37,24 @@ class UIHandler {
         this.isTouch = true;
 
         this.dateQueueShow = { 0: Date.now(), 1: Date.now() }
+        this.activeParticles = []
+    }
+
+    playHearts(x, y, color) {
+        let particle = { name: "heart", x: x, y: y - 20, team: color, date: Date.now() }
+        this.activeParticles.push(particle)
+    }
+
+    playParticles() {
+        let dateNow = Date.now()
+        for (let i = this.activeParticles.length - 1; i >= 0; i--) {
+            let p = this.activeParticles[i];
+            p.y -= 0.05
+            this.drawSmallIcon(p.name, p.team, p.x, p.y, 4);
+            if (dateNow - p.date > 1.5 * 1000) {
+                this.activeParticles.splice(i, 1)
+            }
+        }
     }
 
     setLoser(key) {
@@ -540,7 +558,6 @@ class UIHandler {
             this.drawBox(UI_POS[playerKey].statsBox.topleft, UI_POS[playerKey].statsBox.botright, "#000", "#000", .1);
 
 
-            this.drawSmallIcon("queue", playerKey, 16);
 
             ctx.font = 5 * S + "px 'Press Start 2P'";
             var player = game.players[playerKey]
@@ -554,7 +571,7 @@ class UIHandler {
                     let iconName = playerQueueLen <= i ? "queue" : "queueFull";
                     let x_pos = UI_POS[playerKey].queueIcon.x
                     let y_pos = UI_POS[playerKey].queueIcon.y
-                    this.drawSmallIcon(iconName, playerKey, x_pos + (playerKey * -2 + 1) * 4 * i, y_pos)
+                    this.drawSmallIcon(iconName, 0, x_pos + (playerKey * -2 + 1) * 4 * i, y_pos)
                 }
             }
             ctx.imageSmoothingEnabled = true
@@ -586,15 +603,17 @@ class UIHandler {
                 goldIconSize * S
             );
 
+            this.playParticles()
+
             this.drawHpBars(playerKey, player)
 
         }
     }
 
-    drawSmallIcon(name, playerKey, x, y) {
-        let xpos = ICON_SMALL_POS[name].x;
-        let ypos = ICON_SMALL_POS[name].y;
-        let iconSize = 5
+    drawSmallIcon(name, playerKey, x, y, size = 5) {
+        let xpos = ICON_SMALL_POS[name].x * 8;
+        let ypos = ICON_SMALL_POS[name].y * 8 + (16 * playerKey);
+        let iconSize = size
         ctx.drawImage(Images["icons_small"],
             xpos,
             ypos,

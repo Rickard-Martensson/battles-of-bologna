@@ -69,11 +69,14 @@ const ICON_SS_POS = {
     goldUpg: { x: 3, y: 0 },
     castleUpg: { x: 4, y: 0 },
     repair: { x: 5, y: 0 },
+    heal: { x: 6, y: 0 },
+    arrows: { x: 7, y: 0 },
 }
 
 const ICON_SMALL_POS = {
     queue: { x: 0, y: 0 },
-    queueFull: { x: 8, y: 0 },
+    queueFull: { x: 1, y: 0 },
+    heart: { x: 2, y: 0 },
 }
 
 
@@ -117,7 +120,7 @@ const INVINCIBLE_DURATION = 2;
 const ARCHER_TRAJECTORY = 1.25;  //arctan av detta är vinkeln den skjuts med
 const ARCHER_TARGET_MAX_RANGE = 100 // maxrange när archers använder target fire abilityn.
 const SPRINT_ABILITY_SPEED = 10;
-const BALLISTA_UNLOCK_DAY = 0; //how many days pass before ballista is unlocked.
+const BALLISTA_UNLOCK_DAY = 3; //how many days pass before ballista is unlocked.
 const BALLISTA_SIEGE_RANGE = 120 //how far away from own castle the ballista should start shooting
 const CASTLE_ARROW_DELAY = [NaN, 12, 7, 7];
 const CASTLE_BAL_DELAY = [NaN, NaN, NaN, 12];
@@ -161,6 +164,7 @@ var LAST_GLOBAL_UPDATE = Date.now(); // we dont want the game to sync right afte
 const GLOBAL_UPDATE_MARGIN = 250; // how long time of no actions are needed for global updates to pass trough
 const SYNC_PROJECTILES = false // wethero r not to update projectile position when syncing. should be set to false
 const LOBBY_CODE_LEN = 4
+const ATK_DELAY_REDUCED_ONLINE = 150 //units dash out their damage quicker online. If it takes 0.25 seconds for a package to arrive, and this is set to 250 then it should be good 
 
 class Animation {
     //size of each square, how many rows down in spritesheet, number of frames, frameRate, isAloop(false on atk animations)
@@ -347,14 +351,14 @@ const BTN_FOLDER = {
         5: { txt: "unlock", txt2: "veteran", cost: 50, subText: "50", action: "upgrade", upgrade: "upgVeteran", data: "upgVeteran", img: "veteran_img", info: "unlocks the knight, a very \nstrong mele unit that one hits \nmost enemies" },
     },
     3: {
-        0: { txt: "Take Dmg", cost: 1, action: "ability", data: "takedmg", abilityCooldown: 0, lvl: 2, img: "soldier_img", info: "makes your own tower take dmg \ngood if youre debugging" },
-        // 0: { txt: "Arrows", cost: 2, action: "ability", data: "arrows", abilityCooldown: 1, lvl: 2, img: "soldier_img" },
+        // 0: { txt: "Take Dmg", cost: 1, action: "ability", data: "takedmg", abilityCooldown: 0, lvl: 2, img: "soldier_img", info: "makes your own tower take dmg \ngood if youre debugging" },
+        0: { txt: "Arrows", cost: 2, action: "ability", data: "arrows", abilityCooldown: 1, lvl: 2, img: "soldier_img", icon: "arrows", info: "Shoots 7 arrows from the \ncastle onto the battlefield" },
         1: { txt: "Invincible", cost: 4, action: "ability", data: "invincible", abilityCooldown: 6, lvl: 3, img: "icons_img", icon: "invincible", info: "makes your units invincible for \na short while. \ntime it well!" },
         2: { txt: "Target", cost: 4, action: "ability", data: "target", abilityCooldown: 12, lvl: 4, img: "archer_img", icon: "target", info: "makes your archers shoot with \npin-point accuracy for a while" },
-        3: { txt: "placeholder", cost: 3, action: "ability", data: "none", abilityCooldown: 12, lvl: 1, img: "soldier_img" },
+        3: { txt: "heal", cost: 3, action: "ability", data: "heal", abilityCooldown: 12, lvl: 1, img: "soldier_img", icon: "heal", info: "heal all units to max health" },
         4: { txt: "Sprint", cost: 3, action: "ability", data: "sprint", abilityCooldown: 8, lvl: 0, img: "soldier_img", icon: "sprint", info: "makes all units sprint across\nthe battlefield" },
         5: { txt: "back", action: "folder", data: 0, img: "buttonBack_img" },
-        6: { txt: "upgrade", txt2: "ability", cost: "%upgability%", action: "upgrade", upgrade: "upgAbility", data: "upgAbility", img: "archer_img", info: "unlocks another ability \n(%abilitylevel%/5 unlocked) " },
+        6: { txt: "upgrade", txt2: "ability", cost: "%upgability%", action: "upgrade", upgrade: "upgAbility", data: "upgAbility", img: "archer_img", icon: "castleUpg", info: "unlocks another ability \n(%abilitylevel%/5 unlocked) " },
 
     },
 

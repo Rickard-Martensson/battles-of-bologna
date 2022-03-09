@@ -162,7 +162,7 @@ class Game {
 
     }
 
-    damageCastle(team, dmg){
+    damageCastle(team, dmg) {
         this.players[team].takeDmg(dmg)
     }
 
@@ -177,6 +177,7 @@ class Game {
 
     disableAbility(index, name, team) {
         index > -1 ? this.activeAbilites.splice(index, 1) : false
+        this.players[team].removeAbility(name)
         if (name == "invincible") {
             for (var key in this.sprites) {
                 let sprite = this.sprites[key];
@@ -194,6 +195,7 @@ class Game {
             }
         }
         else if (name == "sprint") {
+
             for (var key in this.sprites) {
                 let sprite = this.sprites[key]
                 if (sprite.team == team && sprite.activeEffects.has("sprint")) {
@@ -210,21 +212,35 @@ class Game {
             this.activeAbilites.push({ name: name, startTime: Date.now(), team: team, cooldown: cooldown })
         }
         let factor = (2 * team - 1)
+        let player = this.players[team]
         if (name == "arrows") {
-            for (var i = 0; i < 1; i++) {
+            for (var i = 0; i < 6; i++) {
                 //console.log(BASE_POS[team].x, BASE_POS[team].y, -(20 + 5 * Math.random()) * factor, -(50 + 10 * Math.random()), team, 2);
                 this.shootProjectile(
-                    { x: BASE_POS[team].x, y: BASE_POS[team].y - 20 },
-                    { vx: -(50 + 40 * Math.random()) * factor, vy: -(50 + 20 * Math.random()) },
+                    { x: BASE_POS[team].x, y: BASE_POS[team].y - 40 },
+                    { vx: -(30 + 50 * Math.random()) * factor, vy: -(45 + 30 * Math.random()) },
                     team, 2, IS_ONLINE
                 );
             }
         }
         else if (name == "takedmg") {
-            this.players[team].sendDmgPackage(20);
+            player.sendDmgPackage(20);
+        }
+        else if (name == "heal") {
+            for (var key in this.sprites) {
+                let sprite = this.sprites[key];
+                if (sprite.team == team) {
+                    const name = sprite.name
+                    const maxHp = STATS[name].hp
+                    if (sprite.hp != maxHp) {
+                        sprite.hp = maxHp
+                        local_UI.playHearts(sprite.pos.x, sprite.pos.y, sprite.team)
+                    }
+                }
+            }
         }
         else if (name == "repair") {
-            this.players[team].repairCastle(15);
+            player.repairCastle(15);
             playSoundEffect("repair")
         }
         else if (name == "invincible") {
@@ -238,18 +254,18 @@ class Game {
         else if (name == "target") {
             for (var key in this.sprites) {
                 let sprite = this.sprites[key];
-                if (sprite.team == team && sprite.range != 0 && sprite.abilities.includes("targetfire"))  {
+                if (sprite.team == team && sprite.range != 0 && sprite.abilities.includes("targetfire")) {
                     sprite.activeEffects.add("target")
                 }
             }
         }
         else if (name == "sprint") {
+            player.addAbility("sprint")
             for (var key in this.sprites) {
                 let sprite = this.sprites[key];
                 if (sprite.team == team) {
-                    sprite.activeEffects.add("sprint")
-                    sprite.speed += SPRINT_ABILITY_SPEED
-                    sprite.animTimeMult /= 2
+
+                    sprite.activateAbility("sprint")
                 }
             }
         }
@@ -333,12 +349,10 @@ class Game {
     addToBuyQueue(unit, team) {
         let row = (unit == "knight") ? 1 : 0;
         this.buyQueue[team].push({ unit: unit, row: row });
-        console.log(this.buyQueue)
     }
 
     spawnSprites() {
         for (var key in this.players) {
-            let player = local_UI.players[key]
             this.checkBuyQueue(key)
         }
 
@@ -402,7 +416,7 @@ class Game {
         if (IS_ONLINE) {
             if (mySide == 0) {
                 let spriteId = sprite.uniqeId
-                send("damageSprite", {spriteId: spriteId, dmg: dmg})
+                send("damageSprite", { spriteId: spriteId, dmg: dmg })
             }
         }
         else {
@@ -413,7 +427,13 @@ class Game {
 
     damageSpriteFromId(spriteId, dmg) {
         let sprite = this.getSpriteFromSpriteId(spriteId)
-        sprite.takeDmg(dmg, true)
+        if (sprite == undefined) {
+            console.log("could not find sprite with id", spriteId)
+            return
+        }
+        else if (sprite != undefined) {
+            sprite.takeDmg(dmg, true)
+        }
     }
 
     getSpriteFromSpriteId(spriteId) {
@@ -424,6 +444,7 @@ class Game {
             }
         }
         console.log("could not find a sprite with id", spriteId)
+        return undefined
     }
 
 
@@ -436,7 +457,7 @@ class Game {
 
 
 
-    shootProjectile(pos, vel, team, dmg, isOnline, type="arrow") {
+    shootProjectile(pos, vel, team, dmg, isOnline, type = "arrow") {
         // console.log("arrow:", pos, vel)
         if (isOnline) {
             if (mySide == 0) {
@@ -507,14 +528,14 @@ class Game {
             sprite.draw();
             sprite.checkIfAtEnemyCastle(this);
             sprite.checkDead(game, i);
-            
-    
+
+
 
         }
         for (var i in this.players) {
             let player = this.players[i];
             player.drawCastle();
-            if (player.castleLvl != 0 ) { //&& Date.now() - player.lastCastleAtk > CASTLE_ARROW_DELAY[player.castleLvl] * 1000) {
+            if (player.castleLvl != 0) { //&& Date.now() - player.lastCastleAtk > CASTLE_ARROW_DELAY[player.castleLvl] * 1000) {
                 player.castleTryAttack();
             }
         }
@@ -546,7 +567,7 @@ class Game {
             this.daysPast += 1
             for (var key in this.players) {
                 let player = this.players[key]
-                if (this.daysPast >= BALLISTA_UNLOCK_DAY) {player.addUpgrade("upgBallista")}
+                if (this.daysPast >= BALLISTA_UNLOCK_DAY) { player.addUpgrade("upgBallista") }
                 player.giveGoldPerTurn()
 
                 player.decreaseCoolDowns(this);

@@ -12,12 +12,10 @@ function playAudio(song = "title") {
     // musicPlayer.pause()
     if (song != curAudio) {
         musicPlayer.src = Sounds[song].src
-    
-        console.log(song)
+
         musicPlayer.play();
         musicPlayer.loop = true
         musicPlayer.volume = VOLUME
-        console.log(music)
         if (song == "none") {
             musicPlayer.pause()
         }
@@ -49,7 +47,7 @@ function playSoundEffect(sound) {
         console.log("too many sounds")
         return
     }
-    let thisSound = {soundeffect: sound, date: Date.now()}
+    let thisSound = { soundeffect: sound, date: Date.now() }
     curSoundsPlaying.push(thisSound)
     // console.log("currently playing", curSoundsPlaying, Sounds[sound])
 
