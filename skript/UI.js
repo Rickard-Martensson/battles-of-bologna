@@ -40,6 +40,17 @@ class UIHandler {
         this.activeParticles = []
     }
 
+    drawImage(Image, dx, dy, sx, sy, ctxX, ctxY, ctxSx, ctxSy, shouldRound = true) {
+        let ctxList = [ctxX, ctxY, ctxSx, ctxSy]
+        if (shouldRound) {
+            for (let i = 0; i < ctxList.length; i++) {
+                ctxList[i] = Math.round(ctxList[i]);
+
+            }
+        }
+        ctx.drawImage(Image, dx, dy, sx, sy, ctxList[0], ctxList[1], ctxList[2], ctxList[3])
+    }
+
     playHearts(x, y, color) {
         let particle = { name: "heart", x: x, y: y - 20, team: color, date: Date.now() }
         this.activeParticles.push(particle)
@@ -177,7 +188,7 @@ class UIHandler {
                 drawIcon(button.icon, team, { x: x_pos - 5, y: y_pos - 4 }, 1.8);
             }
             else if (button.img != undefined) {
-                ctx.drawImage(Images[button.img + (team == 0 ? "_blue" : "")],
+                this.drawImage(Images[button.img + (team == 0 ? "_blue" : "")],
                     32 * 0, //frame
                     0 * 0,
                     32,
@@ -592,7 +603,7 @@ class UIHandler {
             );
 
             let goldIconSize = 6
-            ctx.drawImage(Images["gold"],
+            this.drawImage(Images["gold"],
                 0,
                 0,
                 16,
@@ -614,7 +625,7 @@ class UIHandler {
         let xpos = ICON_SMALL_POS[name].x * 8;
         let ypos = ICON_SMALL_POS[name].y * 8 + (16 * playerKey);
         let iconSize = size
-        ctx.drawImage(Images["icons_small"],
+        this.drawImage(Images["icons_small"],
             xpos,
             ypos,
             8,
@@ -661,7 +672,7 @@ class UIHandler {
         else if (dmgFrac < 0.6) { hpBarColor = 1 }
         ctx.imageSmoothingEnabled = false
 
-        ctx.drawImage(Images["hpBars"], //just the outline
+        this.drawImage(Images["hpBars"], //just the outline
             hpBarImgWidth * invertColors,
             hpBarImgHeight * 5,
             hpBarImgWidth,
@@ -671,7 +682,7 @@ class UIHandler {
             hpBarWidth * S,
             hpBarHeight * S
         );
-        ctx.drawImage(Images["hpBars"], //previous dmg
+        this.drawImage(Images["hpBars"], //previous dmg
             hpBarImgWidth * invertColors,
             hpBarImgHeight * 4,
             hpBarImgWidth * prevDmgFrac,
@@ -682,7 +693,7 @@ class UIHandler {
             hpBarHeight * S
         );
 
-        ctx.drawImage(Images["hpBars"],
+        this.drawImage(Images["hpBars"],
             hpBarImgWidth * invertColors,
             hpBarImgHeight * hpBarColor,
             hpBarImgWidth * dmgFrac,
@@ -779,7 +790,7 @@ class UIHandler {
             cooldownFrac = (Date.now() - this.disabledButtons[team][index].start) / this.disabledButtons[team][index].duration
         }
         ctx.imageSmoothingEnabled = false
-        ctx.drawImage(Images.button1,
+        this.drawImage(Images.button1,
             BTN_SIZE * frame,
             BTN_SIZE * 1,
             BTN_SIZE,
@@ -790,17 +801,26 @@ class UIHandler {
             BUTTON_SIZE * S
         );
 
-        if (cooldownFrac != 0) {
-            ctx.drawImage(Images.button1,
+        if (cooldownFrac != undefined) {
+            // ctx.fillStyle = "#00000055";
+            // ctx.fillRect(
+            //     (button.x - BUTTON_SIZE / 2) * S,
+            //     (button.y - BUTTON_SIZE / 2 + BUTTON_SIZE * cooldownFrac) * S,
+            //     BUTTON_SIZE * S,
+            //     BUTTON_SIZE * S * (1 - cooldownFrac)
+            // );
+            this.drawImage(Images.button1,
                 BTN_SIZE * 2,
                 BTN_SIZE * 1 + BTN_SIZE * cooldownFrac,
                 BTN_SIZE,
                 BTN_SIZE * (1 - cooldownFrac),
-                (button.x - BUTTON_SIZE / 2) * S,
+                Math.floor((button.x - BUTTON_SIZE / 2) * S),
                 (button.y - BUTTON_SIZE / 2 + BUTTON_SIZE * cooldownFrac) * S,
-                BUTTON_SIZE * S,
-                BUTTON_SIZE * S * (1 - cooldownFrac)
+                Math.floor(BUTTON_SIZE * S),
+                BUTTON_SIZE * S * (1 - cooldownFrac),
+                false
             );
+
         }
 
         ctx.imageSmoothingEnabled = DRAW_ICONS_SMOOTH
@@ -808,7 +828,7 @@ class UIHandler {
             drawIcon(icon, player.team, { x: button.x, y: button.y + 1 * frame });
         }
         else { // om det inte finnsen ikon å ritar vi img istället. viktigt att skilja på för att allt ska få rätt färg
-            ctx.drawImage(Images[img],
+            this.drawImage(Images[img],
                 32 * 0, //frame
                 0 * 0,
                 32,
@@ -846,7 +866,7 @@ class UIHandler {
         }
         if (btnIcon !== null) {
             let goldIconSize = 5
-            ctx.drawImage(Images["gold"],
+            this.drawImage(Images["gold"],
                 16 * btnIcon,
                 16 * btnIcon,
                 16,

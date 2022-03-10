@@ -308,8 +308,9 @@ class Game {
 
         let timeAverage = timeSum / 30;
         let fps = 1000 / timeAverage;
-        if (fps < 30) {
-            fps = 30;
+        let minFps = 5
+        if (fps < minFps) {
+            fps = minFps;
         }
 
         fpsCoefficient = 144 / fps;

@@ -124,7 +124,7 @@ const BALLISTA_UNLOCK_DAY = 3; //how many days pass before ballista is unlocked.
 const BALLISTA_SIEGE_RANGE = 120 //how far away from own castle the ballista should start shooting
 const CASTLE_ARROW_DELAY = [NaN, 12, 7, 7];
 const CASTLE_BAL_DELAY = [NaN, NaN, NaN, 12];
-const IS_DEBUGGING = false //låser upp allting
+var IS_DEBUGGING = true //låser upp allting
 
 //===DAY NIGHT ===\\
 const MAXDARKNESS = 0.5 //hur mörka sprites blir på natten. används endast i graphics_level 1+
@@ -152,10 +152,10 @@ const CLOUD_MAX_COUNT = 8; // make an educated guess
 
 //===PERFORMACE===\\\
 const CLOUDS_ENABLED = true
-const GRAPHICS_LEVEL = 0 //0 is fast, 2 is fancy. 1 = shade sprites, 2 = shade projectiles & sprites.
+const GRAPHICS_LEVEL = 2 //0 is fast, 2 is fancy. 1 = shade sprites, 2 = shade projectiles & sprites.
 const DRAW_NEAREST_NEIGHBOUR = true; //blurry or pixly
 const DAY_NIGHT_ENABLED = true; //guess
-const ARROW_GRAPHICS_LEVEL = 1; //0 for only white lines, 1 for texure, 2 for texture shaded by day/night
+const ARROW_GRAPHICS_LEVEL = 2; //0 for only white lines, 1 for texure, 2 for texture shaded by day/night
 
 
 //===ONLINE===\\
