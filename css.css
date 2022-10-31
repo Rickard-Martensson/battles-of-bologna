@@ -8,6 +8,10 @@
   --btnRight: 65%;
   --btnCredits: 90%;
 
+  --btnClass1: 20%;
+  --btnClass2: 40%;
+  --btnClass3: 60%;
+
   --btnHeight: 80%;
 }
 
@@ -115,8 +119,37 @@ body {
   transform: translate(-50%, -50%);
 }
 
-.button {
+.player_setup {
+  position: absolute;
+  width: 20%;
+  height: 100%;
   display: inline-block;
+  color: white;
+}
+
+#player_setup_red {
+  transform: translate(-0%, -100%);
+  right: 0;
+  background-color: rgba(155, 0, 0, 0.5);
+  border-left: calc(var(--S) * 1) solid rgba(107, 0, 0, 1);
+  border-right: 0;
+  border-bottom: 0;
+  border-top: 0;
+  border-style: solid;
+}
+
+#player_setup_blue {
+  transform: translate(-0%, -100%);
+  left: 0;
+  background-color: rgba(35, 67, 127, 0.5);
+  border-right: calc(var(--S) * 1) solid rgba(11, 27, 51, 1);
+  border-left: 0;
+  border-bottom: 0;
+  border-top: 0;
+}
+
+.button {
+  display: inline-block none;
   background-size: cover;
   cursor: pointer;
   color: transparent;
@@ -131,11 +164,11 @@ body {
 }
 
 .button:hover {
-  background-color: rgba(255, 255, 255, 0.2);
+  background-color: rgba(255, 255, 255, 0.1);
   color: white;
 }
 
-.button > span {
+.button>span {
   display: inline-block;
   vertical-align: middle;
   margin-top: 100%;
@@ -150,6 +183,72 @@ body {
 
 #button_back:hover {
   background-image: url("bilder/ui/backButtonDown.png");
+}
+
+#kingdom_button_0 {
+  left: var(--btnMid);
+  top: var(--btnClass1);
+  display: none;
+  background-image: url("bilder/sprites/soldier_blue2.png");
+}
+
+#kingdom_button_0:hover {
+  background-image: url("bilder/sprites/soldier_blue2.png");
+}
+
+#viking_button_0 {
+  left: var(--btnMid);
+  top: var(--btnClass2);
+  display: none;
+  background-image: url("bilder/sprites/viking_blue.png");
+}
+
+#viking_button_0:hover {
+  background-image: url("bilder/sprites/viking_blue.png");
+}
+
+#kingdom_button_1 {
+  left: var(--btnMid);
+  top: var(--btnClass1);
+  display: none;
+  background-image: url("bilder/sprites/soldier2.png");
+  /* background-position: 128px 0; */
+}
+
+#kingdom_button_1:hover {
+
+  background-image: url("bilder/sprites/soldier2.png");
+}
+
+
+#viking_button_1 {
+  left: var(--btnMid);
+  top: var(--btnClass2);
+  display: none;
+  background-image: url("bilder/sprites/viking.png");
+}
+
+#viking_button_1:hover {
+  background-image: url("bilder/sprites/viking.png");
+}
+
+.selected_clan_0 {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.selected_clan_1 {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+#button_start {
+  left: var(--btnRight);
+  top: var(--btnHeight);
+  display: none;
+  background-image: url("bilder/ui/singleplayer.png");
+}
+
+#button_start:hover {
+  background-image: url("bilder/ui/singleplayerDown.png");
 }
 
 #creditsButton {

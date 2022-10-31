@@ -1,4 +1,6 @@
 //==========================================================================================================================================================================================================================================================================================================================================================================\\
+
+
 const IMAGE_DIRECTORY = [
     ["buttonBack_img", "./bilder/ui/btnBack.png"],
     ["buttonBack_img_blue", "./bilder/ui/btnBack.png"],
@@ -37,7 +39,13 @@ const IMAGE_DIRECTORY = [
     ["icons_small", "./bilder/ui/icons_small.png"],
     ["heart", "./bilder/ui/heart.png"],
     ["hpBars", "./bilder/ui/hpBars2.png"]
+
 ];
+
+
+
+
+
 const SOUND_DICTIONARY = [
     ["sword", './bilder/audio/zap/sword_strike2.mp3', 1],
     ["arrow", './bilder/audio/zap/arrow_fly.mp3', 1],
@@ -52,13 +60,18 @@ const SOUND_DICTIONARY = [
     ["ingame_hurry", './bilder/audio/musik/ingame_fast.mp3'],
     ["win", './bilder/audio/musik/victory_theme.mp3'],
     ["defeat", './bilder/audio/musik/defeat_theme.mp3']
-];
-const BTN_SIZE = 32;
-var ICON_DIRECTORY = {
+
+]
+
+
+const BTN_SIZE = 32
+
+var ICON_DIRECTORY = { //legacy
     target: { x: 0, y: 1 },
     invis: { x: 0, y: 0 },
     castle: { x: 0, y: 0 },
-};
+}
+
 const ICON_SS_POS = {
     target: { x: 0, y: 0 },
     invincible: { x: 1, y: 0 },
@@ -68,13 +81,17 @@ const ICON_SS_POS = {
     repair: { x: 5, y: 0 },
     heal: { x: 6, y: 0 },
     arrows: { x: 7, y: 0 },
-};
+}
+
 const ICON_SMALL_POS = {
     queue: { x: 0, y: 0 },
     queueFull: { x: 1, y: 0 },
     heart: { x: 2, y: 0 },
-};
-const BASE_POS = [{ x: 20, y: 100 }, { x: 300, y: 100 }];
+}
+
+
+
+const BASE_POS = [{ x: 20, y: 100 }, { x: 300, y: 100 }]
 const UI_POS = [
     {
         winScreen: { x: 160, y: 90 }, gold: { x: 30, y: 23 }, goldPerTurn: { x: 30, y: 18 }, goldIcon: { x: 30, y: 20.2 }, queueIcon: { x: 10, y: 18 },
@@ -87,133 +104,153 @@ const UI_POS = [
         hp: { x: 300, y: 25 }, hpIcon: { x: 300, y: 22.2 }, heart: { x: 305, y: 15 }, hpBar: { x: 284.6, y: 25 },
         statsBox: { topleft: { x: 310, y: 10 }, botright: { x: 280, y: 30 } },
         chatBox: { chat: { pos1: { x: 5, y: 135 }, pos2: { x: 90, y: 175 } }, input: { x: 10, y: 160 } }
-    }
-];
-const UI_POS_BTN = { img: { x: 0, y: 1.5 }, txt: { x: 0, y: -8 }, txt2: { x: 0, y: -5 }, subText: { x: 0, y: 10.7 }, gold: { x: 1, y: 9.2 } };
+    }];
+const UI_POS_BTN = { img: { x: 0, y: 1.5 }, txt: { x: 0, y: -8 }, txt2: { x: 0, y: -5 }, subText: { x: 0, y: 10.7 }, gold: { x: 1, y: 9.2 } }
 const BUTTON_SIZE = 30; //hur stora knapparna är
-const ICON_SIZE = 20; //hur stora ikoner i knapparna
+const ICON_SIZE = 20;   //hur stora ikoner i knapparna
 const SPRITE_SIZE = 80; //vet ej
-const BUTTON_DELAY = 100; //hur länge en knapp är 
-const NUMBER_OF_BUTTONS = 6; //antal knappar
-const INVINCIBLE_DELAY = 150; //hur länge en sprite är genomskinlig efter att ha blivit slagen
+const BUTTON_DELAY = 100;   //hur länge en knapp är 
+const NUMBER_OF_BUTTONS = 6;    //antal knappar
+const INVINCIBLE_DELAY = 150;   //hur länge en sprite är genomskinlig efter att ha blivit slagen
 const GRAVITY = 50; //projektiler
 const ABILITY_MAX_LVL = 4; //max lvl för abilities 
 const CASTLE_MAX_LVL = 3; //max lvl för slottet
-var START_TIME = Date.now(); //när spelet startade
+var START_TIME = Date.now();  //när spelet startade
 const HEIGHT = 100; //vet ej
-const ROW_OFFSET = 1; //hur många pixlar förskjuten en unit är i en ennan rad
+const ROW_OFFSET = 1;   //hur många pixlar förskjuten en unit är i en ennan rad
+
 const GAME_WIDTH = 320; //hur brett spelet är
+
 //===Gameplay===\\
-const GOLD_INTERVAL = 15; //hur ofta man får guld
-const PERSONAL_SPACE = 1; //sprite.size + personal_space = avstånd mellan sprites
-const MELE_RANGE_BUFFER = 0.1; //grej som fixar att endast en sprite attackerar åt gången
-const RANGE_RANDOMNESS = 0.5; //0.5 = arrows flyger mellan 100% & 150% av rangen.
+const GOLD_INTERVAL = 15;   //hur ofta man får guld
+const PERSONAL_SPACE = 1;   //sprite.size + personal_space = avstånd mellan sprites
+const MELE_RANGE_BUFFER = 0.1;  //grej som fixar att endast en sprite attackerar åt gången
+const RANGE_RANDOMNESS = 0.5    //0.5 = arrows flyger mellan 100% & 150% av rangen.
 const INVINCIBLE_DURATION = 2;
-const ARCHER_TRAJECTORY = 1.25; //arctan av detta är vinkeln den skjuts med
-const ARCHER_TARGET_MAX_RANGE = 100; // maxrange när archers använder target fire abilityn.
+const ARCHER_TRAJECTORY = 1.25;  //arctan av detta är vinkeln den skjuts med
+const ARCHER_TARGET_MAX_RANGE = 100 // maxrange när archers använder target fire abilityn.
 const SPRINT_ABILITY_SPEED = 10;
 const BALLISTA_UNLOCK_DAY = 3; //how many days pass before ballista is unlocked.
-const BALLISTA_SIEGE_RANGE = 120; //how far away from own castle the ballista should start shooting
+const BALLISTA_SIEGE_RANGE = 120 //how far away from own castle the ballista should start shooting
 const CASTLE_ARROW_DELAY = [NaN, 12, 7, 7];
 const CASTLE_BAL_DELAY = [NaN, NaN, NaN, 12];
-var IS_DEBUGGING = true; //låser upp allting
+var IS_DEBUGGING = true //låser upp allting
+
 //===DAY NIGHT ===\\
-const MAXDARKNESS = 0.5; //hur mörka sprites blir på natten. används endast i graphics_level 1+
-const DUSK_TIME = 0.1; //hur lång tid solen tar på sig att gå upp/ner 0-0.25. sätt inte till 0, utan 0.001
-const NIGHT_TIME = 0.55; //när det börjar bli natt
-const CYCLE_TIME = 30; //hur många sekunder ett dygn tar
+const MAXDARKNESS = 0.5 //hur mörka sprites blir på natten. används endast i graphics_level 1+
+const DUSK_TIME = 0.1   //hur lång tid solen tar på sig att gå upp/ner 0-0.25. sätt inte till 0, utan 0.001
+const NIGHT_TIME = 0.55 //när det börjar bli natt
+const CYCLE_TIME = 30   //hur många sekunder ett dygn tar
 var UNIT_DARKNESS_NUMBER = 1; //samm sak som under, fast som ett tal
 var UNIT_DARKNESS = 'brightness(100%)'; //när det är natt sätts den till 'brightness(50%)'
-var LAST_DRAWN_DARKNESS = 'brightness(100%)'; //här för optimering
-const DEFAULT_DARKNESS = 'brightness(100%)'; //kommer ej ihåg
-var DUSK_OPACITY = 0; //används för moln, säger hur dusk-iga molnen ska va 
-var IS_NIGHT = 0; //används för moln, säger om det ska va dag eller nattmoln
+var LAST_DRAWN_DARKNESS = 'brightness(100%)';   //här för optimering
+const DEFAULT_DARKNESS = 'brightness(100%)';    //kommer ej ihåg
+
+var DUSK_OPACITY = 0;   //används för moln, säger hur dusk-iga molnen ska va 
+var IS_NIGHT: number = 0;   //används för moln, säger om det ska va dag eller nattmoln
+
 //===VISUAL ===\\
-const DRAW_ICONS_SMOOTH = false; // if the icons on buttons sghould be drawn smoothly
+const DRAW_ICONS_SMOOTH = false // if the icons on buttons sghould be drawn smoothly
+
 //=== clouds ===\\
-const CLOUD_RATE = 0.003; //hur ofta det kommer moln
-const CLOUD_SPEED = 0.3; //hur snabba molnen är
+const CLOUD_RATE = 0.003;  //hur ofta det kommer moln
+const CLOUD_SPEED = 0.3;   //hur snabba molnen är
 const CLOUD_MIN_HEIGHT = 0;
-const CLOUD_MAX_HEIGHT = 50; //hur långt ner molnen kan skapas
-const CLOUD_DIST_FACTOR = 3; //clouds at y=CLOUD_HEIGHT are X bigger and X faster than those at y=0
+const CLOUD_MAX_HEIGHT = 50;    //hur långt ner molnen kan skapas
+const CLOUD_DIST_FACTOR = 3;      //clouds at y=CLOUD_HEIGHT are X bigger and X faster than those at y=0
 const CLOUD_MAX_COUNT = 8; // make an educated guess
+
 //===PERFORMACE===\\\
-const CLOUDS_ENABLED = true;
-const GRAPHICS_LEVEL = 0; //0 is fast, 2 is fancy. 1 = shade sprites, 2 = shade projectiles & sprites.
+const CLOUDS_ENABLED = true
+const GRAPHICS_LEVEL = 0 //0 is fast, 2 is fancy. 1 = shade sprites, 2 = shade projectiles & sprites.
 const DRAW_NEAREST_NEIGHBOUR = true; //blurry or pixly
 const DAY_NIGHT_ENABLED = true; //guess
 var ARROW_GRAPHICS_LEVEL = 1; //0 for only white lines, 1 for texure, 2 for texture shaded by day/night
+
+
 //===ONLINE===\\
-const SYNC_INTERVAL = 10; //how ofter we sync the entire game
+const SYNC_INTERVAL = 10;   //how ofter we sync the entire game
 var LAST_GLOBAL_UPDATE = Date.now(); // we dont want the game to sync right after someone used an ability
 const GLOBAL_UPDATE_MARGIN = 250; // how long time of no actions are needed for global updates to pass trough
-const SYNC_PROJECTILES = false; // wethero r not to update projectile position when syncing. should be set to false
-const LOBBY_CODE_LEN = 4;
-const ATK_DELAY_REDUCED_ONLINE = 150; //units dash out their damage quicker online. If it takes 0.25 seconds for a package to arrive, and this is set to 250 then it should be good 
+const SYNC_PROJECTILES = false // wethero r not to update projectile position when syncing. should be set to false
+const LOBBY_CODE_LEN = 4
+const ATK_DELAY_REDUCED_ONLINE = 150 //units dash out their damage quicker online. If it takes 0.25 seconds for a package to arrive, and this is set to 250 then it should be good 
+
+
 //===STARTUP===\\
-var ClanTypes;
-(function (ClanTypes) {
-    ClanTypes[ClanTypes["kingdom"] = 0] = "kingdom";
-    ClanTypes[ClanTypes["viking"] = 1] = "viking";
-})(ClanTypes || (ClanTypes = {}));
+enum ClanTypes {
+    "kingdom",
+    "viking",
+}
+
 var player1Name = "alice";
 var player2Name = "bob";
-var playerClan = [ClanTypes.kingdom, ClanTypes.kingdom];
+var playerClan: ClanTypes[] = [ClanTypes.kingdom, ClanTypes.kingdom]
+
 class SpriteAnimation {
-    size;
-    row;
-    frames;
-    frameRate;
-    isALoop;
+    size: number;
+    row: number;
+    frames: number;
+    frameRate: number;
+    isALoop: boolean;
     //size of each square, how many rows down in spritesheet, number of frames, frameRate, isAloop(false on atk animations)
-    constructor(size, row, frames, frameRate, isALoop) {
+    constructor(size: number, row: number, frames: number, frameRate: number, isALoop: boolean) {
         this.size = size;
         this.row = row;
         this.frames = frames;
         this.frameRate = frameRate;
         this.isALoop = isALoop;
     }
+
     getFrameCount() {
         return this.frames;
     }
+
     getFrameRate() {
         return this.frameRate;
     }
+
     getRow() {
         return this.row;
     }
+
     getIfLoop() {
         return this.isALoop;
     }
 }
+
 // let disabledBtns = new Set([{ "a": 1, "b": 2 }, { "a": 1, "b": 2 }
 // ])
+
 // if (disabledBtns.has({ "a": 1, "b": 2 })) { console.log("ja") }
 // else {
 //     console.log("nej")
 // }
+
 const UPGRADES = {
     upgGold: { goldIncrease: 5, costDelta: 10 },
     upgAbility: { costDelta: 5 }
-};
-var SpriteCurAnim;
-(function (SpriteCurAnim) {
-    SpriteCurAnim[SpriteCurAnim["idle"] = 0] = "idle";
-    SpriteCurAnim[SpriteCurAnim["attack"] = 1] = "attack";
-    SpriteCurAnim[SpriteCurAnim["walk"] = 2] = "walk";
-    SpriteCurAnim[SpriteCurAnim["special"] = 3] = "special";
-})(SpriteCurAnim || (SpriteCurAnim = {}));
-var SpriteCurState;
-(function (SpriteCurState) {
-    SpriteCurState[SpriteCurState["idle"] = 0] = "idle";
-    SpriteCurState[SpriteCurState["walk"] = 1] = "walk";
-    SpriteCurState[SpriteCurState["attack"] = 2] = "attack";
-})(SpriteCurState || (SpriteCurState = {}));
-var Teams;
-(function (Teams) {
-    Teams[Teams["blue"] = 0] = "blue";
-    Teams[Teams["red"] = 1] = "red";
-})(Teams || (Teams = {}));
+}
+
+
+enum SpriteCurAnim {
+    "idle",
+    "attack",
+    "walk",
+    "special",
+}
+
+enum SpriteCurState {
+    "idle",
+    "walk",
+    "attack",
+}
+
+enum Teams {
+    "blue",
+    "red"
+}
+
 const STATS = {
     soldier: {
         hp: 11, dmg: 3, meleRange: 12, range: 0, atkSpeed: 1200, atkDelay: 450, speed: 4,
@@ -229,7 +266,7 @@ const STATS = {
         hp: 15, dmg: 3, meleRange: 12, range: 0, atkSpeed: 1200, atkDelay: 450, speed: 10,
         abilities: ["coolShoes", "changeRow"], row: 1, img: "knight_img", imageSize: 32, size: 7,
         animations: { [SpriteCurAnim.idle]: new SpriteAnimation(32, 0, 8, 60, true), [SpriteCurAnim.walk]: new SpriteAnimation(32, 1, 8, 8, true), [SpriteCurAnim.attack]: new SpriteAnimation(32, 2, 7, 20, false) }
-    },
+    }, //speed ska va 10
     veteran: {
         hp: 18, dmg: 10, meleRange: 12, range: 0, atkSpeed: 2200, atkDelay: 1100, speed: 4,
         abilities: [], row: 0, img: "veteran_img", imageSize: 32, size: 7,
@@ -265,12 +302,17 @@ const STATS = {
         abilities: ["jump", "whirlwind"], row: 0, img: "viking_img", imageSize: 32, size: 7,
         animations: { [SpriteCurAnim.idle]: new SpriteAnimation(32, 0, 8, 60, true), [SpriteCurAnim.walk]: new SpriteAnimation(32, 1, 8, 16.1804, true), [SpriteCurAnim.attack]: new SpriteAnimation(32, 2, 7, 21, false) }
     },
-};
+
+}
+
+
+
 // {
 //     idle: new SpriteAnimation(32, 0, 8, 60, true),
 //     walk: new SpriteAnimation(32, 1, 8, 20, true),
 //     attack: new SpriteAnimation(32, 2, 7, 20, false),
 // };
+
 // const UNIQE = {
 //     knight: ["coolShoes", "changeRow"],
 //     archer: ["targetfire"],
@@ -287,6 +329,8 @@ const STATS = {
 // [O, O, O, O, O, O, o]
 //                 ^
 //stora O är i scope, små o är inte i scope
+
+
 const BUTTON_LAYOUT = [
     { x: 15, y: 135, key: "q" },
     { x: 45, y: 135, key: "w" },
@@ -294,13 +338,15 @@ const BUTTON_LAYOUT = [
     { x: 15, y: 165, key: "a" },
     { x: 45, y: 165, key: "s" },
     { x: 75, y: 165, key: "d" },
+
     { x: 305, y: 135, key: "u" },
     { x: 275, y: 135, key: "i" },
     { x: 245, y: 135, key: "o" },
     { x: 305, y: 165, key: "j" },
     { x: 275, y: 165, key: "k" },
     { x: 245, y: 165, key: "l" },
-];
+]
+
 const BTN_LAYOUT = {
     0: [
         { x: 15, y: 135, key: "q" },
@@ -318,7 +364,8 @@ const BTN_LAYOUT = {
         { x: 275, y: 165, key: "k" },
         { x: 245, y: 165, key: "l" },
     ]
-};
+}
+
 const BUTTON_DICT = {
     q: { team: 0, id: 0 },
     w: { team: 0, id: 1 },
@@ -332,7 +379,11 @@ const BUTTON_DICT = {
     l: { team: 1, id: 3 },
     k: { team: 1, id: 4 },
     j: { team: 1, id: 5 },
-};
+}
+
+
+
+
 const CLAN_INFO = {
     [ClanTypes.kingdom]: {
         base_img: "castle_img",
@@ -340,7 +391,8 @@ const CLAN_INFO = {
     [ClanTypes.viking]: {
         base_img: "stavechurch_img",
     }
-};
+}
+
 const BTN_FOLDER = {
     [ClanTypes.kingdom]: {
         0: {
@@ -351,16 +403,18 @@ const BTN_FOLDER = {
             4: { txt: "upgrades", action: "folder", data: 2, img: "soldier_img", icon: "castleUpg" },
             5: { txt: "abilities", action: "folder", data: 3, img: "soldier_img", icon: "target" },
         },
-        1: {
+        1: {    // sprites
             0: { txt: "soldier", cost: 15, action: "buyUnit", data: "soldier", img: "soldier_img", info: "solders are basic mele units" },
             // 1: { txt: "viking", cost: 15, action: "buyUnit", data: "viking", img: "viking_img", info: "vikings are basic mele units" },
             1: { txt: "archer", cost: 10, action: "buyUnit", data: "archer", img: "archer_img", info: "archers are ranged units that \nshoot 3 - 6 units forward" },
-            2: { txt: "knight", cost: 35, action: "buyUnit", data: "knight", upgrade: "upgKnight", img: "knight_img", info: "knights are fast and strong,\nand will run past all your units\nto the front of the battlefield" },
+            2: { txt: "knight", cost: 35, action: "buyUnit", data: "knight", upgrade: "upgKnight", img: "knight_img", info: "knights are fast and strong,\nand will run past all your units\nto the front of the battlefield" }, // require: "upgKnight",
             3: { txt: "back", action: "folder", data: 0, img: "buttonBack_img" },
             4: { txt: "veteran", cost: 50, action: "buyUnit", data: "veteran", upgrade: "upgVeteran", img: "veteran_img", info: "veterans are very strong and \none-hits most units" },
             5: { txt: "ballista", cost: 30, action: "buyUnit", data: "ballista", upgrade: "upgBallista", img: "ballista_img", info: "ballistas shooty at castle" }
+
+
         },
-        2: {
+        2: {    //upgrades
             0: { txt: "upgrade", txt2: "gold", cost: "%upggold%", action: "upgrade", upgrade: "maxGold", data: "upgGold", img: "knight_img", icon: "goldUpg", info: "will increase the gold you get \nevery 15 seconds. \nthe cost of this ability increases" },
             1: { txt: "repair", txt2: "castle", cost: "%repaircastle%", action: "upgrade", upgrade: "repairCastle", data: "repairCastle", img: "knight_img", icon: "repair", info: "will repair the castle by 15 hp. \nthe cost of this ability increases" },
             2: { txt: "unlock", txt2: "knight", cost: 50, subText: "50", action: "upgrade", upgrade: "upgKnight", data: "upgKnight", img: "knight_img", info: "unlocks the knight, a fast and \nstrong frontline unit that runs \npast the battlefield" },
@@ -377,6 +431,7 @@ const BTN_FOLDER = {
             4: { txt: "Sprint", cost: 3, action: "ability", data: "sprint", abilityCooldown: 8, lvl: 0, img: "soldier_img", icon: "sprint", info: "makes all units sprint across\nthe battlefield" },
             5: { txt: "back", action: "folder", data: 0, img: "buttonBack_img" },
             6: { txt: "upgrade", txt2: "ability", cost: "%upgability%", action: "upgrade", upgrade: "upgAbility", data: "upgAbility", img: "archer_img", icon: "castleUpg", info: "unlocks another ability \n(%abilitylevel%/5 unlocked) " },
+
         }
     },
     [ClanTypes.viking]: {
@@ -388,15 +443,17 @@ const BTN_FOLDER = {
             4: { txt: "upgrades", action: "folder", data: 2, img: "soldier_img", icon: "castleUpg" },
             5: { txt: "abilities", action: "folder", data: 3, img: "soldier_img", icon: "target" },
         },
-        1: {
+        1: {    // sprites
             0: { txt: "viking", cost: 15, action: "buyUnit", data: "viking", img: "viking_img", info: "vikings are basic mele units" },
             1: { txt: "spearman", cost: 20, action: "buyUnit", data: "spearman", img: "spearman_img", info: "Spearmen are ranged, but \nwith good mele attacks aswell" },
-            2: { txt: "brute", cost: 25, action: "buyUnit", data: "brute", upgrade: "upgBrute", img: "viking_img", info: "knights are fast and strong,\nand will run past all your units\nto the front of the battlefield" },
+            2: { txt: "brute", cost: 25, action: "buyUnit", data: "brute", upgrade: "upgBrute", img: "viking_img", info: "knights are fast and strong,\nand will run past all your units\nto the front of the battlefield" }, // require: "upgKnight",
             3: { txt: "back", action: "folder", data: 0, img: "buttonBack_img" },
             4: { txt: "veteran", cost: 50, action: "buyUnit", data: "veteran", upgrade: "upgVeteran", img: "veteran_img", info: "veterans are very strong and \none-hits most units" },
             5: { txt: "ballista", cost: 30, action: "buyUnit", data: "ballista", upgrade: "upgBallista", img: "ballista_img", info: "ballistas shooty at castle" }
+
+
         },
-        2: {
+        2: {    //upgrades
             0: { txt: "upgrade", txt2: "gold", cost: "%upggold%", action: "upgrade", upgrade: "maxGold", data: "upgGold", img: "knight_img", icon: "goldUpg", info: "will increase the gold you get \nevery 15 seconds. \nthe cost of this ability increases" },
             1: { txt: "repair", txt2: "castle", cost: "%repaircastle%", action: "upgrade", upgrade: "repairCastle", data: "repairCastle", img: "knight_img", icon: "repair", info: "will repair the castle by 15 hp. \nthe cost of this ability increases" },
             2: { txt: "unlock", txt2: "brute", cost: 50, subText: "50", action: "upgrade", upgrade: "upgBrute", data: "upgBrute", img: "viking_img", info: "unlocks the brute, a fast and \nstrong mele unit" },
@@ -413,7 +470,8 @@ const BTN_FOLDER = {
             4: { txt: "Sprint", cost: 3, action: "ability", data: "sprint", abilityCooldown: 8, lvl: 0, img: "soldier_img", icon: "sprint", info: "makes all units sprint across\nthe battlefield" },
             5: { txt: "back", action: "folder", data: 0, img: "buttonBack_img" },
             6: { txt: "upgrade", txt2: "ability", cost: "%upgability%", action: "upgrade", upgrade: "upgAbility", data: "upgAbility", img: "archer_img", icon: "castleUpg", info: "unlocks another ability \n(%abilitylevel%/5 unlocked) " },
+
         }
     }
-};
-//# sourceMappingURL=Globals.js.map
+}
+

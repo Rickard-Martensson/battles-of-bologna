@@ -57,10 +57,43 @@
             <img id="titleText" class="all title" src="bilder/ui/Logo.png" alt="Battles Of Bologna">
             <span id="bootupText" class="bootup blink_me"><span>click anywhere to start</span></span>
 
-            <span id="button1" class="all title button" onclick="startGameLocal()"><span> Play </span></span>
+            <span id="button1" class="all title button" onclick="menuLocal()"><span> Play </span></span>
             <span id="button2" class="all title button" onclick="menuHostLobby()"><span>Host</span></span>
             <span id="button3" class="all title button" onclick="menuJoinLobby()"><span>Join</span></span>
             <span id="creditsButton" class="all title button" onclick="toggleCredits()"><span>Credits</span></span>
+
+
+            <div id="player_setup_blue" class="all player_setup hostlobby locallobby">
+                <h4>Blue</h4>Pick a clan:
+                <span id="kingdom_button_0" class="all title locallobby hostlobby button clan_player_0"
+                    onclick="setClan('kingdom', 0)"><span>
+                        Kingdom</span></span>
+
+                <span id="viking_button_0" class="all title locallobby hostlobby button clan_player_0"
+                    onclick="setClan('viking', 0)"><span>
+                        Vikings
+                    </span></span>
+            </div>
+            <div id="player_setup_red" class="all player_setup joinlobby locallobby">
+                <h4>Red</h4>Pick a clan:
+
+
+                <span id="kingdom_button_1" class="all title locallobby joinlobby button clan_player_1"
+                    onclick="setClan('kingdom', 1)"><span>
+                        Kingdom</span></span>
+
+                <span id="viking_button_1" class="all title locallobby  joinlobby button clan_player_1"
+                    onclick="setClan('viking', 1)"><span>
+                        Vikings
+                    </span></span>
+            </div>
+
+
+            <!-- <span id="choose_kingdom" class="all locallobby button" onclick="startGameLocal()"><span> Kingdom
+                </span></span>
+            <span id="choose_vikings" class="all locallobby button" onclick="startGameLocal()"><span> Vikings
+                </span></span> -->
+
 
 
             <div id="popup" class="Absolute-Center noselect">
@@ -75,7 +108,11 @@
                 style="visibility: visible;">
             <input id="lobby_input" class="all joinlobby input" value="" maxlength="4" placeholder="ABCD"
                 style="visibility: visible;">
-            <span id="button_back" class="all joinlobby hostlobby button" onclick="backLobby()"><span>Back</span></span>
+            <span id="button_back" class="all joinlobby hostlobby locallobby button"
+                onclick="backLobby()"><span>Back</span></span>
+            <span id="button_start" class="all locallobby button" onclick="startGameLocal()"><span> Play </span></span>
+            <span id="button_start" class="all joinlobby button" onclick="promptJoin()"><span> Join </span></span>
+
 
             <!-- <span id="button_start" class="all hostlobby button" onclick="startGameTest()"><span>Back2</span></span> -->
 
