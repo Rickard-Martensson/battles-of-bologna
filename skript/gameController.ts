@@ -3,6 +3,30 @@ let keySet = new Set(["q", "w", "e", "a", "s", "d", "u", "i", "o", "j", "k", "l"
 
 let forbiddenSet = new Set(["enter", "tab", "capslock", "control", "alt", "shift", "meta", "altgraph", "arrowleft", "arrowright", "arrowup", "arrowdown", "insert", "delete"])
 
+let konamiSet = new Set(["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "a", "b"]);
+
+if (window.addEventListener) {
+    var konamiIdx = 0;
+    var konami = ["ArrowUp", "ArrowUp", "ArrowDown", "ArrowDown", "ArrowLeft", "ArrowRight", "ArrowLeft", "ArrowRight", "a", "b"];
+    window.addEventListener("keydown", function (e) {
+        if (konamiSet.has(e.key)) {
+            if (konami[konamiIdx] == e.key) {
+                konamiIdx += 1
+                if (konamiIdx == 10) {
+                    IS_DEBUGGING = !IS_DEBUGGING;
+                    console.log("cheats:", IS_DEBUGGING)
+                    playAudio("win");
+                }
+            }
+            else {
+                konamiIdx = 0
+            }
+        }
+
+
+    }, true);
+}
+
 
 function activateGameController() {
 
