@@ -17,7 +17,9 @@ class Projectile {
     deathFrame: number;
     lastDeathFrame: number;
     dead: boolean;
-    constructor(pos, vel, team, dmg, isUpdate: boolean = false, newData: Projectile | boolean = false, type = "arrow") {
+    frame: number;
+    angle: number;
+    constructor(pos: { x: number; y: number; }, vel: { vx: number; vy: number; }, team: number, dmg: number, isUpdate: boolean = false, newData: Projectile | boolean = false, type = "arrow") {
         this.pos = { x: pos.x, y: pos.y };
         this.vel = { vx: vel.vx, vy: vel.vy };
         this.team = team;
@@ -45,6 +47,14 @@ class Projectile {
             this.ARROW_SIZE = .7;
 
         }
+        else if (this.type == "rocket") {
+            const TAU = Math.PI * 2
+            this.DRAW_SIZE = 10;
+            this.frame = 0;
+            this.angle = TAU / 4;
+            this.deathFrame = 0
+            this.lastDeathFrame = Date.now()
+        }
 
 
         this.dead = false;
@@ -52,7 +62,14 @@ class Projectile {
 
 
         if (isUpdate) { this.updateData(newData) }
-        else { playSoundEffect("arrow") }
+        else {
+            if (this.type == "rocket") {
+                playSoundEffect("firework");
+            }
+            else {
+                playSoundEffect("arrow")
+            }
+        }
     }
 
     updateData(newData) {
@@ -76,9 +93,25 @@ class Projectile {
         this.pos.y += (castelHeight - this.pos.y) / 40
     }
 
+    moveRocket() {
+        this.pos.x += this.vel.vx * fpsCoefficient / 100;
+        this.pos.y += this.vel.vy * fpsCoefficient / 100;
+
+
+        this.vel.vy += (-110 * Math.sin(this.angle) + GRAVITY) * fpsCoefficient / 100;
+        this.vel.vx += (1 - 2 * this.team) * (60 * Math.cos(this.angle)) * fpsCoefficient / 100;
+        this.angle -= 1.3 * fpsCoefficient / 100;
+        console.log(this.vel.vy, this.angle)
+
+    }
+
     move() {
         if (this.type == "ballista") {
             this.moveBal();
+            return
+        }
+        else if (this.type == "rocket") {
+            this.moveRocket();
             return
         }
         this.pos.x += this.vel.vx * fpsCoefficient / 100;
@@ -150,6 +183,10 @@ class Projectile {
     checkDead(index) {
         if (this.dead || this.pos.y > HEIGHT) {
             index > -1 ? game.projectiles.splice(index, 1) : false
+
+            if (this.type == "rocket") {
+                playSoundEffect("explode");
+            }
         }
     }
 
@@ -163,6 +200,61 @@ class Projectile {
         var acceleration = GRAVITY / 2
         var t_0 = (- this.vel.vy + Math.sqrt(this.vel.vy * this.vel.vy - 4 * acceleration * (this.pos.y - 100))) / (2 * acceleration)
         console.log(this.vel.vx * t_0 + this.pos.x)
+    }
+
+
+    drawRocket() {
+
+        const TAU = Math.PI * 2
+        let frame = (this.frame + 1) % 4;
+        this.frame = frame
+        let angle = 0;
+        let imageSize = 16
+
+        if (this.angle + TAU > TAU * 1.2) {
+            angle = 0;
+        }
+        else if (this.angle + TAU > TAU * 1.10) {
+            angle = 1
+        }
+        else if (this.angle + TAU > TAU * 1.0) {
+            angle = 2
+        }
+        else if (this.angle + TAU > TAU * .95) {
+            angle = 3
+        }
+        else if (this.angle + TAU > TAU * .9) {
+            angle = 4
+        }
+        else if (this.angle + TAU > TAU * .85) {
+            angle = 5
+        }
+        else if (this.angle + TAU > TAU * .8) {
+            angle = 5
+        }
+        else if (this.angle + TAU > TAU * .7) {
+            angle = 6
+        }
+        else {
+            angle = 6
+        }
+        // else if (this.vel.vy < 0.5) {
+        //     angle = 2
+        // }
+
+
+        ctx.drawImage(Images["rocket_projectile"],
+            imageSize * (frame + this.team * 4),
+            imageSize * (angle),
+            imageSize,
+            imageSize,
+
+            (this.pos.x - this.DRAW_SIZE / 2) * S,
+            (this.pos.y - this.DRAW_SIZE / 2) * S,
+            this.DRAW_SIZE * S,
+            this.DRAW_SIZE * S
+        );
+
     }
 
     drawBallista() {
@@ -206,6 +298,10 @@ class Projectile {
     draw() {
         if (this.type == "ballista") {
             this.drawBallista();
+            return
+        }
+        else if (this.type == "rocket") {
+            this.drawRocket()
             return
         }
         let lastPos = { x: this.pos.x, y: this.pos.y }
@@ -279,10 +375,14 @@ class Sprite {
     hp: any;
     meleRange: number;
     row: number;
-    isJumping: boolean;
+
+    // abilities
+    drawSpriteYOffset: number;
     startJumpDate: number;
     imageSize: number;
     size: number;
+    jumpState: number;
+    hasJumped: number;
     constructor(x: number, y: number, name: string, team: any, isUpdate: boolean, newData: any) {
         //console.log(x, y, name, team, isUpdate, "newdata:", newData)
         if (isUpdate) { this.updateData(newData); }
@@ -325,11 +425,15 @@ class Sprite {
             this.startInvincibleDate = null;
             this.drawInvisible = false;
             this.invincible = false;
+            this.drawSpriteYOffset = 0;
 
             this.activeEffects = new Set();
             console.log(game.players[this.team].activeAbilities)
             if (game.players[this.team].checkAbility("sprint")) {
                 this.activateAbility("sprint")
+            }
+            if (game.players[this.team].checkAbility("rage")) {
+                this.activateAbility("rage")
             }
             // this.speed *= 5
         }
@@ -384,14 +488,76 @@ class Sprite {
             this.speed += SPRINT_ABILITY_SPEED
             this.animTimeMult /= 2
         }
+        else if (name == "rage") {
+            this.activeEffects.add("rage")
+            this.atkSpeed *= 0.5
+            this.drawSpriteYOffset = 4;
+        }
+    }
+
+    deactivateAbility(name) {
+        if (name == "sprint") {
+            this.activeEffects.delete("sprint")
+            this.speed -= SPRINT_ABILITY_SPEED
+            this.animTimeMult *= 2
+        }
+        else if (name == "rage") {
+            this.activeEffects.delete("rage")
+            this.atkSpeed *= 2
+            this.drawSpriteYOffset = 0;
+        }
     }
 
 
 
     move() {
-        this.pos.x += this.direction * this.currentSpeed * fpsCoefficient / 100;
-        // this.setState("walk", -1, "mooove")
-        this.state = SpriteCurState.walk
+
+        if (this.jumpState == 1) {
+            this.state = SpriteCurState.jump;
+            this.currentAnimation = SpriteCurAnim.jump;
+            const JUMP_HEIGHT = 20
+            const JUMP_CHARGE_TIME = 300 // milliseconds
+            const JUMP_DURATION = 1.3 // adjust animation speed aswell in SpriteCurAnim.jump in globals
+            var JUMP_SPEED_MULT = 3.5
+            if (this.activeEffects.has("rage")) {
+                JUMP_SPEED_MULT = 6
+            }
+            let s = ((Date.now() - (this.startJumpDate + JUMP_CHARGE_TIME)) / 1000) / (JUMP_DURATION)
+            this.pos.y = HEIGHT;
+            if (s > 0) {
+                this.pos.x += JUMP_SPEED_MULT * this.direction * this.currentSpeed * fpsCoefficient / 100;
+                this.pos.y = 100 + JUMP_HEIGHT * 4 * (s - 0) * (s - 1);
+                if (s > 1) {
+                    this.jumpState = 0;
+                    this.row = 0;
+                    this.pos.y = 100;
+                    this.state = SpriteCurState.walk;
+                    this.currentAnimation = SpriteCurAnim.walk;
+                }
+            }
+
+        }
+        else {
+            this.pos.x += this.direction * this.currentSpeed * fpsCoefficient / 100;
+            // this.setState("walk", -1, "mooove")
+            this.state = SpriteCurState.walk
+
+        }
+        // if (this.jumpState == 1) {
+        //     this.pos.y -= 10 * (Math.sqrt(this.pos.y - 75)) * fpsCoefficient / 100;
+        //     console.log("jumping at pos", this.pos.y)
+        //     if (this.pos.y < 80) {
+        //         this.jumpState = 2;
+        //     }
+        // }
+        // else if (this.jumpState == 2) {
+        //     this.pos.y += 10 * fpsCoefficient / 100;
+        //     if (this.pos.y > 100) {
+        //         this.jumpState = 2;
+        //         this.pos.y = 100
+        //         this.row = 0;
+        //     }
+        // }
     }
 
     spriteShootProjectile(shouldTargetNext = false) {
@@ -412,8 +578,8 @@ class Sprite {
             game.shootProjectile(
                 { x: this.pos.x, y: this.pos.y - 5 },
                 {
-                    vx: (this.range * (1 + RANGE_RANDOMNESS * Math.random())) * 10 * this.direction,
-                    vy: (this.range * (1 + RANGE_RANDOMNESS * Math.random())) * -10 * ARCHER_TRAJECTORY
+                    vx: this.range * 10 * this.direction,
+                    vy: this.range * -10
                 },
                 this.team, this.dmg,
                 IS_ONLINE, "ballista");
@@ -429,7 +595,17 @@ class Sprite {
                 this.team, this.dmg,
                 IS_ONLINE, "spear");
             return
-
+        }
+        else if (this.abilities.includes("rocket")) {
+            game.shootProjectile(
+                { x: this.pos.x, y: this.pos.y - 5 },
+                {
+                    vx: (this.range * (1 + RANGE_RANDOMNESS * Math.random())) * 10 * this.direction,
+                    vy: (this.range * (1 + RANGE_RANDOMNESS * Math.random())) * -10 * ARCHER_TRAJECTORY
+                },
+                this.team, this.dmg,
+                IS_ONLINE, "rocket");
+            return
         }
         game.shootProjectile(
             { x: this.pos.x, y: this.pos.y - 5 },
@@ -454,7 +630,8 @@ class Sprite {
         //this.setState("attack", -1, "attacking");
 
         let timeSinceLastAttackCycle = Date.now() - this.lastAtkCycleDate;
-        if (timeSinceLastAttackCycle > this.atkSpeed) { //start attack animation
+        let isRagingButAlsoRanged = (victim == undefined && this.activeEffects.has("rage")) ? 2 : 1;
+        if (timeSinceLastAttackCycle > this.atkSpeed * isRagingButAlsoRanged) { //start attack animation: ;
             this.currentFrame = 0;
             this.currentAnimation = SpriteCurAnim.attack
             this.lastAtkCycleDate = Date.now();
@@ -493,6 +670,17 @@ class Sprite {
                 playSoundEffect("sword")
                 victim.takeDmg(this.dmg)
                 playSoundEffect("damage");
+                if (this.abilities.includes("whirlwind")) {
+                    let behindSprite = game.distToNextSprite(this, this.getOtherTeam(), true)
+                    const BEHIND_EXTRA_RANGE = 5
+                    console.log("hehe wirlld", behindSprite.len, this.meleRange, BEHIND_EXTRA_RANGE)
+                    if (behindSprite.len < this.meleRange + BEHIND_EXTRA_RANGE) {
+                        behindSprite.sprite.takeDmg(this.dmg)
+                        console.log("BEHIND ATTACK!!!");
+                    }
+
+                    // (nextEnemy.len + MELE_RANGE_BUFFER < this.meleRange)
+                }
             }
             this.lastStartOfAtkCycleDate = null //efter denhär så står spriten bara still o vibear
         }
@@ -560,6 +748,7 @@ class Sprite {
         if (newState == "walk") {
             if (this.range != 0 && this.abilities.includes("ballista") && this.distFromOwnCastle() > BALLISTA_SIEGE_RANGE) {
                 // if (this.state)
+                // ändra row här
                 this.attack(undefined);
                 this.state = SpriteCurState.attack;
                 // this.setState("attack", -1);
@@ -606,14 +795,16 @@ class Sprite {
     }
 
     jumpOverUnits() {
-        console.log("jumping!")
-        this.isJumping = true
+        console.log("unit have been orderd to jump!")
+        this.jumpState = 1
+        this.currentFrame = 0;
+        this.frameDelay = 0;
         this.row = -1;
         this.startJumpDate = Date.now()
 
     }
 
-    canMove(game) {
+    canMove(game: Game) {
         let nextFriend = game.distToNextSprite(this, this.team)
         let nextEnemy = game.distToNextSprite(this, this.getOtherTeam())
         if (nextFriend.len < nextEnemy.len && this.row == 0) {
@@ -638,9 +829,9 @@ class Sprite {
         else {
             //ifall mitt emot en enemy
             if (nextEnemy.len + MELE_RANGE_BUFFER < this.meleRange) {
-                if (this.abilities.includes("jump")) {
+                if (this.abilities.includes("jump") && this.hasJumped != 1 && this.row == 0) {
+                    this.hasJumped = 1;
                     console.log("this unit should jump now")
-                    this.abilities = arrayRemove(this.abilities, "jump")
                     this.jumpOverUnits();
                 }
                 else if (nextEnemy.sprite.row == this.row) {
@@ -665,10 +856,20 @@ class Sprite {
 
 
     getFrame() { //usually this crashes if sprite is undefined
+        // if (this.currentAnimation == SpriteCurAnim.walk && WALK_START_DATE == -1) {
+        //     WALK_UNIT = this.uniqeId
+        //     WALK_START_DATE = Date.now()
+        // }
         var currAnim = this.animations[this.currentAnimation];
-        this.frameDelay -= fpsCoefficient;
+        this.frameDelay -= fpsCoefficient; //
         if (this.frameDelay <= 0) {
             this.currentFrame += 1;
+            // if (WALK_UNIT == this.uniqeId) {
+            //     WALK_FRAME_COUNT += 1;
+            //     let delta_time = Date.now() - WALK_START_DATE;
+            //     console.log("id is", WALK_UNIT, "frames per second (should be 109):", (2 * 60000 / 8) * WALK_FRAME_COUNT / delta_time, "frames and dt:", WALK_FRAME_COUNT, delta_time)
+            // }
+
             if (this.currentFrame > currAnim.getFrameCount() - 1) {
                 // console.log("tid per frame:", (Date.now() - this._last0frame) / currAnim.getFrameCount());
                 this.currentFrame = 0;
@@ -677,7 +878,7 @@ class Sprite {
                 }
                 // this._last0frame = Date.now()
             }
-            this.frameDelay = this.animations[this.currentAnimation].getFrameRate()
+            this.frameDelay = this.animations[this.currentAnimation].getFrameRate() + Math.max(-20, this.frameDelay)
             if (this.isWalking) { this.frameDelay *= this.animTimeMult }
         }
         else {
@@ -689,7 +890,7 @@ class Sprite {
 
     draw() {
         let fiddledWithAlpha = false
-        let frame = this.getFrame()
+        let frame = Math.min(this.getFrame(), this.animations[this.currentAnimation].getFrameCount() - 1)
         let animation = this.animations[this.currentAnimation].getRow()
 
         if (this.startInvincibleDate != null || Date.now() - this.lastDmgdTime < INVINCIBLE_DELAY) {
@@ -698,7 +899,7 @@ class Sprite {
         }
         ctx.drawImage(Images[this.img],
             this.imageSize * frame,
-            this.imageSize * animation,
+            this.imageSize * (animation + this.drawSpriteYOffset),
             this.imageSize,
             this.imageSize,
 
@@ -711,3 +912,8 @@ class Sprite {
 
     }
 }
+
+
+// let WALK_START_DATE = -1;
+// let WALK_FRAME_COUNT = 0;
+// let WALK_UNIT: number;

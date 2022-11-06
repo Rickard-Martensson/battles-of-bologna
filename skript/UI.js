@@ -618,6 +618,7 @@ class UIHandler {
         }
         else { // om det inte finnsen ikon å ritar vi img istället. viktigt att skilja på för att allt ska få rätt färg
             if (img != undefined) {
+                // console.log("could not draw image", img)
                 this.drawImage(Images[img], 32 * 0, //frame
                 0 * 0, 32, 32, (button.x + UI_POS_BTN.img.x - ICON_SIZE / 2) * S, (button.y + UI_POS_BTN.img.y + frame - ICON_SIZE / 2) * S, ICON_SIZE * S, ICON_SIZE * S);
             }

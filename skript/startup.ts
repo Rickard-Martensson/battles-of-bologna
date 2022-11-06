@@ -105,15 +105,17 @@ const SCREEN_SIZE = 1
  */
 
 var popupShowing = "none"
-const CREDITS = "Developer: <br>Rickard Mårtensson <br><br> Art: <br>Rickard Mårtensson<br><br> Music & Sound: <br>Daniel Sterner <br><br>";
+const CREDITS = "Developer: <br>Rickard Mårtensson <br><br> Art: <br>Rickard Mårtensson<br><br> Music & Sound: <br>Daniel Sterner <br><br>In the future this text might scroll slowly<br><br>that would fit with the music";
 const TUTORIAL = "You know how it is"
 
 
 function toggleCredits() {
     if (popupShowing == "credits") {
         closePopup()
+
     }
     else {
+        playAudio("credits");
         popupShowing = "credits"
         document.getElementById("popup").style.visibility = "visible";
         document.getElementById("popupTitle").innerHTML = "&nbsp;Credits";
@@ -124,12 +126,13 @@ function toggleCredits() {
 
 function closePopup() {
     popupShowing = "none"
+    playAudio("title");
     document.getElementById("popup").style.visibility = "hidden";
 
 }
 
 
-var S;
+var S: number;
 function resizeCanvas() {
     var screenHeight = window.innerHeight
     var screenWidth = window.innerWidth
@@ -266,11 +269,32 @@ function updateSelectedClans() {
 }
 
 
+
+var elem = document.documentElement;
+
+
+function toggleFullscreen() {
+    var elem = document.documentElement;
+
+    if (elem.requestFullscreen) {
+        elem.requestFullscreen();
+    }
+    else if (document.exitFullscreen) {
+        document.exitFullscreen();
+    }
+    resizeCanvas()
+
+    window.setTimeout(function () {
+        resizeCanvas()
+    }, 500)
+}
+
 function setClan(clan: string, player: number) {
 
-    let newClan = ClanTypes.kingdom
-    if (clan == "viking") {
-        newClan = ClanTypes.viking
+    let newClan: ClanTypes = ClanTypes.kingdom
+    if (Object.values(ClanTypes).includes(clan)) {
+        newClan = ClanTypes[clan];
+
     }
     playerClan[player] = newClan
 

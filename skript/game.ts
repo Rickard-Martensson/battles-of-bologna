@@ -125,7 +125,7 @@ class Game {
         this.gameOver = false
         this.isHurry = false
         this.daysPast = 0;
-
+        // this.addToBuyQueue("brute", 0);
     }
 
     updatePlayer(team: number, newData: any): void {
@@ -230,9 +230,23 @@ class Game {
             for (var key in this.sprites) {
                 let sprite = this.sprites[key]
                 if (sprite.team == team && sprite.activeEffects.has("sprint")) {
-                    sprite.activeEffects.delete("sprint")
-                    sprite.speed -= SPRINT_ABILITY_SPEED
-                    sprite.animTimeMult *= 2
+                    sprite.deactivateAbility("sprint")
+                    // sprite.activeEffects.delete("sprint")
+                    // sprite.speed -= SPRINT_ABILITY_SPEED
+                    // sprite.animTimeMult *= 2
+                }
+            }
+        }
+        else if (name == "rage") {
+
+            for (var key in this.sprites) {
+                let sprite = this.sprites[key]
+                if (sprite.team == team && sprite.activeEffects.has("rage")) {
+                    // sprite.activeEffects.delete("rage")
+                    sprite.deactivateAbility("rage")
+
+                    // sprite.speed -= SPRINT_ABILITY_SPEED
+                    // sprite.animTimeMult *= 2
                 }
             }
         }
@@ -270,6 +284,21 @@ class Game {
                 }
             }
         }
+
+        else if (name == "doublejump") {
+            for (var key in this.sprites) {
+                let sprite = this.sprites[key];
+                if (sprite.team == team) {
+                    if (sprite.abilities.includes("jump")) {
+                        sprite.jumpOverUnits();
+                    }
+                    else {
+                        console.log("this unit does not have jupm ability")
+                    }
+                }
+            }
+        }
+
         else if (name == "repair") {
             player.repairCastle(15);
             playSoundEffect("repair")
@@ -295,11 +324,21 @@ class Game {
             for (var key in this.sprites) {
                 let sprite = this.sprites[key];
                 if (sprite.team == team) {
-
                     sprite.activateAbility("sprint")
                 }
             }
         }
+        else if (name == "rage") {
+            player.addAbility("rage")
+            for (var key in this.sprites) {
+                let sprite = this.sprites[key];
+                if (sprite.team == team && sprite.abilities.includes("rage")) {
+                    sprite.activateAbility("rage")
+                }
+            }
+        }
+
+
         //this.sendGameState() //osäker på om detta fungerar. andra spelaren kan också synka, och det kan leda till problem...
     }
 
@@ -352,12 +391,14 @@ class Game {
 
         if (GRAPHICS_LEVEL != 0) { ctx.filter = UNIT_DARKNESS; };
         if (DRAW_NEAREST_NEIGHBOUR) { ctx.imageSmoothingEnabled = false } // viktig
-        this.drawSprites();
         if (GRAPHICS_LEVEL > 0) { ctx.filter = DEFAULT_DARKNESS; };
-        this.drawProjectiles();
         ctx.imageSmoothingEnabled = false; // viktig
+        this.drawSprites();
+        this.drawProjectiles();
         local_UI.drawEverything(fps);
         //this.drawUI(fps);
+
+
         this.goldIntervalCheck();
         this.syncIntervalCheck();
         this.checkAbilities();
@@ -365,6 +406,9 @@ class Game {
             this.checkPing();
         }
         this.checkIfPlayersDead();
+
+
+
 
         this.spawnSprites();
 
@@ -512,10 +556,13 @@ class Game {
     }
 
 
-    distToNextSprite(sprite: Sprite, team: number) {
+    distToNextSprite(sprite: Sprite, team: number, reverseDirection = false) {
         let bestCandidate = null;
         let bestCanLen = Infinity;
         let spriteDir = sprite.direction
+        if (reverseDirection) {
+            spriteDir *= -1;
+        }
         for (var i in this.sprites) {
             let loopSprite = this.sprites[i]
             if (team == loopSprite.team) {   //jafan
@@ -543,6 +590,13 @@ class Game {
     }
 
     drawSprites() {
+        for (var i in this.players) {
+            let player = this.players[i];
+            player.drawCastle();
+            if (player.castleLvl != 0) {
+                player.castleTryAttack();
+            }
+        }
         for (var i in this.sprites) {
             let sprite = this.sprites[i];
             //console.log("sprite:", sprite)
@@ -555,13 +609,7 @@ class Game {
 
 
         }
-        for (var i in this.players) {
-            let player = this.players[i];
-            player.drawCastle();
-            if (player.castleLvl != 0) { //&& Date.now() - player.lastCastleAtk > CASTLE_ARROW_DELAY[player.castleLvl] * 1000) {
-                player.castleTryAttack();
-            }
-        }
+
 
 
     }

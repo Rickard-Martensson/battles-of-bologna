@@ -34,13 +34,14 @@ function playSoundEffect(sound) {
             }
         }
     }
-    if (similarSoundsPlaying > 3) {
+    if (similarSoundsPlaying > 2) {
         console.log("too many sounds");
         return;
     }
     let thisSound = { soundeffect: sound, date: Date.now() };
     curSoundsPlaying.push(thisSound);
     // console.log("currently playing", curSoundsPlaying, Sounds[sound])
+    console.log("sound", sound);
     let audioSrc = Sounds[sound].src;
     var vol = Sounds[sound].vol;
     var audio = new Audio(audioSrc);

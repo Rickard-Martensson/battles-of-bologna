@@ -28,7 +28,7 @@ function playAudio(song = "title") {
 
 let curSoundsPlaying = [];
 
-function playSoundEffect(sound) {
+function playSoundEffect(sound: string) {
     var i = curSoundsPlaying.length
     var similarSoundsPlaying = 0
     while (i--) {
@@ -43,7 +43,7 @@ function playSoundEffect(sound) {
             }
         }
     }
-    if (similarSoundsPlaying > 3) {
+    if (similarSoundsPlaying > 2) {
         console.log("too many sounds")
         return
     }
@@ -51,6 +51,7 @@ function playSoundEffect(sound) {
     curSoundsPlaying.push(thisSound)
     // console.log("currently playing", curSoundsPlaying, Sounds[sound])
 
+    console.log("sound", sound)
     let audioSrc = Sounds[sound].src
     var vol = Sounds[sound].vol
 

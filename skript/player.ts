@@ -32,7 +32,7 @@ class Player {
     DRAW_SIZE: number;
     constructor(name: string, team: number, img: string, x: number, y: number, clan: ClanTypes) {
         this.name = name
-        this.gold = 150;
+        this.gold = START_GOLD;
         this.goldPerTurn = 5;
         this.repairCost = 50;
         this.team = team; //0 = blue
@@ -149,36 +149,27 @@ class Player {
     }
 
     castleTryAttack() {
-        if (Date.now() - this.lastCastleAtk > CASTLE_ARROW_DELAY[this.castleLvl] * 1000) {
-            let dmg = 3;
+        if (Date.now() - this.lastCastleAtk > CLAN_INFO[this.clan].arrow_delay[this.castleLvl] * 1000) {
+            let projectile_type = CLAN_INFO[this.clan].projectile_type;
+            let dmg = CLAN_INFO[this.clan].projectile_dmg;
+            let speed = CLAN_INFO[this.clan].projectile_speed;
+            let randomness = CLAN_INFO[this.clan].projectile_randomness
             this.lastCastleAtk = Date.now()
             let pos = { x: this.pos.x, y: this.pos.y }
-            let vel = { vx: 35 * (Math.random() + 1) * (1 - 2 * this.team), vy: -15 * (Math.random() * 1 + 4.5) }
-            console.log("yea")
-            game.shootProjectile(pos, vel, this.team, dmg, IS_ONLINE, "arrow")
+            let vel = { vx: speed.vx * (Math.random() * randomness + 1) * (1 - 2 * this.team), vy: speed.vy * (Math.random() * 1 + 4.5) }
+            // console.log("yea")
+            game.shootProjectile(pos, vel, this.team, dmg, IS_ONLINE, projectile_type)
         }
-        if (this.castleLvl > 2 && Date.now() - this.lastCastleBalAtk > CASTLE_BAL_DELAY[this.castleLvl] * 1000) {
+        if (this.castleLvl > 2 && Date.now() - this.lastCastleBalAtk > CLAN_INFO[this.clan].ballista_delay[this.castleLvl] * 1000) {
             let dmg = 1;
             this.lastCastleBalAtk = Date.now()
             let pos = { x: this.pos.x, y: this.pos.y }
-            let vel = { vx: 35 * (Math.random() + 1) * (1 - 2 * this.team), vy: -15 * (Math.random() * 1 + 4.5) }
-            console.log("nah")
+            let vel = { vx: 40 * (1 - 2 * this.team), vy: -15 * (5) }
+            // console.log("nah")
 
             game.shootProjectile(pos, vel, this.team, dmg, IS_ONLINE, "ballista")
         }
 
-    }
-
-    castleAttack(type) {
-        console.log("old function ,shoudl be phased out")
-        let dmg = 3;
-        this.lastCastleAtk = Date.now()
-        let pos = { x: this.pos.x, y: this.pos.y }
-        let vel = { vx: 35 * (Math.random() + 1) * (1 - 2 * this.team), vy: -15 * (Math.random() * 1 + 4.5) }
-        game.shootProjectile({ x: this.pos.x, y: this.pos.y }, { vx: 35 * (Math.random() + 1) * (1 - 2 * this.team), vy: -15 * (Math.random() * 1 + 4.5) }, this.team, dmg, IS_ONLINE)
-        if (this.castleLvl > 2) {
-            void (0)
-        }
     }
 
     upgAbility() {
@@ -189,7 +180,6 @@ class Player {
 
     upgCastle() {
         if (this.castleLvl < CASTLE_MAX_LVL) {
-            console.log("leeveeell", this.castleLvl)
             this.castleLvl += 1
             this.lastCastleAtk = -Infinity
             this.syncMyself("eco")

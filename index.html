@@ -57,6 +57,9 @@
             <img id="titleText" class="all title" src="bilder/ui/Logo.png" alt="Battles Of Bologna">
             <span id="bootupText" class="bootup blink_me"><span>click anywhere to start</span></span>
 
+
+            <span id="fullscreenButton" class="all title button"
+                onclick="toggleFullscreen()"><span>fullscreen</span></span>
             <span id="button1" class="all title button" onclick="menuLocal()"><span> Play </span></span>
             <span id="button2" class="all title button" onclick="menuHostLobby()"><span>Host</span></span>
             <span id="button3" class="all title button" onclick="menuJoinLobby()"><span>Join</span></span>
@@ -73,6 +76,11 @@
                     onclick="setClan('viking', 0)"><span>
                         Vikings
                     </span></span>
+
+                <span id="eastern_button_0" class="all title locallobby hostlobby button clan_player_0"
+                    onclick="setClan('eastern', 0)"><span>
+                        Eastern
+                    </span></span>
             </div>
             <div id="player_setup_red" class="all player_setup joinlobby locallobby">
                 <h4>Red</h4>Pick a clan:
@@ -85,6 +93,11 @@
                 <span id="viking_button_1" class="all title locallobby  joinlobby button clan_player_1"
                     onclick="setClan('viking', 1)"><span>
                         Vikings
+                    </span></span>
+
+                <span id="eastern_button_1" class="all title locallobby joinlobby button clan_player_1"
+                    onclick="setClan('eastern', 1)"><span>
+                        Eastern
                     </span></span>
             </div>
 

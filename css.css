@@ -7,6 +7,7 @@
   --btnMid: 50%;
   --btnRight: 65%;
   --btnCredits: 90%;
+  --btnFullscreen: 10%;
 
   --btnClass1: 20%;
   --btnClass2: 40%;
@@ -189,11 +190,11 @@ body {
   left: var(--btnMid);
   top: var(--btnClass1);
   display: none;
-  background-image: url("bilder/sprites/soldier_blue2.png");
+  background-image: url("bilder/ui/kingdom\ blue.png");
 }
 
 #kingdom_button_0:hover {
-  background-image: url("bilder/sprites/soldier_blue2.png");
+  background-image: url("bilder/ui/kingdom\ blue.png");
 }
 
 #viking_button_0 {
@@ -207,17 +208,28 @@ body {
   background-image: url("bilder/sprites/viking_blue.png");
 }
 
+#eastern_button_0 {
+  left: var(--btnMid);
+  top: var(--btnClass3);
+  display: none;
+  background-image: url("bilder/sprites/viking_blue.png");
+}
+
+#eastern_button_0:hover {
+  background-image: url("bilder/sprites/viking_blue.png");
+}
+
 #kingdom_button_1 {
   left: var(--btnMid);
   top: var(--btnClass1);
   display: none;
-  background-image: url("bilder/sprites/soldier2.png");
+  background-image: url("bilder/ui/kingdom\ red.png");
   /* background-position: 128px 0; */
 }
 
 #kingdom_button_1:hover {
 
-  background-image: url("bilder/sprites/soldier2.png");
+  background-image: url("bilder/ui/kingdom\ red.png");
 }
 
 
@@ -231,6 +243,18 @@ body {
 #viking_button_1:hover {
   background-image: url("bilder/sprites/viking.png");
 }
+
+#eastern_button_1 {
+  left: var(--btnMid);
+  top: var(--btnClass3);
+  display: none;
+  background-image: url("bilder/sprites/viking_blue.png");
+}
+
+#eastern_button_1:hover {
+  background-image: url("bilder/sprites/viking_blue.png");
+}
+
 
 .selected_clan_0 {
   background-color: rgba(255, 255, 255, 0.1);
@@ -259,6 +283,16 @@ body {
 
 #creditsButton:hover {
   background-image: url("bilder/ui/creditsButtonDown.png");
+}
+
+#fullscreenButton {
+  left: var(--btnFullscreen);
+  top: var(--btnHeight);
+  background-image: url("bilder/ui/fullscreenButton.png");
+}
+
+#fullscreenButton:hover {
+  background-image: url("bilder/ui/fullscreenButton.png");
 }
 
 #button1 {

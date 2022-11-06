@@ -72,13 +72,14 @@ const SCREEN_SIZE = 1;
  * popupThings
  */
 var popupShowing = "none";
-const CREDITS = "Developer: <br>Rickard Mårtensson <br><br> Art: <br>Rickard Mårtensson<br><br> Music & Sound: <br>Daniel Sterner <br><br>";
+const CREDITS = "Developer: <br>Rickard Mårtensson <br><br> Art: <br>Rickard Mårtensson<br><br> Music & Sound: <br>Daniel Sterner <br><br>In the future this text might scroll slowly<br><br>that would fit with the music";
 const TUTORIAL = "You know how it is";
 function toggleCredits() {
     if (popupShowing == "credits") {
         closePopup();
     }
     else {
+        playAudio("credits");
         popupShowing = "credits";
         document.getElementById("popup").style.visibility = "visible";
         document.getElementById("popupTitle").innerHTML = "&nbsp;Credits";
@@ -87,6 +88,7 @@ function toggleCredits() {
 }
 function closePopup() {
     popupShowing = "none";
+    playAudio("title");
     document.getElementById("popup").style.visibility = "hidden";
 }
 var S;
@@ -192,10 +194,24 @@ function updateSelectedClans() {
         selected_clan.classList.add("selected_clan_" + String(playerId));
     }
 }
+var elem = document.documentElement;
+function toggleFullscreen() {
+    var elem = document.documentElement;
+    if (elem.requestFullscreen) {
+        elem.requestFullscreen();
+    }
+    else if (document.exitFullscreen) {
+        document.exitFullscreen();
+    }
+    resizeCanvas();
+    window.setTimeout(function () {
+        resizeCanvas();
+    }, 500);
+}
 function setClan(clan, player) {
     let newClan = ClanTypes.kingdom;
-    if (clan == "viking") {
-        newClan = ClanTypes.viking;
+    if (Object.values(ClanTypes).includes(clan)) {
+        newClan = ClanTypes[clan];
     }
     playerClan[player] = newClan;
     updateSelectedClans();
