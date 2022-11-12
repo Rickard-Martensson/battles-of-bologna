@@ -59,6 +59,8 @@ body {
 
   image-rendering: optimizeSpeed;
   -ms-interpolation-mode: nearest-neighbor;
+
+
 }
 
 #titleScreen {
@@ -197,6 +199,7 @@ body {
   background-image: url("bilder/ui/kingdom\ blue.png");
 }
 
+
 #viking_button_0 {
   left: var(--btnMid);
   top: var(--btnClass2);
@@ -292,7 +295,7 @@ body {
 }
 
 #fullscreenButton:hover {
-  background-image: url("bilder/ui/fullscreenButton.png");
+  background-image: url("bilder/ui/fullscreenButtonDown.png");
 }
 
 #button1 {

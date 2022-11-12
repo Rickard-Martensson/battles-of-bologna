@@ -34,6 +34,11 @@ function predictTouchDown(pos, vel) {
     console.log(vel.x * t_0 + pos.x)
 }
 
+
+const TAU = Math.PI * 2
+var CLOSE_SHOOT_ANGLE = -TAU / 6
+
+
 // function calcProjectilePower(curPos, targetPos, ratio) {    //only works if at the same y
 //     var acceleration = GRAVITY / 2
 //     let angle = Math.atan(ratio);

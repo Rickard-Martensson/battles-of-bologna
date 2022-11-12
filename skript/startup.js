@@ -96,15 +96,31 @@ function resizeCanvas() {
     var screenHeight = window.innerHeight;
     var screenWidth = window.innerWidth;
     var uiSize = 0;
+    var ratio = window.devicePixelRatio;
+    console.log("device pixel ratio", ratio);
+    var local_width = 1;
+    var local_height = 1;
     if (screenHeight / aspectRatio.height * aspectRatio.width < screenWidth) {
-        canvas.width = (screenHeight / aspectRatio.height * aspectRatio.width) * SCREEN_SIZE;
-        canvas.height = (screenHeight * (1 - uiSize)) * SCREEN_SIZE;
+        local_width = (screenHeight / aspectRatio.height * aspectRatio.width) * SCREEN_SIZE; //Math.round((screenHeight / aspectRatio.height * aspectRatio.width) * SCREEN_SIZE)
+        local_height = (screenHeight * (1 - uiSize)) * SCREEN_SIZE; //Math.round((screenHeight * (1 - uiSize)) * SCREEN_SIZE)
     }
     else {
-        canvas.width = screenWidth * SCREEN_SIZE;
-        canvas.height = (screenWidth / aspectRatio.width * aspectRatio.height * (1 - uiSize)) * SCREEN_SIZE;
+        local_width = screenWidth * SCREEN_SIZE; // Math.round(screenWidth * SCREEN_SIZE)
+        local_height = (screenWidth / aspectRatio.width * aspectRatio.height * (1 - uiSize)) * SCREEN_SIZE; // Math.round((screenWidth / aspectRatio.width * aspectRatio.height * (1 - uiSize)) * SCREEN_SIZE)
     }
-    S = (canvas.width / 320);
+    //hehe
+    // https://gist.github.com/callumlocke/cc258a193839691f60dd saviour
+    // set the 'real' canvas size to the higher width/height
+    canvas.width = local_width * ratio;
+    canvas.height = local_height * ratio;
+    // ...then scale it back down with CSS
+    canvas.style.width = local_width + 'px';
+    canvas.style.height = local_height + 'px';
+    ctx.scale(ratio, ratio);
+    // const size = 200;
+    // canvas.style.width = `${320}px`;
+    // canvas.style.height = `${200}px`;
+    S = (canvas.width / (ratio * 320));
     document.documentElement.style.setProperty('--S', S + "px");
 }
 /**

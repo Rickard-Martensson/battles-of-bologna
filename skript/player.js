@@ -140,7 +140,8 @@ class Player {
             let randomness = CLAN_INFO[this.clan].projectile_randomness;
             this.lastCastleAtk = Date.now();
             let pos = { x: this.pos.x, y: this.pos.y };
-            let vel = { vx: speed.vx * (Math.random() * randomness + 1) * (1 - 2 * this.team), vy: speed.vy * (Math.random() * 1 + 4.5) };
+            let vel = { vx: (speed.vx + Math.random() * randomness.rx) * (1 - 2 * this.team), vy: (speed.vy + Math.random() * randomness.ry) };
+            console.log("vel is", vel, speed.vx, Math.random(), randomness.rx);
             // console.log("yea")
             game.shootProjectile(pos, vel, this.team, dmg, IS_ONLINE, projectile_type);
         }

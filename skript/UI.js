@@ -150,7 +150,7 @@ class UIHandler {
             let info = button.info.split("\n");
             if (infoPlayer.currentFolder == 3 && this.currentButton.id == 2 && infoPlayer.btnLvl < 4) {
                 let level = infoPlayer.btnLvl + 1;
-                info[1] = info[1].replace("%abilitylevel%", level);
+                info[1] = info[1].replace("%abilitylevel%", String(level));
             }
             ctx.font = 5 * S + "px 'iFlash 705'";
             for (var i in info) {
@@ -384,7 +384,7 @@ class UIHandler {
             if (player.checkCooldown(curFolder, id)) {
                 this.disabledButtons[team][id] = {
                     start: Date.now(),
-                    duration: game.timeUntilNextGold() + GOLD_INTERVAL * 1000 * Math.max(0, cost - 1)
+                    duration: game.timeUntilNextGold() + GOLD_INTERVAL * 1000 * Math.max(0, Number(cost) - 1)
                 };
                 player.addCooldown(curFolder, id, cost, id);
                 this.castAbility(btnData, team, abilityCooldown);
@@ -427,6 +427,7 @@ class UIHandler {
             ctx.fillText(Math.floor(fps), 300 * S, 60 * S);
             ctx.fillText(Math.floor((Date.now() - lastRecievedPing) / 1000), 300 * S, 65 * S);
         }
+        ctx.fillText(Math.floor(S * 10), 300 * S, 70 * S);
         // === win / lose screen ===\\
         if (this.winner != -1) {
             let audio = "win";

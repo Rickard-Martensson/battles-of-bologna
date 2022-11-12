@@ -30,6 +30,10 @@ class Player {
     lastCastleAtk: number;
     lastCastleBalAtk: number;
     DRAW_SIZE: number;
+    posAbilityActive: boolean;
+    posAbilityX: number;
+    posAbilityTime: number;
+    posAbilityXModuli: number;
     constructor(name: string, team: number, img: string, x: number, y: number, clan: ClanTypes) {
         this.name = name
         this.gold = START_GOLD;
@@ -56,16 +60,27 @@ class Player {
 
         //===castle===\\
         this.pos = { x: x, y: y };
-        console.log(this.clan, "clanyboy")
         this.img = CLAN_INFO[this.clan].base_img;
-        console.log(this.img)
         this.imageSize = 64;
         this.castleLvl = 0;
         this.lastCastleAtk = -Infinity;
         this.lastCastleBalAtk = -Infinity;
         if (this.team == 0) { this.img += "_blue" };
 
+        // ability
+        this.posAbilityActive = false;
+        this.posAbilityTime = -1;
+        this.posAbilityX = 0;
+
         this.DRAW_SIZE = 64;
+    }
+
+    togglePosAbility(booly: boolean) {
+        this.posAbilityActive = booly;
+        if (booly == true) {
+            // console.log("booly booly hallelulea")
+            this.posAbilityX = POS_ABILITY[this.team].startPos
+        }
     }
 
     getClan() {
@@ -153,11 +168,11 @@ class Player {
             let projectile_type = CLAN_INFO[this.clan].projectile_type;
             let dmg = CLAN_INFO[this.clan].projectile_dmg;
             let speed = CLAN_INFO[this.clan].projectile_speed;
-            let randomness = CLAN_INFO[this.clan].projectile_randomness
+            let randomness: { rx: number, ry: number } = CLAN_INFO[this.clan].projectile_randomness
             this.lastCastleAtk = Date.now()
             let pos = { x: this.pos.x, y: this.pos.y }
-            let vel = { vx: speed.vx * (Math.random() * randomness + 1) * (1 - 2 * this.team), vy: speed.vy * (Math.random() * 1 + 4.5) }
-            // console.log("yea")
+            let vel = { vx: (speed.vx + Math.random() * randomness.rx) * (1 - 2 * this.team), vy: (speed.vy + Math.random() * randomness.ry) }
+            console.log("vel is", vel, speed.vx, Math.random(), randomness.rx)
             game.shootProjectile(pos, vel, this.team, dmg, IS_ONLINE, projectile_type)
         }
         if (this.castleLvl > 2 && Date.now() - this.lastCastleBalAtk > CLAN_INFO[this.clan].ballista_delay[this.castleLvl] * 1000) {
@@ -242,7 +257,6 @@ class Player {
 
 
     takeDmg(dmg) {
-        console.log("damage taken")
         this.lastDmgdTime = Date.now()
         this.prevHp = this.hp;
         this.hp = (this.hp <= 0) ? 0 : this.hp - dmg
@@ -283,7 +297,6 @@ class Player {
             }
 
             else {
-                console.log("yea")
                 this.localGoldChange(totGoldChange, perTurnChange, isSteal)
             }
         }
@@ -292,9 +305,8 @@ class Player {
     localGoldChange(totGoldChange, perTurnChange, isSteal) {
         this.gold += totGoldChange
         this.changeGoldPerTurn(perTurnChange, false)
-        console.log("yoyo", isSteal, perTurnChange)
+        // console.log("yoyo", isSteal, perTurnChange)
         if (isSteal) {
-            console.log("this should increase")
             game.players[getOtherTeam(this.team)].changeGoldPerTurn(-perTurnChange)
         }
     }
@@ -344,6 +356,7 @@ class Player {
         local_UI.justGaveGold[this.team] = Date.now();
         // this.changeGold(this.goldPerTurn);
         this.localGoldChange(this.goldPerTurn, 0, 0);
+
         playSoundEffect("buy")
 
 
@@ -360,6 +373,40 @@ class Player {
     }
 
     drawCastle() {
+        if (this.posAbilityActive || this.posAbilityTime != -1) {
+            let posMin = POS_ABILITY[this.team].min
+            let posMax = POS_ABILITY[this.team].max
+            let posDif = posMax - posMin;
+
+            let imageSize = 32;
+            let frame = 0
+            if (this.posAbilityTime != -1) {
+                frame = Math.floor((Date.now() - this.posAbilityTime) / 500)
+                if (frame >= 4) {
+                    this.togglePosAbility(false)
+                    this.posAbilityTime = -1
+                }
+            }
+            else {
+                this.posAbilityX = (this.posAbilityX + 80 * fpsCoefficient / 100) % (posDif * 2);
+                this.posAbilityXModuli = posMin + Math.abs(this.posAbilityX - (posMax - posMin))
+            }
+            // console.log(this.posAbilityX)
+            let DRAW_SIZE = 30;
+            ctx.drawImage(Images["target_img"],
+                imageSize * (frame),
+                imageSize * (this.team),
+                imageSize,
+                imageSize,
+
+                (this.posAbilityXModuli - DRAW_SIZE / 2) * S,
+                (104 - DRAW_SIZE / 2) * S,
+                DRAW_SIZE * S,
+                DRAW_SIZE * S
+            );
+
+        }
+
         ctx.drawImage(Images[this.img],
             this.imageSize * this.isHurry,
             this.imageSize * this.castleLvl,

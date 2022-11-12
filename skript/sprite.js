@@ -1,4 +1,53 @@
 const ARROW_CONSTS = {};
+class Effect {
+    pos;
+    name;
+    frame;
+    dateLastFrame;
+    // DRAW_SIZE = 30; // sprites ritas med storlek 24, och har bredd 32. denna ritas med 37.5, har bredd 50.
+    team;
+    framerate;
+    DRAW_SIZE;
+    imgSize;
+    framesPerRow;
+    totalFrames;
+    totalRows;
+    constructor(pos, name, framerate, team, size) {
+        this.pos = { x: pos.x, y: pos.y };
+        this.name = name;
+        this.frame = 0;
+        this.framerate = framerate;
+        this.dateLastFrame = Date.now();
+        this.team = team;
+        console.log(name, EFFECT_DIRECTORY, EFFECT_DIRECTORY[name]);
+        //
+        this.DRAW_SIZE = { x: EFFECT_DIRECTORY[name].drawSize.x * size, y: EFFECT_DIRECTORY[name].drawSize.y * size };
+        this.imgSize = EFFECT_DIRECTORY[name].imgSize;
+        this.framesPerRow = EFFECT_DIRECTORY[name].framesPerRow;
+        this.totalFrames = EFFECT_DIRECTORY[name].totalFrames;
+        this.totalRows = Math.ceil(this.totalFrames / this.framesPerRow);
+        console.log(this.totalRows);
+    }
+    checkDead(game, index) {
+        if (this.frame >= this.totalFrames) {
+            index > -1 ? game.effects.splice(index, 1) : false;
+        }
+    }
+    draw() {
+        let imageSizex = this.imgSize.x;
+        let imageSizey = this.imgSize.y;
+        if (Date.now() - this.dateLastFrame > this.framerate) {
+            this.frame += 1;
+            this.dateLastFrame = Date.now(); // - (this.dateLastFrame - 300);
+            if (this.frame >= this.totalFrames) {
+                console.log(this.frame, Math.floor(this.frame / this.framesPerRow));
+                return;
+            }
+        }
+        let frame = this.frame;
+        ctx.drawImage(Images[this.name], imageSizex * (frame % this.framesPerRow), imageSizey * (Math.floor(frame / this.framesPerRow) + this.team * this.totalRows), imageSizex, imageSizey, (this.pos.x - this.DRAW_SIZE.x / 2) * S, (this.pos.y - this.DRAW_SIZE.y / 2) * S, this.DRAW_SIZE.x * S, this.DRAW_SIZE.y * S);
+    }
+}
 class Projectile {
     pos;
     vel;
@@ -45,7 +94,7 @@ class Projectile {
             const TAU = Math.PI * 2;
             this.DRAW_SIZE = 10;
             this.frame = 0;
-            this.angle = TAU / 4;
+            this.angle = TAU / 4 + this.vel.vx;
             this.deathFrame = 0;
             this.lastDeathFrame = Date.now();
         }
@@ -85,9 +134,9 @@ class Projectile {
         this.pos.x += this.vel.vx * fpsCoefficient / 100;
         this.pos.y += this.vel.vy * fpsCoefficient / 100;
         this.vel.vy += (-110 * Math.sin(this.angle) + GRAVITY) * fpsCoefficient / 100;
-        this.vel.vx += (1 - 2 * this.team) * (60 * Math.cos(this.angle)) * fpsCoefficient / 100;
+        this.vel.vx += (1 - 2 * this.team) * (5 + 45 * Math.cos(this.angle)) * fpsCoefficient / 100;
         this.angle -= 1.3 * fpsCoefficient / 100;
-        console.log(this.vel.vy, this.angle);
+        // console.log(this.vel.vy, this.angle)
     }
     move() {
         if (this.type == "ballista") {
@@ -102,6 +151,22 @@ class Projectile {
         this.pos.y += this.vel.vy * fpsCoefficient / 100;
         this.vel.vy += GRAVITY * fpsCoefficient / 100;
         //this.predictTouchDown()
+    }
+    checkHitRocket() {
+        if (this.pos.y > HEIGHT - 5) {
+            this.dead = true;
+            playSoundEffect("explode");
+            game.addEffect(this.pos.x, HEIGHT, "explosion", 60, this.team, 1);
+            for (var i in game.sprites) {
+                if (this.team != game.sprites[i].team) {
+                    //console.log("disty:", dist(this.pos, game.sprites[i].pos), game.sprites[i].size);
+                    if (dist(this.pos, game.sprites[i].pos) - game.sprites[i].size < 8) {
+                        console.log("raketbombad");
+                        game.sprites[i].takeDmg(this.dmg);
+                    }
+                }
+            }
+        }
     }
     checkHitBallista() {
         if (this.deathFrame == 0) {
@@ -136,9 +201,13 @@ class Projectile {
             }
         }
     }
-    checkHit(index) {
+    checkHit(_index) {
         if (this.type == "ballista") {
             this.checkHitBallista();
+            return;
+        }
+        if (this.type == "rocket") {
+            this.checkHitRocket();
             return;
         }
         if (this.pos.y > HEIGHT - 5) {
@@ -150,6 +219,7 @@ class Projectile {
                         game.sprites[i].takeDmg(this.dmg);
                         playSoundEffect("arrow_hit");
                         this.dead = true;
+                        return;
                     }
                 }
             }
@@ -158,9 +228,6 @@ class Projectile {
     checkDead(index) {
         if (this.dead || this.pos.y > HEIGHT) {
             index > -1 ? game.projectiles.splice(index, 1) : false;
-            if (this.type == "rocket") {
-                playSoundEffect("explode");
-            }
         }
     }
     getVec() {
@@ -300,6 +367,7 @@ class Sprite {
     invincible;
     activeEffects;
     animations;
+    // animations: { [key in SpriteCurAnim]: SpriteAnimation };
     atkDelay;
     img;
     abilities;
@@ -317,6 +385,8 @@ class Sprite {
     size;
     jumpState;
     hasJumped;
+    armor;
+    isCurSpecAnim;
     constructor(x, y, name, team, isUpdate, newData) {
         //console.log(x, y, name, team, isUpdate, "newdata:", newData)
         if (isUpdate) {
@@ -414,6 +484,18 @@ class Sprite {
             this.atkSpeed *= 0.5;
             this.drawSpriteYOffset = 4;
         }
+        else if (name == "shield") {
+            this.currentFrame = 0;
+            this.activeEffects.add("shield");
+            this.isCurSpecAnim = true;
+            this.armor = 2;
+            this.atkDelay = 9999;
+            this.speed = 0;
+        }
+        else if (name == "bigFlame") {
+            this.activeEffects.add("bigFlame");
+            this.range *= 2;
+        }
     }
     deactivateAbility(name) {
         if (name == "sprint") {
@@ -426,11 +508,29 @@ class Sprite {
             this.atkSpeed *= 2;
             this.drawSpriteYOffset = 0;
         }
+        else if (name == "shield") {
+            this.activeEffects.delete("shield");
+            this.isCurSpecAnim = false;
+            this.armor = 0;
+            this.atkDelay = STATS[this.name].atkDelay;
+            this.speed = STATS[this.name].speed;
+        }
+        else if (name == "shield") {
+            this.activeEffects.delete("shield");
+            this.isCurSpecAnim = false;
+            this.armor = 0;
+            this.atkDelay = STATS[this.name].atkDelay;
+            this.speed = STATS[this.name].speed;
+        }
+        else if (name == "bigFlame") {
+            this.activeEffects.delete("bigFlame");
+            this.range *= 0.5;
+        }
     }
     move() {
         if (this.jumpState == 1) {
-            this.state = SpriteCurState.jump;
-            this.currentAnimation = SpriteCurAnim.jump;
+            this.state = SpriteCurState.special;
+            this.currentAnimation = SpriteCurAnim.special;
             const JUMP_HEIGHT = 20;
             const JUMP_CHARGE_TIME = 300; // milliseconds
             const JUMP_DURATION = 1.3; // adjust animation speed aswell in SpriteCurAnim.jump in globals
@@ -451,6 +551,12 @@ class Sprite {
                     this.currentAnimation = SpriteCurAnim.walk;
                 }
             }
+        }
+        else if (this.isCurSpecAnim) {
+            this.pos.x += this.direction * this.currentSpeed * fpsCoefficient / 100;
+            // this.setState("walk", -1, "mooove")
+            this.state = SpriteCurState.special;
+            this.currentAnimation = SpriteCurAnim.special;
         }
         else {
             this.pos.x += this.direction * this.currentSpeed * fpsCoefficient / 100;
@@ -474,14 +580,6 @@ class Sprite {
         // }
     }
     spriteShootProjectile(shouldTargetNext = false) {
-        if (this.activeEffects.has("target") || (shouldTargetNext && this.abilities.includes("targetCloseRange"))) {
-            let nextEnemy = game.distToNextSprite(this, this.getOtherTeam());
-            if (nextEnemy.len < 80) {
-                let { vel_x, vel_y } = calcProjectilePower(this.pos, nextEnemy.sprite.pos, ARCHER_TRAJECTORY);
-                game.shootProjectile({ x: this.pos.x, y: this.pos.y - 5 }, { vx: vel_x * this.direction, vy: -vel_y }, this.team, this.dmg, IS_ONLINE);
-                return;
-            }
-        }
         if (this.abilities.includes("ballista")) {
             game.shootProjectile({ x: this.pos.x, y: this.pos.y - 5 }, {
                 vx: this.range * 10 * this.direction,
@@ -497,16 +595,52 @@ class Sprite {
             return;
         }
         else if (this.abilities.includes("rocket")) {
-            game.shootProjectile({ x: this.pos.x, y: this.pos.y - 5 }, {
-                vx: (this.range * (1 + RANGE_RANDOMNESS * Math.random())) * 10 * this.direction,
-                vy: (this.range * (1 + RANGE_RANDOMNESS * Math.random())) * -10 * ARCHER_TRAJECTORY
+            let vx = this.range * (Math.random() - 0.5);
+            if (shouldTargetNext) {
+                vx -= TAU / 6;
+                vx = CLOSE_SHOOT_ANGLE;
+            }
+            game.shootProjectile({ x: this.pos.x + getDirection(this.team) * 3, y: this.pos.y - 6 }, {
+                vx: vx,
+                vy: 0
             }, this.team, this.dmg, IS_ONLINE, "rocket");
             return;
         }
-        game.shootProjectile({ x: this.pos.x, y: this.pos.y - 5 }, {
-            vx: (this.range * (1 + RANGE_RANDOMNESS * Math.random())) * 10 * this.direction,
-            vy: (this.range * (1 + RANGE_RANDOMNESS * Math.random())) * -10 * ARCHER_TRAJECTORY
-        }, this.team, this.dmg, IS_ONLINE);
+        else if (this.abilities.includes("flamethrower")) {
+            let scaleFactor = 1;
+            if (this.activeEffects.has("bigFlame")) {
+                scaleFactor = 1.5;
+            }
+            game.addEffect(this.pos.x + getDirection(this.team) * 35 * scaleFactor, this.pos.y - 6 * scaleFactor, "flame", 30, this.team, scaleFactor);
+            playSoundEffect("flamethrower");
+            let directionalPosx = this.pos.x * getDirection(this.team);
+            for (var i in game.sprites) {
+                if (this.team != game.sprites[i].team) {
+                    //console.log("disty:", dist(this.pos, game.sprites[i].pos), game.sprites[i].size);
+                    if (directionalPosx < game.sprites[i].pos.x * getDirection(this.team) && dist(this.pos, game.sprites[i].pos) < game.sprites[i].size + 10 * this.range) { // dist(this.pos, game.sprites[i].pos) < game.sprites[i].size + 10) {
+                        console.log("uppeldad");
+                        // setTimeout(function () { game.sprites[i].takeDmg(this.dmg); }, 200);
+                        game.sprites[i].takeDmg(this.dmg);
+                    }
+                }
+            }
+            return;
+        }
+        else if (this.activeEffects.has("target") || (shouldTargetNext && this.abilities.includes("targetCloseRange"))) {
+            let nextEnemy = game.distToNextSprite(this, this.getOtherTeam());
+            if (nextEnemy.len < 80) {
+                let { vel_x, vel_y } = calcProjectilePower(this.pos, nextEnemy.sprite.pos, ARCHER_TRAJECTORY);
+                game.shootProjectile({ x: this.pos.x, y: this.pos.y - 5 }, { vx: vel_x * this.direction, vy: -vel_y }, this.team, this.dmg, IS_ONLINE);
+                return;
+            }
+        }
+        // console.log("this point should never be reached. please debug!")
+        else {
+            game.shootProjectile({ x: this.pos.x, y: this.pos.y - 5 }, {
+                vx: (this.range * (1 + RANGE_RANDOMNESS * Math.random())) * 10 * this.direction,
+                vy: (this.range * (1 + RANGE_RANDOMNESS * Math.random())) * -10 * ARCHER_TRAJECTORY
+            }, this.team, this.dmg, IS_ONLINE);
+        }
     }
     attack(victim) {
         this.currentSpeed = 0;
@@ -570,12 +704,13 @@ class Sprite {
         }
     }
     takeDmg(dmg, haveBouncedPubNub = false) {
+        let dmgTaken = this.armor > 0 ? Math.max(dmg - this.armor, 0) : dmg;
         if (this.startInvincibleDate == null) {
             if (IS_ONLINE && !haveBouncedPubNub) {
-                game.damageSprite(this, dmg);
+                game.damageSprite(this, dmgTaken);
             }
             else {
-                this.hp -= dmg;
+                this.hp -= dmgTaken;
                 this.invincible = false;
                 this.lastDmgdTime = Date.now();
             }

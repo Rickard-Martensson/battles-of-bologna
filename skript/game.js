@@ -62,6 +62,7 @@ class Game {
     gameOver;
     isHurry;
     daysPast;
+    effects;
     constructor(name1, name2, class1, class2, diff1, diff2) {
         this.players = [
             new Player(name1, 0, "castle_img", 32, 60, class1),
@@ -73,6 +74,7 @@ class Game {
         //new Sprite(200, 100, "block", "anm", "red"),
         //new Sprite(300, 100, "soldier", "anim", "red"),
         ];
+        this.effects = [];
         this.projectiles = [
         //new Projectile(80, 100, 20, -40),
         ];
@@ -197,6 +199,28 @@ class Game {
                 }
             }
         }
+        else if (name == "shield") {
+            for (var key in this.sprites) {
+                let sprite = this.sprites[key];
+                if (sprite.team == team && sprite.activeEffects.has("shield")) {
+                    sprite.deactivateAbility("shield");
+                    // sprite.activeEffects.delete("sprint")
+                    // sprite.speed -= SPRINT_ABILITY_SPEED
+                    // sprite.animTimeMult *= 2
+                }
+            }
+        }
+        else if (name == "bigFlame") {
+            for (var key in this.sprites) {
+                let sprite = this.sprites[key];
+                if (sprite.team == team && sprite.activeEffects.has("bigFlame")) {
+                    sprite.deactivateAbility("bigFlame");
+                    // sprite.activeEffects.delete("sprint")
+                    // sprite.speed -= SPRINT_ABILITY_SPEED
+                    // sprite.animTimeMult *= 2
+                }
+            }
+        }
     }
     castAbility(name, team, cooldown) {
         if (cooldown != 0) {
@@ -277,6 +301,24 @@ class Game {
                 }
             }
         }
+        else if (name == "shield") {
+            player.addAbility("shield");
+            for (var key in this.sprites) {
+                let sprite = this.sprites[key];
+                if (sprite.team == team && sprite.abilities.includes("shield")) {
+                    sprite.activateAbility("shield");
+                }
+            }
+        }
+        else if (name == "bigFlame") {
+            player.addAbility("bigFlame");
+            for (var key in this.sprites) {
+                let sprite = this.sprites[key];
+                if (sprite.team == team && sprite.abilities.includes("bigFlame")) {
+                    sprite.activateAbility("bigFlame");
+                }
+            }
+        }
         //this.sendGameState() //osäker på om detta fungerar. andra spelaren kan också synka, och det kan leda till problem...
     }
     start() {
@@ -333,6 +375,7 @@ class Game {
         ;
         ctx.imageSmoothingEnabled = false; // viktig
         this.drawSprites();
+        this.drawEffects();
         this.drawProjectiles();
         local_UI.drawEverything(fps);
         //this.drawUI(fps);
@@ -360,13 +403,13 @@ class Game {
     checkBuyQueue(team) {
         if ((Number(mySide == 0) ^ IS_ONLINE) != 1 && (this.buyQueue[team].length > 0 && Date.now() - this.lastQueueShift[team] > 0.2 * 1000)) {
             let len = game.distToNextSprite2(team, { x: BASE_POS[team].x - getDirection(team), y: BASE_POS[team].y }, this.buyQueue[team][0].row).len;
-            if (len < 11) { }
+            if (len < 8) { }
             else {
                 this.lastQueueShift[team] = Date.now();
                 let firstUnit = this.buyQueue[team].shift();
                 let firstUnitName = firstUnit.unit;
                 // console.log("unit, name", firstUnit, firstUnitName, len)
-                let posShift = (len >= 21) ? 10 : 0;
+                let posShift = (len >= 18) ? 8 : 0;
                 if (IS_ONLINE) {
                     send("sendUnit", { team: team, unit: firstUnitName, posShift: posShift });
                 }
@@ -511,7 +554,19 @@ class Game {
             sprite.move();
             sprite.draw();
             sprite.checkIfAtEnemyCastle(this);
-            sprite.checkDead(game, i);
+            sprite.checkDead(game, Number(i));
+        }
+    }
+    addEffect(x, y, name, framerate, team, size) {
+        let effect = new Effect({ x: x, y: y }, name, framerate, team, size);
+        this.effects.push(effect);
+    }
+    drawEffects() {
+        for (var i in this.effects) {
+            let effect = this.effects[i];
+            //console.log("sprite:", sprite)
+            effect.draw();
+            effect.checkDead(this, Number(i));
         }
     }
     drawProjectiles() {
