@@ -55,6 +55,9 @@ function activateGameController() {
             if (VOLUME != 0.0) { VOLUME = 0.0; musicPlayer.volume = VOLUME }
             else { VOLUME = GAME_VOLUME; musicPlayer.volume = VOLUME }
         }
+        // else if (key == "p") {
+        //     game.togglePause()
+        // }
     }
 
     document.onmousemove = function (e) {

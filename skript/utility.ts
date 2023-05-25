@@ -52,13 +52,24 @@ var CLOSE_SHOOT_ANGLE = -TAU / 6
 var konstant = 0.01
 
 
-function calcProjectilePower(startPos, endPos, ratio) {
+function calcProjectilePower(startPos: { x: number; y: number; }, endPos: { x: number, y: number; }, ratio: number) {
     let distance = Math.abs(startPos.x - endPos.x)
     let acceleration = GRAVITY
     let vel_x = Math.sqrt(distance * acceleration / (2 * ratio))//also square
     let vel_y = vel_x * ratio
     //console.log("calcproj", distance, acceleration, vel_x, vel_y);
     return { vel_x: vel_x, vel_y: vel_y }
+}
+
+function calcProjectilePower2(startPos: { x: number; y: number; }, endPos: { x: number, y: number; }, maxheight: number): { vx: number, vy: number } {
+    let start = { x: startPos.x, y: 40 + 0 * (100 - startPos.y) }
+    let end = { x: endPos.x, y: 100 - endPos.y }
+    let MAX = 100 - maxheight;
+    console.log(start, end, MAX)
+    let vy = Math.sqrt((MAX - start.y) * GRAVITY * 2)
+    let dt = -(vy / GRAVITY) + Math.sqrt((vy / GRAVITY) * (vy / GRAVITY) - (2 * start.y / GRAVITY));
+    let vx = (start.x - end.x) / dt
+    return { vx: vx / 4.2, vy: -vy }
 }
 
 

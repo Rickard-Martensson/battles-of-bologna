@@ -118,6 +118,7 @@ class UIHandler {
     }
 
     handleChat(name, msg) {
+        playSoundEffect("btn_press");
         this.chats.push({ sender: name, msg: msg })
         let chatLen = this.chats.length
         if (chatLen > MAX_CHAT) {
@@ -285,7 +286,7 @@ class UIHandler {
         );
     }
 
-    drawEverything(fps) {
+    drawEverything(fps: number) {
 
         for (var key in this.players) {
             let team = this.players[key]
@@ -454,7 +455,7 @@ class UIHandler {
 
     }
 
-    buttonAction(id, team) {
+    buttonAction(id: number, team: number) {
         let player = this.getPlayer(team)
         let playerClan = player.getClan()
         let curFolder = player.currentFolder;
@@ -490,7 +491,23 @@ class UIHandler {
                     duration: game.timeUntilNextGold() + GOLD_INTERVAL * 1000 * Math.max(0, Number(cost) - 1)
                 };
                 player.addCooldown(curFolder, id, cost, id)
-                this.castAbility(btnData, team, abilityCooldown)
+                this.castAbility(String(btnData), team, abilityCooldown, 0)
+            }
+        }
+        else if (btnAction === 'posAbility') {
+            if (player.checkCooldown(curFolder, id)) {
+                if (player.posAbilityActive) {
+                    player.togglePosAbility(false)
+                    this.disabledButtons[team][id] = {
+                        start: Date.now(),
+                        duration: game.timeUntilNextGold() + GOLD_INTERVAL * 1000 * Math.max(0, Number(cost) - 1)
+                    };
+                    player.addCooldown(curFolder, id, cost, id)
+                    this.castAbility(String(btnData), team, abilityCooldown, player.posAbilityXModuli)
+                }
+                else {
+                    player.togglePosAbility(true)
+                }
             }
         }
         playSoundEffect("btn_press");
@@ -498,14 +515,13 @@ class UIHandler {
 
     }
 
-    castAbility(abilityName, team, abilityCooldown) {
-        console.log("casting ability")
+    castAbility(abilityName: string, team: number, abilityCooldown: number, posX = 0) {
         if (this.isOnline) {
             //some pubnub shit
-            send("castAbility", { team: team, ability: abilityName, cooldown: abilityCooldown })
+            send("castAbility", { team: team, ability: abilityName, cooldown: abilityCooldown, posX: posX })
         }
         else {
-            game.castAbility(abilityName, team, abilityCooldown)
+            game.castAbility(abilityName, team, abilityCooldown, posX)
         }
     }
 
@@ -872,7 +888,7 @@ class UIHandler {
         if (action == "buyUnit" || action == "upgrade") {
             btnIcon = 0;
         }
-        else if (action == "ability") {
+        else if (action == "ability" || action == "posAbility") {
             btnIcon = 1
         }
         if (btnIcon !== null) {

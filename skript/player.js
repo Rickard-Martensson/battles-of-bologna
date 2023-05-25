@@ -29,6 +29,10 @@ class Player {
     lastCastleAtk;
     lastCastleBalAtk;
     DRAW_SIZE;
+    posAbilityActive;
+    posAbilityX;
+    posAbilityTime;
+    posAbilityXModuli;
     constructor(name, team, img, x, y, clan) {
         this.name = name;
         this.gold = START_GOLD;
@@ -52,9 +56,7 @@ class Player {
         this.activeAbilities = [];
         //===castle===\\
         this.pos = { x: x, y: y };
-        console.log(this.clan, "clanyboy");
         this.img = CLAN_INFO[this.clan].base_img;
-        console.log(this.img);
         this.imageSize = 64;
         this.castleLvl = 0;
         this.lastCastleAtk = -Infinity;
@@ -63,7 +65,18 @@ class Player {
             this.img += "_blue";
         }
         ;
+        // ability
+        this.posAbilityActive = false;
+        this.posAbilityTime = -1;
+        this.posAbilityX = 0;
         this.DRAW_SIZE = 64;
+    }
+    togglePosAbility(booly) {
+        this.posAbilityActive = booly;
+        if (booly == true) {
+            // console.log("booly booly hallelulea")
+            this.posAbilityX = POS_ABILITY[this.team].startPos;
+        }
     }
     getClan() {
         return this.clan;
@@ -142,7 +155,6 @@ class Player {
             let pos = { x: this.pos.x, y: this.pos.y };
             let vel = { vx: (speed.vx + Math.random() * randomness.rx) * (1 - 2 * this.team), vy: (speed.vy + Math.random() * randomness.ry) };
             console.log("vel is", vel, speed.vx, Math.random(), randomness.rx);
-            // console.log("yea")
             game.shootProjectile(pos, vel, this.team, dmg, IS_ONLINE, projectile_type);
         }
         if (this.castleLvl > 2 && Date.now() - this.lastCastleBalAtk > CLAN_INFO[this.clan].ballista_delay[this.castleLvl] * 1000) {
@@ -217,7 +229,6 @@ class Player {
         send("stealGold", { team: this.team, victim: getOtherTeam(this.team), amount: amount });
     }
     takeDmg(dmg) {
-        console.log("damage taken");
         this.lastDmgdTime = Date.now();
         this.prevHp = this.hp;
         this.hp = (this.hp <= 0) ? 0 : this.hp - dmg;
@@ -247,7 +258,6 @@ class Player {
                 send("changeGold", { team: this.team, total: totGoldChange, perTurn: perTurnChange, isSteal: isSteal });
             }
             else {
-                console.log("yea");
                 this.localGoldChange(totGoldChange, perTurnChange, isSteal);
             }
         }
@@ -255,9 +265,8 @@ class Player {
     localGoldChange(totGoldChange, perTurnChange, isSteal) {
         this.gold += totGoldChange;
         this.changeGoldPerTurn(perTurnChange, false);
-        console.log("yoyo", isSteal, perTurnChange);
+        // console.log("yoyo", isSteal, perTurnChange)
         if (isSteal) {
-            console.log("this should increase");
             game.players[getOtherTeam(this.team)].changeGoldPerTurn(-perTurnChange);
         }
     }
@@ -315,6 +324,27 @@ class Player {
         this.onlineChangeGold(0, -1, true);
     }
     drawCastle() {
+        if (this.posAbilityActive || this.posAbilityTime != -1) {
+            let posMin = POS_ABILITY[this.team].min;
+            let posMax = POS_ABILITY[this.team].max;
+            let posDif = posMax - posMin;
+            let imageSize = 32;
+            let frame = 0;
+            if (this.posAbilityTime != -1) {
+                frame = Math.floor((Date.now() - this.posAbilityTime) / 500);
+                if (frame >= 4) {
+                    this.togglePosAbility(false);
+                    this.posAbilityTime = -1;
+                }
+            }
+            else {
+                this.posAbilityX = (this.posAbilityX + 80 * fpsCoefficient / 100) % (posDif * 2);
+                this.posAbilityXModuli = posMin + Math.abs(this.posAbilityX - (posMax - posMin));
+            }
+            // console.log(this.posAbilityX)
+            let DRAW_SIZE = 30;
+            ctx.drawImage(Images["target_img"], imageSize * (frame), imageSize * (this.team), imageSize, imageSize, (this.posAbilityXModuli - DRAW_SIZE / 2) * S, (104 - DRAW_SIZE / 2) * S, DRAW_SIZE * S, DRAW_SIZE * S);
+        }
         ctx.drawImage(Images[this.img], this.imageSize * this.isHurry, this.imageSize * this.castleLvl, this.imageSize, this.imageSize, (this.pos.x - this.DRAW_SIZE / 2) * S, (this.pos.y - this.DRAW_SIZE / 2) * S, this.DRAW_SIZE * S, this.DRAW_SIZE * S);
     }
 }

@@ -147,10 +147,10 @@ function promptJoin() {
         includeState: true,
     }, (status, response) => {
         // handle status, response
-        console.log(response);
+        console.log("response after hereNow:", response);
         if (response.totalOccupancy == 1) {
             joinChannel(thisLobbyCode);
-            send("start", { name: myName, clan: playerClan[1] });
+            send("start", { name: myName, clan: playerClan });
         }
         else if (response.totalOccupancy == 2) {
             console.log("lobby full!", local_UI)

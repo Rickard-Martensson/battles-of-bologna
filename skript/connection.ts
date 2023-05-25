@@ -48,7 +48,7 @@ function leaveChannel() {
     pubnub.unsubscribeAll();
 }
 
-function send(type, content) {
+function send(type: string, content: any) {
     if (IS_SPECTATOR) {
         console.log("spectator sending data:", type, content);
         return;
@@ -88,17 +88,22 @@ pubnub.addListener({
         //     game.move(moveInfo[0], moveInfo[1], moveInfo[2], moveInfo[3]);
         // }
         else if (type == "start") {
-            console.log(event.message);
-
-            send("startingInfo", mySide);
+            console.log("total message:", event.message);
+            let playerClan2 = content.clan;
+            console.log("playerclan Is:", content.clan)
+            // send("startingInfo", mySide);
+            send("startingInfo", { mySide: mySide, clans: playerClan2 });
         }
         else if (type == "startingInfo") {
             IS_ONLINE = 1; //behövs inte
             if (uuid != event.message.sender) {
                 myOpponent = event.message.name;
-                if (event.message.content != -1) { }
-                else if (event.message.content == 0) { mySide = 1 }
+                if (content.mySide != -1) { }
+                else if (content.mySide == 0) { mySide = 1 }
                 else { mySide = 0 }
+                playerClan[content.mySide] = content.clans[content.mySide];
+                console.log("message clan is:", content.clans, "my clans is:", playerClan, "and my opponent:", myOpponent)
+                // playerClan[1] = ClanTypes.eastern
                 startGame2(mySide)
             }
         }
@@ -124,8 +129,9 @@ pubnub.addListener({
             // send("castAbility", { team: team, ability: abilityName, cooldown: abilityCooldown })
             let team = content.team;
             let ability = content.ability;
-            let cooldown = content.cooldown
-            game.castAbility(ability, team, cooldown);
+            let cooldown = content.cooldown;
+            let posX = content.posX;
+            game.castAbility(ability, team, cooldown, posX);
         }
 
         else if (type == "sendUnit") {

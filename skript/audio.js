@@ -41,7 +41,7 @@ function playSoundEffect(sound) {
     let thisSound = { soundeffect: sound, date: Date.now() };
     curSoundsPlaying.push(thisSound);
     // console.log("currently playing", curSoundsPlaying, Sounds[sound])
-    console.log("sound", sound);
+    // console.log("sound", sound)
     let audioSrc = Sounds[sound].src;
     var vol = Sounds[sound].vol;
     var audio = new Audio(audioSrc);

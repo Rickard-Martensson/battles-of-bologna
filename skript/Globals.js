@@ -23,6 +23,9 @@ const IMAGE_DIRECTORY = [
     ["spearman_img_blue", "./bilder/sprites/spearman_blue.png"],
     ["brute_img", "./bilder/sprites/brute.png"],
     ["brute_img_blue", "./bilder/sprites/brute_blue.png"],
+    ["longship_img", "./bilder/sprites/longship.png"],
+    ["longship_img_blue", "./bilder/sprites/longship.png"],
+    ["barrel_projectile", "./bilder/sprites/viking_barrel.png"],
     // eastern
     ["rocketeer_img", "./bilder/sprites/rocketeer.png"],
     ["rocketeer_img_blue", "./bilder/sprites/rocketeer_blue.png"],
@@ -53,6 +56,8 @@ const IMAGE_DIRECTORY = [
     //effects
     ["explosion", "./bilder/sprites/explode3.png"],
     ["flame", "./bilder/sprites/flame1.png"],
+    ["flamebig", "./bilder/sprites/flamebig1.png"],
+    ["target_img", "./bilder/sprites/targetAbilitySprite.png"],
 ];
 const SOUND_DICTIONARY = [
     ["sword", './bilder/audio/zap/sword_strike2.mp3', 0.5],
@@ -72,12 +77,14 @@ const SOUND_DICTIONARY = [
     ["firework", './bilder/audio/firework2.mp3', 1],
     ["explode", './bilder/audio/explode.mp3', 1],
     ["flamethrower", './bilder/audio/flamethrower2.mp3', 1],
+    ["barrel_hit", './bilder/audio/barrel_hit.mp3', 1],
     // "C:\Users\ricka\Documents\kod\typescript2\battles-of-bologna-ts/bilder/audio/firework.mp3"
 ];
 const BTN_SIZE = 32;
 const EFFECT_DIRECTORY = {
     explosion: { imgSize: { x: 50, y: 100 }, drawSize: { x: 30, y: 60 }, framesPerRow: 7, totalFrames: 28 },
-    flame: { imgSize: { x: 100, y: 50 }, drawSize: { x: 60, y: 30 }, framesPerRow: 5, totalFrames: 23 }
+    flame: { imgSize: { x: 100, y: 50 }, drawSize: { x: 60, y: 30 }, framesPerRow: 5, totalFrames: 23 },
+    flamebig: { imgSize: { x: 100, y: 50 }, drawSize: { x: 60, y: 30 }, framesPerRow: 6, totalFrames: 27 },
 };
 var ICON_DIRECTORY = {
     target: { x: 0, y: 1 },
@@ -97,6 +104,7 @@ const ICON_SS_POS = {
     churchRepair: { x: 5, y: 2 },
     jump: { x: 7, y: 2 },
     rage: { x: 6, y: 2 },
+    vikingBarrel: { x: 2, y: 2 },
     question: { x: 3, y: 2 },
     pagodaUpg: { x: 4, y: 4 },
     pagodaRepair: { x: 5, y: 4 },
@@ -129,7 +137,7 @@ const ICON_SIZE = 20; //hur stora ikoner i knapparna
 const SPRITE_SIZE = 80; //vet ej
 const BUTTON_DELAY = 100; //hur länge en knapp är i millisekunder
 const NUMBER_OF_BUTTONS = 6; //antal knappar
-const INVINCIBLE_DELAY = 150; //hur länge en sprite är genomskinlig efter att ha blivit slagen
+const INVINCIBLE_DELAY = 200; //hur länge en sprite är genomskinlig efter att ha blivit slagen
 const GRAVITY = 50; //projektiler
 const ABILITY_MAX_LVL = 4; //max lvl för abilities 
 const CASTLE_MAX_LVL = 3; //max lvl för slottet
@@ -146,11 +154,11 @@ const RANGE_RANDOMNESS = 0.5; //0.5 = arrows flyger mellan 100% & 150% av rangen
 const INVINCIBLE_DURATION = 2;
 const ARCHER_TRAJECTORY = 1.25; //arctan av detta är vinkeln den skjuts med
 const ARCHER_TARGET_MAX_RANGE = 100; // maxrange när archers använder target fire abilityn.
-const SPRINT_ABILITY_SPEED = 10;
+const SPRINT_ABILITY_SPEED = 10.2;
 const BALLISTA_UNLOCK_DAY = 3; //how many days pass before ballista is unlocked.
 const BALLISTA_SIEGE_RANGE = 120; //how far away from own castle the ballista should start shooting
-const CASTLE_ARROW_DELAY = [NaN, 12, 7, 7];
-const CASTLE_BAL_DELAY = [NaN, NaN, NaN, 12];
+const ROCKET_SPLASH_RADIUS = 6;
+const DEATH_DELAY = 100; // how long between a units gets to 0 hp until it gets deleted. higher values makes desyncs and race conditions less likely. milliseconds
 var IS_DEBUGGING = false; //låser upp allting
 //===DAY NIGHT ===\\
 const MAXDARKNESS = 0.5; //hur mörka sprites blir på natten. används endast i graphics_level 1+
@@ -309,6 +317,11 @@ const STATS = {
         abilities: ["jump", "whirlwind", "rage"], row: 0, img: "brute_img", imageSize: 32, size: 9,
         animations: { [SpriteCurAnim.idle]: new SpriteAnimation(32, 0, 8, 60, true), [SpriteCurAnim.walk]: new SpriteAnimation(32, 1, 8, 19.6, true), [SpriteCurAnim.attack]: new SpriteAnimation(32, 2, 11, 10, false), [SpriteCurAnim.special]: new SpriteAnimation(32, 3, 12, 25, false) }
     },
+    longship: {
+        hp: 13, dmg: 3, meleDmg: -1, meleRange: 30, range: 0, atkSpeed: 2000, atkDelay: 500, speed: 3,
+        abilities: [], row: 0, img: "longship_img", imageSize: 48, size: 10,
+        animations: { [SpriteCurAnim.idle]: new SpriteAnimation(32, 0, 1, 60, true), [SpriteCurAnim.walk]: new SpriteAnimation(32, 0, 1, 19.6, true), [SpriteCurAnim.attack]: new SpriteAnimation(32, 0, 1, 20, false), [SpriteCurAnim.special]: new SpriteAnimation(32, 0, 1, 25, false) }
+    },
     //eastern
     warrior: {
         hp: 11, dmg: 2, meleDmg: -1, armor: 0, meleRange: 12, range: 0, atkSpeed: 1200, atkDelay: 450, speed: 4,
@@ -316,12 +329,12 @@ const STATS = {
         animations: { [SpriteCurAnim.idle]: new SpriteAnimation(32, 0, 8, 60, true), [SpriteCurAnim.walk]: new SpriteAnimation(32, 1, 8, 19.73, true), [SpriteCurAnim.attack]: new SpriteAnimation(32, 2, 7, 20, false), [SpriteCurAnim.special]: new SpriteAnimation(32, 3, 8, 60, true), }
     },
     rocketeer: {
-        hp: 12, dmg: 1, meleDmg: -1, meleRange: 13, range: 0.8, atkSpeed: 2000, atkDelay: 1000, speed: 4,
+        hp: 12, dmg: 1, meleDmg: -1, meleRange: 13, range: 0.8, atkSpeed: 2400, atkDelay: 1200, speed: 4,
         abilities: ["rocket", "targetCloseRange"], row: 0, img: "rocketeer_img", imageSize: 32, size: 10,
-        animations: { [SpriteCurAnim.idle]: new SpriteAnimation(32, 0, 8, 60, true), [SpriteCurAnim.walk]: new SpriteAnimation(32, 3, 8, 19.7, true), [SpriteCurAnim.attack]: new SpriteAnimation(32, 2, 8, 25, false), [SpriteCurAnim.special]: new SpriteAnimation(32, 0, 8, 60, true), }
+        animations: { [SpriteCurAnim.idle]: new SpriteAnimation(32, 0, 8, 60, true), [SpriteCurAnim.walk]: new SpriteAnimation(32, 3, 8, 19.7, true), [SpriteCurAnim.attack]: new SpriteAnimation(32, 2, 8, 28, false), [SpriteCurAnim.special]: new SpriteAnimation(32, 0, 8, 60, true), }
     },
     fireman: {
-        hp: 8, dmg: 2, meleDmg: -1, meleRange: 12, range: 3, atkSpeed: 2000, atkDelay: 900, speed: 4,
+        hp: 8, dmg: 1, meleDmg: -1, meleRange: 12, range: 3.5, atkSpeed: 1500, atkDelay: 900, speed: 4,
         abilities: ["flamethrower", "bigFlame"], row: 0, img: "fireman_img", imageSize: 32, size: 9,
         animations: { [SpriteCurAnim.idle]: new SpriteAnimation(32, 0, 8, 60, true), [SpriteCurAnim.walk]: new SpriteAnimation(32, 1, 8, 20, true), [SpriteCurAnim.attack]: new SpriteAnimation(32, 2, 8, 30, false), [SpriteCurAnim.special]: new SpriteAnimation(32, 0, 8, 70, true), }
     },
@@ -372,7 +385,7 @@ const CLAN_INFO = {
         base_img: "stavechurch_img",
         arrow_delay: [NaN, 16, 8, 8],
         ballista_delay: [NaN, NaN, NaN, 12],
-        projectile_type: "arrow",
+        projectile_type: "spear",
         projectile_dmg: 5,
         projectile_speed: { vx: 20, vy: -30 },
         projectile_randomness: { rx: 45, ry: -35 },
@@ -445,11 +458,11 @@ const BTN_FOLDER = {
         },
         1: {
             0: { txt: "viking", cost: 15, action: "buyUnit", data: "viking", img: "viking_img", info: "vikings are basic mele units" },
-            1: { txt: "spearman", cost: 20, action: "buyUnit", data: "spearman", img: "spearman_img", info: "Spearmen are ranged, but \nwith good mele attacks aswell" },
+            1: { txt: "spearman", cost: 15, action: "buyUnit", data: "spearman", img: "spearman_img", info: "Spearmen are ranged, but \nwith good mele attacks aswell" },
             2: { txt: "brute", cost: 35, action: "buyUnit", data: "brute", upgrade: "upgBrute", img: "brute_img", info: "brutes are rugged mele units\nwho will jump over the first\nenemy they encounter" },
             3: { txt: "back", action: "folder", data: 0, img: "buttonBack_img", info: "go back to the previous folder" },
             4: { txt: "veteran", cost: 50, action: "buyUnit", data: "veteran", upgrade: "upgVeteran", img: "veteran_img", info: "veterans are very strong and \none-hits most units" },
-            5: { txt: "ballista", cost: 30, action: "buyUnit", data: "ballista", upgrade: "upgBallista", img: "ballista_img", info: "ballistas shooty at castle" }
+            5: { txt: "longship", cost: 30, action: "buyUnit", data: "longship", img: "longship_img", info: "viking longship!" }
         },
         2: {
             0: { txt: "upgrade", txt2: "gold", cost: "%upggold%", action: "upgrade", upgrade: "maxGold", data: "upgGold", img: "knight_img", icon: "goldUpg", info: "will increase the gold you get \nevery 15 seconds. \nthe cost of this ability increases" },
@@ -462,10 +475,10 @@ const BTN_FOLDER = {
         },
         3: {
             // 0: { txt: "Take Dmg", cost: 1, action: "ability", data: "takedmg", abilityCooldown: 0, lvl: 2, img: "soldier_img", info: "makes your own tower take dmg \ngood if youre debugging" },
-            0: { txt: "Empty", cost: 2, action: "ability", data: "empty", abilityCooldown: 1, lvl: 2, img: "soldier_img", icon: "question", info: "nothing here yet" },
-            1: { txt: "Empty", cost: 2, action: "ability", data: "empty", abilityCooldown: 1, lvl: 3, img: "soldier_img", icon: "question", info: "nothing here yet" },
+            0: { txt: "Throw", txt2: "viking", cost: 4, action: "posAbility", data: "viking_barrel", abilityCooldown: 1, lvl: 2, img: "soldier_img", icon: "vikingBarrel", info: "throw a barrel with a viking\nanywhere on the battlefireld" },
+            1: { txt: "Throw", cost: 1, action: "posAbility", data: "viking_barrel", abilityCooldown: 1, lvl: 3, img: "soldier_img", icon: "question", info: "nothing here yet" },
             2: { txt: "Empty", cost: 2, action: "ability", data: "empty", abilityCooldown: 12, lvl: 4, img: "archer_img", icon: "question", info: "nothing here yet" },
-            3: { txt: "Double", txt2: "jump", cost: 3, action: "ability", data: "doublejump", abilityCooldown: 12, lvl: 1, img: "soldier_img", icon: "jump", info: "make your brutes jump again" },
+            3: { txt: "Double", txt2: "Jump", cost: 3, action: "ability", data: "doublejump", abilityCooldown: 12, lvl: 1, img: "soldier_img", icon: "jump", info: "make your brutes jump again" },
             4: { txt: "Rage", cost: 4, action: "ability", data: "rage", abilityCooldown: 8, lvl: 0, img: "soldier_img", icon: "rage", info: "makes your vikings go\nberserk. Increases mele\nattack speed and jump\nlength." },
             5: { txt: "back", action: "folder", data: 0, img: "buttonBack_img", info: "go back to the previous folder" },
             6: { txt: "upgrade", txt2: "ability", cost: "%upgability%", action: "upgrade", upgrade: "upgAbility", data: "upgAbility", img: "archer_img", icon: "churchUpg", info: "unlocks another ability \n(%abilitylevel%/5 unlocked) " },
@@ -482,7 +495,7 @@ const BTN_FOLDER = {
         },
         1: {
             0: { txt: "warrior", cost: 10, action: "buyUnit", data: "warrior", img: "warrior_img", info: "warriors are basic mele units" },
-            1: { txt: "firethrower", cost: 20, action: "buyUnit", data: "fireman", img: "fireman_img", info: "brutes are rugged mele units\nwho will jump over the first\nenemy they encounter" },
+            1: { txt: "firethrower", cost: 20, action: "buyUnit", data: "fireman", img: "fireman_img", info: "firethrowers carry a \nflamethrower and damage \nmultiple enemies at a time." },
             2: { txt: "rocketeer", cost: 15, action: "buyUnit", data: "rocketeer", upgrade: "upgRocketeer", img: "rocketeer_img", info: "Rocketmen are ranged \nand shoot rockets." },
             3: { txt: "back", action: "folder", data: 0, img: "buttonBack_img", info: "go back to the previous folder" },
             4: { txt: "veteran", cost: 50, action: "buyUnit", data: "veteran", upgrade: "upgVeteran", img: "veteran_img", info: "veterans are very strong and \none-hits most units" },
@@ -502,7 +515,7 @@ const BTN_FOLDER = {
             0: { txt: "Empty", cost: 2, action: "ability", data: "empty", abilityCooldown: 1, lvl: 2, img: "soldier_img", icon: "question", info: "nothing here yet" },
             1: { txt: "Empty", cost: 2, action: "ability", data: "empty", abilityCooldown: 1, lvl: 3, img: "soldier_img", icon: "question", info: "nothing here yet" },
             2: { txt: "Empty", cost: 2, action: "ability", data: "empty", abilityCooldown: 12, lvl: 4, img: "archer_img", icon: "question", info: "nothing here yet" },
-            3: { txt: "bigger", txt2: "flame", cost: 3, action: "ability", data: "bigFlame", abilityCooldown: 12, lvl: 1, img: "soldier_img", icon: "bigFlame", info: "temporarly increases the range\nof your firethrowers" },
+            3: { txt: "bigger", txt2: "flame", cost: 4, action: "ability", data: "bigFlame", abilityCooldown: 8, lvl: 1, img: "soldier_img", icon: "bigFlame", info: "temporarly increases the range\nof your firethrowers" },
             4: { txt: "warrior", txt2: "shield", cost: 2, action: "ability", data: "shield", abilityCooldown: 8, lvl: 0, img: "soldier_img", icon: "shield", info: "Makes your warriors immobile,\nbut they take less damage" },
             5: { txt: "back", action: "folder", data: 0, img: "buttonBack_img", info: "go back to the previous folder" },
             6: { txt: "upgrade", txt2: "ability", cost: "%upgability%", action: "upgrade", upgrade: "upgAbility", data: "upgAbility", img: "archer_img", icon: "pagodaUpg", info: "unlocks another ability \n(%abilitylevel%/5 unlocked) " },
@@ -539,11 +552,76 @@ const BTN_FOLDER = {
             0: { txt: "Empty", cost: 2, action: "ability", data: "empty", abilityCooldown: 1, lvl: 2, img: "soldier_img", icon: "question", info: "nothing here yet" },
             1: { txt: "Empty", cost: 2, action: "ability", data: "empty", abilityCooldown: 1, lvl: 3, img: "soldier_img", icon: "question", info: "nothing here yet" },
             2: { txt: "Empty", cost: 2, action: "ability", data: "empty", abilityCooldown: 12, lvl: 4, img: "archer_img", icon: "question", info: "nothing here yet" },
-            3: { txt: "bigger", txt2: "flame", cost: 3, action: "ability", data: "bigFlame", abilityCooldown: 12, lvl: 1, img: "soldier_img", icon: "bigFlame", info: "temporarly increases the range\nof your firethrowers" },
-            4: { txt: "warrior", txt2: "shield", cost: 2, action: "ability", data: "shield", abilityCooldown: 8, lvl: 0, img: "soldier_img", icon: "shield", info: "Makes your warriors immobile,\nbut they take less damage" },
+            3: { txt: "Empty", cost: 2, action: "ability", data: "empty", abilityCooldown: 12, lvl: 1, img: "soldier_img", icon: "question", info: "nothing here yet" },
+            4: { txt: "Empty", cost: 2, action: "ability", data: "empty", abilityCooldown: 8, lvl: 0, img: "soldier_img", icon: "question", info: "nothing here yet" },
             5: { txt: "back", action: "folder", data: 0, img: "buttonBack_img", info: "go back to the previous folder" },
             6: { txt: "upgrade", txt2: "ability", cost: "%upgability%", action: "upgrade", upgrade: "upgAbility", data: "upgAbility", img: "archer_img", icon: "pagodaUpg", info: "unlocks another ability \n(%abilitylevel%/5 unlocked) " },
         }
     }
+};
+let minProp;
+// let minprop2 = Object.
+const POS_ABILITY = [
+    {
+        startPos: 260,
+        min: 20,
+        max: 260,
+    },
+    {
+        startPos: 20,
+        min: 60,
+        max: 300,
+    }
+];
+const ABILITIES_LIST = {
+    viking_barrel: {
+        duration: -1,
+        affectNewlySpawnedUnits: false,
+        needAbility: false,
+        requiredAbility: "",
+        posAbility: true,
+    },
+    invincible: {
+        duration: 8,
+        affectNewlySpawnedUnits: true,
+        needAbility: false,
+        requiredAbility: "",
+        posAbility: false
+    },
+    target: {
+        duration: 8,
+        affectNewlySpawnedUnits: true,
+        needAbility: true,
+        requiredAbility: "targetfire",
+        posAbility: false,
+    },
+    sprint: {
+        duration: 8,
+        affectNewlySpawnedUnits: true,
+        needAbility: false,
+        requiredAbility: "",
+        posAbility: false,
+    },
+    rage: {
+        duration: 8,
+        affectNewlySpawnedUnits: true,
+        needAbility: true,
+        requiredAbility: "rage",
+        posAbility: false,
+    },
+    shield: {
+        duration: 8,
+        affectNewlySpawnedUnits: false,
+        needAbility: true,
+        requiredAbility: "shield",
+        posAbility: false,
+    },
+    bigFlame: {
+        duration: 8,
+        affectNewlySpawnedUnits: true,
+        needAbility: true,
+        requiredAbility: "bigFlame",
+        posAbility: false,
+    },
 };
 //# sourceMappingURL=Globals.js.map

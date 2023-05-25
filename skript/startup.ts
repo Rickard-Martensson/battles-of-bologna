@@ -348,7 +348,7 @@ function clickButton() {
 
 var IS_ONLINE: number;
 
-let local_UI = null;
+let local_UI: UIHandler;
 
 function startGameLocal() {
     local_UI = new UIHandler([0, 1], false);

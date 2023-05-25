@@ -19,14 +19,12 @@ class Effect {
         this.framerate = framerate;
         this.dateLastFrame = Date.now();
         this.team = team;
-        console.log(name, EFFECT_DIRECTORY, EFFECT_DIRECTORY[name]);
         //
         this.DRAW_SIZE = { x: EFFECT_DIRECTORY[name].drawSize.x * size, y: EFFECT_DIRECTORY[name].drawSize.y * size };
         this.imgSize = EFFECT_DIRECTORY[name].imgSize;
         this.framesPerRow = EFFECT_DIRECTORY[name].framesPerRow;
         this.totalFrames = EFFECT_DIRECTORY[name].totalFrames;
         this.totalRows = Math.ceil(this.totalFrames / this.framesPerRow);
-        console.log(this.totalRows);
     }
     checkDead(game, index) {
         if (this.frame >= this.totalFrames) {
@@ -40,7 +38,7 @@ class Effect {
             this.frame += 1;
             this.dateLastFrame = Date.now(); // - (this.dateLastFrame - 300);
             if (this.frame >= this.totalFrames) {
-                console.log(this.frame, Math.floor(this.frame / this.framesPerRow));
+                // console.log(this.frame, Math.floor(this.frame / this.framesPerRow))
                 return;
             }
         }
@@ -60,10 +58,11 @@ class Projectile {
     DRAW_SIZE;
     startPos;
     deathFrame;
-    lastDeathFrame;
+    lastFrame;
     dead;
     frame;
     angle;
+    isDying;
     constructor(pos, vel, team, dmg, isUpdate = false, newData = false, type = "arrow") {
         this.pos = { x: pos.x, y: pos.y };
         this.vel = { vx: vel.vx, vy: vel.vy };
@@ -77,11 +76,17 @@ class Projectile {
             //this.ARROW_COLORS_3 = ['#DDDDDD', '#6F2B1F', '#8B3F2B', '#8B3F2B', '#FFFFFF'];
             this.ARROW_SIZE = .6;
         }
+        if (this.type == "barrel") {
+            this.isDying = false;
+            this.DRAW_SIZE = 10;
+            this.frame = 0;
+            this.lastFrame = Date.now();
+        }
         else if (this.type == "ballista") {
             this.DRAW_SIZE = 14;
             this.startPos = this.pos.x;
             this.deathFrame = 0;
-            this.lastDeathFrame = Date.now();
+            this.lastFrame = Date.now();
         }
         else if (this.type == "spear") {
             this.ARROW_LEN = [0.9, 7];
@@ -96,7 +101,7 @@ class Projectile {
             this.frame = 0;
             this.angle = TAU / 4 + this.vel.vx;
             this.deathFrame = 0;
-            this.lastDeathFrame = Date.now();
+            this.lastFrame = Date.now();
         }
         this.dead = false;
         // this.colors = ['#DDDDDD', '#6F2B1F', '#8B3F2B', '#8B3F2B', '#8B3F2B', '#8B3F2B', '#FFFFFF']
@@ -150,6 +155,7 @@ class Projectile {
         this.pos.x += this.vel.vx * fpsCoefficient / 100;
         this.pos.y += this.vel.vy * fpsCoefficient / 100;
         this.vel.vy += GRAVITY * fpsCoefficient / 100;
+        // console.log("proj loc:", this.pos.x, this.pos.y)
         //this.predictTouchDown()
     }
     checkHitRocket() {
@@ -160,8 +166,8 @@ class Projectile {
             for (var i in game.sprites) {
                 if (this.team != game.sprites[i].team) {
                     //console.log("disty:", dist(this.pos, game.sprites[i].pos), game.sprites[i].size);
-                    if (dist(this.pos, game.sprites[i].pos) - game.sprites[i].size < 8) {
-                        console.log("raketbombad");
+                    if (dist(this.pos, game.sprites[i].pos) - game.sprites[i].size < ROCKET_SPLASH_RADIUS) {
+                        // console.log("raketbombad")
                         game.sprites[i].takeDmg(this.dmg);
                     }
                 }
@@ -193,9 +199,9 @@ class Projectile {
         }
     }
     ballistaDeathAnim() {
-        if (Date.now() - this.lastDeathFrame > 0.02 * 1000) {
+        if (Date.now() - this.lastFrame > 20) {
             this.deathFrame += 1;
-            this.lastDeathFrame = Date.now();
+            this.lastFrame = Date.now();
             if (this.deathFrame > 5) {
                 this.dead = true;
             }
@@ -206,11 +212,15 @@ class Projectile {
             this.checkHitBallista();
             return;
         }
-        if (this.type == "rocket") {
+        else if (this.type == "rocket") {
             this.checkHitRocket();
             return;
         }
-        if (this.pos.y > HEIGHT - 5) {
+        else if (this.type == "barrel") {
+            this.checkHitBarrel();
+            return;
+        }
+        else if (this.pos.y > HEIGHT - 5) {
             for (var i in game.sprites) {
                 if (this.team != game.sprites[i].team) {
                     //console.log("disty:", dist(this.pos, game.sprites[i].pos), game.sprites[i].size);
@@ -226,7 +236,11 @@ class Projectile {
         }
     }
     checkDead(index) {
-        if (this.dead || this.pos.y > HEIGHT) {
+        // if (this.dead || this.pos.y > HEIGHT) {
+        if (this.dead) {
+            index > -1 ? game.projectiles.splice(index, 1) : false;
+        }
+        else if ((this.type == "arrow" || this.type == "spear") && this.pos.y > HEIGHT) {
             index > -1 ? game.projectiles.splice(index, 1) : false;
         }
     }
@@ -299,6 +313,34 @@ class Projectile {
         }
         ctx.drawImage(Images["ballista_projectile"], imageSize * frame, imageSize * (this.team) + isDying, imageSize, imageSize, (this.pos.x - this.DRAW_SIZE / 2) * S, (this.pos.y - this.DRAW_SIZE / 2) * S, this.DRAW_SIZE * S, this.DRAW_SIZE * S);
     }
+    checkHitBarrel() {
+        if (this.pos.y > HEIGHT - 3 && this.isDying == false) {
+            this.isDying = true;
+            this.frame = 0;
+            this.vel = { vx: getDirection(this.team) * 7, vy: -15 };
+            playSoundEffect("barrel_hit");
+            // game.addEffect(this.pos.x, HEIGHT, "explosion", 60, this.team, 1)
+            console.log("impactpoint:", this.pos.x - BASE_POS[this.team].x);
+            game.addSprite("viking", this.team, 0, this.pos.x);
+        }
+        else if (this.isDying == true && this.frame >= 6) {
+            this.dead = true;
+        }
+    }
+    drawBarrel() {
+        const TAU = Math.PI * 2;
+        let frame = this.frame;
+        if (Date.now() - this.lastFrame > 100) {
+            this.lastFrame = Date.now();
+            frame = (frame + 1) % 8;
+            this.frame = frame;
+        }
+        let imageSize = 16;
+        ctx.drawImage(Images["barrel_projectile"], imageSize * (frame), imageSize * (Number(this.isDying) * 3), imageSize, imageSize, (this.pos.x - this.DRAW_SIZE / 2) * S, (this.pos.y - this.DRAW_SIZE / 2) * S, this.DRAW_SIZE * S, this.DRAW_SIZE * S);
+        if (!this.isDying) {
+            ctx.drawImage(Images["barrel_projectile"], imageSize * (frame), imageSize * 1, imageSize, imageSize, (this.pos.x - this.DRAW_SIZE / 2) * S, (103 - this.DRAW_SIZE / 2) * S, this.DRAW_SIZE * S, this.DRAW_SIZE * S);
+        }
+    }
     draw() {
         if (this.type == "ballista") {
             this.drawBallista();
@@ -306,6 +348,10 @@ class Projectile {
         }
         else if (this.type == "rocket") {
             this.drawRocket();
+            return;
+        }
+        else if (this.type == "barrel") {
+            this.drawBarrel();
             return;
         }
         let lastPos = { x: this.pos.x, y: this.pos.y };
@@ -362,10 +408,11 @@ class Sprite {
     lastAtkCycleDate;
     lastStartOfAtkCycleDate;
     lastDmgdTime;
-    startInvincibleDate;
+    hasLowOpactity;
     drawInvisible;
     invincible;
-    activeEffects;
+    // activeEffects: Set<string>;
+    activeEffList;
     animations;
     // animations: { [key in SpriteCurAnim]: SpriteAnimation };
     atkDelay;
@@ -387,6 +434,7 @@ class Sprite {
     hasJumped;
     armor;
     isCurSpecAnim;
+    deathDate;
     constructor(x, y, name, team, isUpdate, newData) {
         //console.log(x, y, name, team, isUpdate, "newdata:", newData)
         if (isUpdate) {
@@ -414,24 +462,29 @@ class Sprite {
             this.currentSpeed = this.speed;
             this.state = SpriteCurState.idle;
             this.isWalking = false; //helps to make atk anim better
-            this.DRAW_SIZE = 24;
+            this.DRAW_SIZE = 24 * (this.imageSize / 32);
             // this._last0frame = Date.now();  //not important, debugging
             //attack
             this.lastAtkCycleDate = START_TIME;
             this.lastStartOfAtkCycleDate = null;
             this.lastDmgdTime = START_TIME;
-            this.startInvincibleDate = null;
+            this.hasLowOpactity = null;
             this.drawInvisible = false;
             this.invincible = false;
             this.drawSpriteYOffset = 0;
-            this.activeEffects = new Set();
-            console.log(game.players[this.team].activeAbilities);
-            if (game.players[this.team].checkAbility("sprint")) {
-                this.activateAbility("sprint");
+            this.deathDate = -1;
+            this.activeEffList = [];
+            // this.activeEffects = new Set();
+            for (var abilityIdx in game.players[this.team].activeAbilities) {
+                var abilityName = game.players[this.team].activeAbilities[abilityIdx];
+                this.activateAbility(abilityName);
             }
-            if (game.players[this.team].checkAbility("rage")) {
-                this.activateAbility("rage");
-            }
+            // if (game.players[this.team].checkAbility("sprint")) {
+            //     this.activateAbility("sprint")
+            // }
+            // if (game.players[this.team].checkAbility("rage")) {
+            //     this.activateAbility("rage")
+            // }
             // this.speed *= 5
         }
     }
@@ -441,16 +494,13 @@ class Sprite {
             this[i] = newData[i];
         }
         this.animations = STATS[this.name].animations;
-        this.activeEffects = new Set();
-        for (var i in newData.activeEffects) {
-            this.activeEffects.add(i);
-        }
+        // this.activeEffects = new Set();
+        // for (var i in newData.activeEffects) {
+        //     this.activeEffects.add(i)
+        // }
     }
     getData() {
         let data = this;
-        // data.animations = null;
-        // //data.activeEffects = Array.from(this.activeEffects);
-        // console.log("set is now", data.activeEffects);
         return data;
     }
     setStats() {
@@ -473,61 +523,103 @@ class Sprite {
             this.direction = -1;
         }
     }
+    addActiveEffects(name) {
+        if (this.activeEffList.includes(name)) {
+            console.log("the sprite already has this effect");
+        }
+        else {
+            this.activeEffList.push(name);
+        }
+    }
+    hasActiveEffect(name) {
+        return this.activeEffList.includes(name);
+    }
+    removeActiveEffects(name) {
+        if (this.activeEffList.includes(name)) {
+            this.activeEffList = this.activeEffList.filter(e => e !== name);
+            // var index = this.activeEffList.indexOf(name);
+            // if (index !== -1) {
+            //     this.activeEffList.splice(index, 1);
+            // }
+        }
+        else {
+            console.log("could not remove effect since unit does not have it");
+        }
+    }
     activateAbility(name) {
-        if (name == "sprint") {
-            this.activeEffects.add("sprint");
-            this.speed += SPRINT_ABILITY_SPEED;
+        if (name == "invincible") {
+            this.armor = 99;
+            this.hasLowOpactity = true;
+        }
+        else if (name == "target") {
+        }
+        else if (name == "sprint") {
+            this.speed += 10.1;
             this.animTimeMult /= 2;
         }
         else if (name == "rage") {
-            this.activeEffects.add("rage");
             this.atkSpeed *= 0.5;
             this.drawSpriteYOffset = 4;
+            this.armor = -1;
         }
         else if (name == "shield") {
             this.currentFrame = 0;
-            this.activeEffects.add("shield");
             this.isCurSpecAnim = true;
             this.armor = 2;
             this.atkDelay = 9999;
             this.speed = 0;
         }
         else if (name == "bigFlame") {
-            this.activeEffects.add("bigFlame");
-            this.range *= 2;
+            this.range *= 1.8;
         }
+        else {
+            console.log("this effect:", name, "is not known, and cannot be added");
+            return;
+        }
+        this.addActiveEffects(name);
     }
     deactivateAbility(name) {
-        if (name == "sprint") {
-            this.activeEffects.delete("sprint");
-            this.speed -= SPRINT_ABILITY_SPEED;
+        if (!this.hasActiveEffect(name)) {
+            console.log("the effect", name, "was asked to be removed from a", this.name, "sprite. however we only have effects", this.activeEffList, "so nothing happens. weird.");
+            return;
+        }
+        // if (!this.activeEffects.has(name)) {
+        //     console.log("the effect", name, "was asked to be removed from a", this.name, "sprite. however we only have effects", this.activeEffects, "so nothing happens. weird.")
+        //     // return
+        // }
+        // this.activeEffects.delete(name)
+        if (name == "invincible") {
+            this.armor = 0;
+            this.hasLowOpactity = false;
+        }
+        else if (name == "target") {
+        }
+        else if (name == "sprint") {
+            this.speed = STATS[this.name].speed;
             this.animTimeMult *= 2;
         }
         else if (name == "rage") {
-            this.activeEffects.delete("rage");
             this.atkSpeed *= 2;
             this.drawSpriteYOffset = 0;
-        }
-        else if (name == "shield") {
-            this.activeEffects.delete("shield");
-            this.isCurSpecAnim = false;
             this.armor = 0;
-            this.atkDelay = STATS[this.name].atkDelay;
-            this.speed = STATS[this.name].speed;
         }
         else if (name == "shield") {
-            this.activeEffects.delete("shield");
             this.isCurSpecAnim = false;
             this.armor = 0;
             this.atkDelay = STATS[this.name].atkDelay;
             this.speed = STATS[this.name].speed;
         }
         else if (name == "bigFlame") {
-            this.activeEffects.delete("bigFlame");
-            this.range *= 0.5;
+            this.range /= 1.8;
         }
+        else {
+            console.log("this effect:", name, "is not known, and cannot be removed");
+            return;
+        }
+        this.removeActiveEffects(name);
     }
     move() {
+        let firstXpos = this.pos.x;
         if (this.jumpState == 1) {
             this.state = SpriteCurState.special;
             this.currentAnimation = SpriteCurAnim.special;
@@ -535,7 +627,7 @@ class Sprite {
             const JUMP_CHARGE_TIME = 300; // milliseconds
             const JUMP_DURATION = 1.3; // adjust animation speed aswell in SpriteCurAnim.jump in globals
             var JUMP_SPEED_MULT = 3.5;
-            if (this.activeEffects.has("rage")) {
+            if (this.hasActiveEffect("rage")) {
                 JUMP_SPEED_MULT = 6;
             }
             let s = ((Date.now() - (this.startJumpDate + JUMP_CHARGE_TIME)) / 1000) / (JUMP_DURATION);
@@ -560,24 +652,16 @@ class Sprite {
         }
         else {
             this.pos.x += this.direction * this.currentSpeed * fpsCoefficient / 100;
+            if (this.currentSpeed < 0) {
+                console.log("movementspeed is lower than 0: ", this.currentSpeed, "and speed is:", this.speed);
+            }
             // this.setState("walk", -1, "mooove")
             this.state = SpriteCurState.walk;
         }
-        // if (this.jumpState == 1) {
-        //     this.pos.y -= 10 * (Math.sqrt(this.pos.y - 75)) * fpsCoefficient / 100;
-        //     console.log("jumping at pos", this.pos.y)
-        //     if (this.pos.y < 80) {
-        //         this.jumpState = 2;
-        //     }
-        // }
-        // else if (this.jumpState == 2) {
-        //     this.pos.y += 10 * fpsCoefficient / 100;
-        //     if (this.pos.y > 100) {
-        //         this.jumpState = 2;
-        //         this.pos.y = 100
-        //         this.row = 0;
-        //     }
-        // }
+        let secondXPos = this.pos.x;
+        if (this.team == 0 && secondXPos < firstXpos) {
+            console.log("this unit is moving backwards");
+        }
     }
     spriteShootProjectile(shouldTargetNext = false) {
         if (this.abilities.includes("ballista")) {
@@ -588,9 +672,11 @@ class Sprite {
             return;
         }
         else if (this.abilities.includes("spear")) {
+            let vel = { vx: (this.range * (1 + RANGE_RANDOMNESS * Math.random())) * 10 * this.direction, vy: (this.range * (1 + RANGE_RANDOMNESS * Math.random())) * -10 * ARCHER_TRAJECTORY };
+            // console.log("shooting spear with vel:", vel)
             game.shootProjectile({ x: this.pos.x, y: this.pos.y - 5 }, {
-                vx: (this.range * (1 + RANGE_RANDOMNESS * Math.random())) * 10 * this.direction,
-                vy: (this.range * (1 + RANGE_RANDOMNESS * Math.random())) * -10 * ARCHER_TRAJECTORY
+                vx: vel.vx,
+                vy: vel.vy
             }, this.team, this.dmg, IS_ONLINE, "spear");
             return;
         }
@@ -608,10 +694,12 @@ class Sprite {
         }
         else if (this.abilities.includes("flamethrower")) {
             let scaleFactor = 1;
-            if (this.activeEffects.has("bigFlame")) {
-                scaleFactor = 1.5;
+            let effectName = "flame";
+            if (this.hasActiveEffect("bigFlame")) {
+                scaleFactor = 1;
+                effectName = "flamebig";
             }
-            game.addEffect(this.pos.x + getDirection(this.team) * 35 * scaleFactor, this.pos.y - 6 * scaleFactor, "flame", 30, this.team, scaleFactor);
+            game.addEffect(this.pos.x + getDirection(this.team) * 35 * scaleFactor, this.pos.y - 6 * scaleFactor, effectName, 30, this.team, scaleFactor);
             playSoundEffect("flamethrower");
             let directionalPosx = this.pos.x * getDirection(this.team);
             for (var i in game.sprites) {
@@ -626,11 +714,11 @@ class Sprite {
             }
             return;
         }
-        else if (this.activeEffects.has("target") || (shouldTargetNext && this.abilities.includes("targetCloseRange"))) {
+        else if (this.hasActiveEffect("target") || (shouldTargetNext && this.abilities.includes("targetCloseRange"))) {
             let nextEnemy = game.distToNextSprite(this, this.getOtherTeam());
             if (nextEnemy.len < 80) {
                 let { vel_x, vel_y } = calcProjectilePower(this.pos, nextEnemy.sprite.pos, ARCHER_TRAJECTORY);
-                game.shootProjectile({ x: this.pos.x, y: this.pos.y - 5 }, { vx: vel_x * this.direction, vy: -vel_y }, this.team, this.dmg, IS_ONLINE);
+                game.shootProjectile({ x: this.pos.x, y: this.pos.y - 5 }, { vx: vel_x * this.direction, vy: -vel_y }, this.team, this.dmg, IS_ONLINE, "arrow");
                 return;
             }
         }
@@ -639,7 +727,7 @@ class Sprite {
             game.shootProjectile({ x: this.pos.x, y: this.pos.y - 5 }, {
                 vx: (this.range * (1 + RANGE_RANDOMNESS * Math.random())) * 10 * this.direction,
                 vy: (this.range * (1 + RANGE_RANDOMNESS * Math.random())) * -10 * ARCHER_TRAJECTORY
-            }, this.team, this.dmg, IS_ONLINE);
+            }, this.team, this.dmg, IS_ONLINE, "arrow");
         }
     }
     attack(victim) {
@@ -650,7 +738,7 @@ class Sprite {
         }
         //this.setState("attack", -1, "attacking");
         let timeSinceLastAttackCycle = Date.now() - this.lastAtkCycleDate;
-        let isRagingButAlsoRanged = (victim == undefined && this.activeEffects.has("rage")) ? 2 : 1;
+        let isRagingButAlsoRanged = (victim == undefined && this.hasActiveEffect("rage")) ? 2 : 1;
         if (timeSinceLastAttackCycle > this.atkSpeed * isRagingButAlsoRanged) { //start attack animation: ;
             this.currentFrame = 0;
             this.currentAnimation = SpriteCurAnim.attack;
@@ -704,23 +792,30 @@ class Sprite {
         }
     }
     takeDmg(dmg, haveBouncedPubNub = false) {
-        let dmgTaken = this.armor > 0 ? Math.max(dmg - this.armor, 0) : dmg;
-        if (this.startInvincibleDate == null) {
-            if (IS_ONLINE && !haveBouncedPubNub) {
-                game.damageSprite(this, dmgTaken);
-            }
-            else {
-                this.hp -= dmgTaken;
-                this.invincible = false;
-                this.lastDmgdTime = Date.now();
-            }
+        let dmgTaken = dmg;
+        if (typeof this.armor !== 'undefined') {
+            dmgTaken = Math.max(dmg - this.armor, 0);
+            console.log("dmgtaken", dmgTaken, "dmg, this.armor", dmg, this.armor, "recalc", Math.max(dmg - this.armor, 0));
+        }
+        if (IS_ONLINE && !haveBouncedPubNub) {
+            game.damageSprite(this, dmgTaken);
+        }
+        else {
+            this.hp -= dmgTaken;
+            this.invincible = false;
+            this.lastDmgdTime = Date.now();
         }
     }
     checkDead(game, index) {
-        // if (Date.now() - this.startInvincibleDate > INVINCIBLE_DURATION * 1000) {
-        //     this.startInvincibleDate = null
+        // if (Date.now() - this.hasLowOpactity > INVINCIBLE_DURATION * 1000) {
+        //     this.hasLowOpactity = null
         // }
         if (this.hp <= 0) {
+            if (this.deathDate == -1) {
+                this.deathDate = Date.now();
+            }
+        }
+        if (this.deathDate != -1 && Date.now() - this.deathDate > DEATH_DELAY) {
             index > -1 ? game.sprites.splice(index, 1) : false; //magic code that kicks sprite from sprite-array
         }
     }
@@ -739,7 +834,6 @@ class Sprite {
                 game.players[enemyPlayer].attackCastle(this.hp);
                 //game.players[this.team].onlineChangeGold(0, 1, true)
             }
-            console.log("chening at enemy castle");
             this.hp = 0;
             //remove gold, add gold
         }
@@ -894,7 +988,7 @@ class Sprite {
         let fiddledWithAlpha = false;
         let frame = Math.min(this.getFrame(), this.animations[this.currentAnimation].getFrameCount() - 1);
         let animation = this.animations[this.currentAnimation].getRow();
-        if (this.startInvincibleDate != null || Date.now() - this.lastDmgdTime < INVINCIBLE_DELAY) {
+        if (this.hasLowOpactity == true || Date.now() - this.lastDmgdTime < INVINCIBLE_DELAY) {
             ctx.globalAlpha = 0.6;
             fiddledWithAlpha = true;
         }

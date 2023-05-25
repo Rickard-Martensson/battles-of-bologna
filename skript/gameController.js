@@ -55,6 +55,9 @@ function activateGameController() {
                 musicPlayer.volume = VOLUME;
             }
         }
+        // else if (key == "p") {
+        //     game.togglePause()
+        // }
     };
     document.onmousemove = function (e) {
         local_UI.mousePos = getMousePos(canvas, e);

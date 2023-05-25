@@ -1,0 +1,71 @@
+
+const STATS: { [key: string]: SPRITE_STATS_INTERFACE } = {
+    soldier: {
+        hp: 11, dmg: 3, meleDmg: -1, meleRange: 12, range: 0, atkSpeed: 1200, atkDelay: 450, speed: 4,
+        abilities: [], row: 0, img: "soldier_img", imageSize: 32, size: 7,
+        animations: { [SpriteCurAnim.idle]: new SpriteAnimation(32, 0, 8, 60, true), [SpriteCurAnim.walk]: new SpriteAnimation(32, 1, 8, 19.73, true), [SpriteCurAnim.attack]: new SpriteAnimation(32, 2, 7, 20, false), [SpriteCurAnim.special]: new SpriteAnimation(32, 0, 8, 60, true), }
+    },
+    archer: {
+        hp: 8, dmg: 2, meleDmg: -1, meleRange: 12, range: 3, atkSpeed: 2000, atkDelay: 1000, speed: 4,
+        abilities: ["targetfire", "targetCloseRange"], row: 0, img: "archer_img", imageSize: 32, size: 7,
+        animations: { [SpriteCurAnim.idle]: new SpriteAnimation(32, 0, 8, 60, true), [SpriteCurAnim.walk]: new SpriteAnimation(32, 1, 8, 19.7, true), [SpriteCurAnim.attack]: new SpriteAnimation(32, 2, 7, 20, false), [SpriteCurAnim.special]: new SpriteAnimation(32, 0, 8, 60, true), }
+    },
+    knight: {
+        hp: 15, dmg: 3, meleDmg: -1, meleRange: 12, range: 0, atkSpeed: 1200, atkDelay: 450, speed: 10,
+        abilities: ["coolShoes", "changeRow"], row: 1, img: "knight_img", imageSize: 32, size: 7,
+        animations: { [SpriteCurAnim.idle]: new SpriteAnimation(32, 0, 8, 60, true), [SpriteCurAnim.walk]: new SpriteAnimation(32, 1, 8, 19.7 / 2, true), [SpriteCurAnim.attack]: new SpriteAnimation(32, 2, 7, 20, false), [SpriteCurAnim.special]: new SpriteAnimation(32, 0, 8, 60, true), }
+    }, //speed ska va 10
+    veteran: {
+        hp: 18, dmg: 10, meleDmg: -1, meleRange: 12, range: 0, atkSpeed: 2200, atkDelay: 1100, speed: 4,
+        abilities: [], row: 0, img: "veteran_img", imageSize: 32, size: 7,
+        animations: { [SpriteCurAnim.idle]: new SpriteAnimation(32, 0, 8, 60, true), [SpriteCurAnim.walk]: new SpriteAnimation(32, 1, 8, 19.7, true), [SpriteCurAnim.attack]: new SpriteAnimation(32, 2, 12, 18, false), [SpriteCurAnim.special]: new SpriteAnimation(32, 0, 8, 60, true), }
+    },
+    ballista: {
+        hp: 12, dmg: 1, meleDmg: -1, meleRange: 20, range: 5, atkSpeed: 4000, atkDelay: 400, speed: 2.5,
+        abilities: ["ballista"], row: 0, img: "ballista_img", imageSize: 32, size: 14,
+        animations: { [SpriteCurAnim.idle]: new SpriteAnimation(32, 0, 8, 60, true), [SpriteCurAnim.walk]: new SpriteAnimation(32, 1, 8, 19.7 * 1.5, true), [SpriteCurAnim.attack]: new SpriteAnimation(32, 2, 8, 18, false), [SpriteCurAnim.special]: new SpriteAnimation(32, 0, 8, 60, true), }
+    },
+    sprinter: {
+        hp: 6, dmg: 2, meleDmg: -1, meleRange: 12, range: 0, atkSpeed: 1000, atkDelay: 500, speed: 15,
+        abilities: [], row: 0, img: "soldier_img", imageSize: 32, size: 7,
+        animations: { [SpriteCurAnim.idle]: new SpriteAnimation(32, 0, 8, 60, true), [SpriteCurAnim.walk]: new SpriteAnimation(32, 1, 8, 19.7, true), [SpriteCurAnim.attack]: new SpriteAnimation(32, 2, 7, 20, false), [SpriteCurAnim.special]: new SpriteAnimation(32, 0, 8, 60, true), }
+    },
+    wizard: {
+        hp: Infinity, dmg: 3, meleDmg: -1, meleRange: 12, range: 0, atkSpeed: 1200, atkDelay: 450, speed: 4,
+        abilities: ["zap"], row: 0, img: "soldier_img", imageSize: 32, size: 7,
+        animations: { [SpriteCurAnim.idle]: new SpriteAnimation(32, 0, 8, 60, true), [SpriteCurAnim.walk]: new SpriteAnimation(32, 1, 8, 19.7, true), [SpriteCurAnim.attack]: new SpriteAnimation(32, 2, 7, 20, false), [SpriteCurAnim.special]: new SpriteAnimation(32, 0, 8, 60, true), }
+    },
+    //vikings
+    viking: {
+        hp: 9, dmg: 4, meleDmg: -1, meleRange: 12, range: 0, atkSpeed: 1200, atkDelay: 500, speed: 6,
+        abilities: ["rage"], row: 0, img: "viking_img", imageSize: 32, size: 7,
+        animations: { [SpriteCurAnim.idle]: new SpriteAnimation(32, 0, 8, 60, true), [SpriteCurAnim.walk]: new SpriteAnimation(32, 1, 8, 19.7, true), [SpriteCurAnim.attack]: new SpriteAnimation(32, 2, 7, 21, false), [SpriteCurAnim.special]: new SpriteAnimation(32, 0, 8, 60, true), }
+    },
+    spearman: {
+        hp: 8, dmg: 2, meleDmg: 4, meleRange: 12, range: 2.5, atkSpeed: 2000, atkDelay: 650, speed: 6,
+        abilities: ["spear", "meleClose", "rage"], row: 0, img: "spearman_img", imageSize: 32, size: 7,
+        animations: { [SpriteCurAnim.idle]: new SpriteAnimation(32, 0, 8, 60, true), [SpriteCurAnim.walk]: new SpriteAnimation(32, 1, 8, 19.16, true), [SpriteCurAnim.attack]: new SpriteAnimation(32, 3, 8, 18, false), [SpriteCurAnim.special]: new SpriteAnimation(32, 2, 9, 22, false) }
+    },
+    brute: {
+        hp: 13, dmg: 3, meleDmg: -1, meleRange: 13, range: 0, atkSpeed: 2000, atkDelay: 500, speed: 6,
+        abilities: ["jump", "whirlwind", "rage"], row: 0, img: "brute_img", imageSize: 32, size: 9,
+        animations: { [SpriteCurAnim.idle]: new SpriteAnimation(32, 0, 8, 60, true), [SpriteCurAnim.walk]: new SpriteAnimation(32, 1, 8, 19.6, true), [SpriteCurAnim.attack]: new SpriteAnimation(32, 2, 11, 10, false), [SpriteCurAnim.special]: new SpriteAnimation(32, 3, 12, 25, false) }
+    },
+    //eastern
+    warrior: {
+        hp: 11, dmg: 2, meleDmg: -1, meleRange: 12, range: 0, atkSpeed: 1200, atkDelay: 450, speed: 4,
+        abilities: [], row: 0, img: "warrior_img", imageSize: 32, size: 7,
+        animations: { [SpriteCurAnim.idle]: new SpriteAnimation(32, 0, 8, 60, true), [SpriteCurAnim.walk]: new SpriteAnimation(32, 1, 8, 19.73, true), [SpriteCurAnim.attack]: new SpriteAnimation(32, 2, 7, 20, false), [SpriteCurAnim.special]: new SpriteAnimation(32, 0, 8, 60, true), }
+    },
+    rocketman: {
+        hp: 12, dmg: 1, meleDmg: -1, meleRange: 15, range: 0.8, atkSpeed: 2000, atkDelay: 1000, speed: 4,
+        abilities: ["rocket"], row: 0, img: "rocketman_img", imageSize: 32, size: 10,
+        animations: { [SpriteCurAnim.idle]: new SpriteAnimation(32, 0, 8, 60, true), [SpriteCurAnim.walk]: new SpriteAnimation(32, 3, 8, 19.7, true), [SpriteCurAnim.attack]: new SpriteAnimation(32, 2, 8, 25, false), [SpriteCurAnim.special]: new SpriteAnimation(32, 0, 8, 60, true), }
+    },
+    fireman: {
+        hp: 8, dmg: 2, meleDmg: -1, meleRange: 15, range: 3, atkSpeed: 2000, atkDelay: 700, speed: 4,
+        abilities: ["flamethrower"], row: 0, img: "fireman_img", imageSize: 32, size: 9,
+        animations: { [SpriteCurAnim.idle]: new SpriteAnimation(32, 0, 8, 60, true), [SpriteCurAnim.walk]: new SpriteAnimation(32, 1, 8, 20, true), [SpriteCurAnim.attack]: new SpriteAnimation(32, 2, 8, 30, false), [SpriteCurAnim.special]: new SpriteAnimation(32, 0, 8, 60, true), }
+    },
+
+}

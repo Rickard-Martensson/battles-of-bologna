@@ -44,6 +44,16 @@ function calcProjectilePower(startPos, endPos, ratio) {
     //console.log("calcproj", distance, acceleration, vel_x, vel_y);
     return { vel_x: vel_x, vel_y: vel_y };
 }
+function calcProjectilePower2(startPos, endPos, maxheight) {
+    let start = { x: startPos.x, y: 40 + 0 * (100 - startPos.y) };
+    let end = { x: endPos.x, y: 100 - endPos.y };
+    let MAX = 100 - maxheight;
+    console.log(start, end, MAX);
+    let vy = Math.sqrt((MAX - start.y) * GRAVITY * 2);
+    let dt = -(vy / GRAVITY) + Math.sqrt((vy / GRAVITY) * (vy / GRAVITY) - (2 * start.y / GRAVITY));
+    let vx = (start.x - end.x) / dt;
+    return { vx: vx / 4.2, vy: -vy };
+}
 function getOtherTeam(team) {
     if (team == 0) {
         return 1;

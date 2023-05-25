@@ -153,7 +153,9 @@ class Game {
     checkAbilities() {
         for (var key in this.activeAbilites) {
             let ability = this.activeAbilites[key];
+            // console.log("name:", ability.name, "time: ", Date.now() - ability.startTime)
             if (Date.now() - ability.startTime > ability.cooldown * 1000) {
+                console.log("sent request to remove", ability.name);
                 this.disableAbility(Number(key), ability.name, ability.team);
             }
         }
@@ -161,68 +163,14 @@ class Game {
     disableAbility(index, name, team) {
         index > -1 ? this.activeAbilites.splice(index, 1) : false;
         this.players[team].removeAbility(name);
-        if (name == "invincible") {
-            for (var key in this.sprites) {
-                let sprite = this.sprites[key];
-                if (sprite.team == team) {
-                    sprite.startInvincibleDate = null;
-                }
-            }
-        }
-        else if (name == "target") {
-            for (var key in this.sprites) {
-                let sprite = this.sprites[key];
-                if (sprite.team == team && sprite.range != 0) {
-                    sprite.activeEffects.delete("target");
-                }
-            }
-        }
-        else if (name == "sprint") {
-            for (var key in this.sprites) {
-                let sprite = this.sprites[key];
-                if (sprite.team == team && sprite.activeEffects.has("sprint")) {
-                    sprite.deactivateAbility("sprint");
-                    // sprite.activeEffects.delete("sprint")
-                    // sprite.speed -= SPRINT_ABILITY_SPEED
-                    // sprite.animTimeMult *= 2
-                }
-            }
-        }
-        else if (name == "rage") {
-            for (var key in this.sprites) {
-                let sprite = this.sprites[key];
-                if (sprite.team == team && sprite.activeEffects.has("rage")) {
-                    // sprite.activeEffects.delete("rage")
-                    sprite.deactivateAbility("rage");
-                    // sprite.speed -= SPRINT_ABILITY_SPEED
-                    // sprite.animTimeMult *= 2
-                }
-            }
-        }
-        else if (name == "shield") {
-            for (var key in this.sprites) {
-                let sprite = this.sprites[key];
-                if (sprite.team == team && sprite.activeEffects.has("shield")) {
-                    sprite.deactivateAbility("shield");
-                    // sprite.activeEffects.delete("sprint")
-                    // sprite.speed -= SPRINT_ABILITY_SPEED
-                    // sprite.animTimeMult *= 2
-                }
-            }
-        }
-        else if (name == "bigFlame") {
-            for (var key in this.sprites) {
-                let sprite = this.sprites[key];
-                if (sprite.team == team && sprite.activeEffects.has("bigFlame")) {
-                    sprite.deactivateAbility("bigFlame");
-                    // sprite.activeEffects.delete("sprint")
-                    // sprite.speed -= SPRINT_ABILITY_SPEED
-                    // sprite.animTimeMult *= 2
-                }
+        for (var key in this.sprites) {
+            let sprite = this.sprites[key];
+            if (sprite.team == team) {
+                sprite.deactivateAbility(name);
             }
         }
     }
-    castAbility(name, team, cooldown) {
+    castAbility(name, team, cooldown, posX) {
         if (cooldown != 0) {
             this.activeAbilites.push({ name: name, startTime: Date.now(), team: team, cooldown: cooldown });
         }
@@ -231,8 +179,22 @@ class Game {
         if (name == "arrows") {
             for (var i = 0; i < 7; i++) {
                 //console.log(BASE_POS[team].x, BASE_POS[team].y, -(20 + 5 * Math.random()) * factor, -(50 + 10 * Math.random()), team, 2);
-                this.shootProjectile({ x: BASE_POS[team].x, y: BASE_POS[team].y - 40 }, { vx: -(20 + 75 * Math.random()) * factor, vy: -(45 + 25 * Math.random()) }, team, 2, IS_ONLINE);
+                this.shootProjectile({ x: BASE_POS[team].x, y: BASE_POS[team].y - 40 }, { vx: -(20 + 75 * Math.random()) * factor, vy: -(45 + 25 * Math.random()) }, team, 2, IS_ONLINE, "arrow");
             }
+        }
+        else if (name == "viking_barrel") {
+            player.posAbilityTime = Date.now();
+            player.posAbilityXModuli = posX;
+            // console.log("targetpoint:", posX)
+            let target = posX;
+            let vel = calcProjectilePower2({ x: BASE_POS[team].x, y: 60 }, { x: target, y: 100 }, 10);
+            // let vel = calcProjectilePower({ x: BASE_POS[team].x, y: BASE_POS[team].y }, { x: targetX, y: 100 }, 20)
+            this.shootProjectile({ x: BASE_POS[team].x, y: 60 }, { vx: vel.vx, vy: vel.vy }, team, 2, IS_ONLINE, "barrel");
+            // this.shootProjectile(
+            //     { x: BASE_POS[team].x, y: BASE_POS[team].y - 40 },
+            //     { vx: targetX * (1 / 20) * factor, vy: -70 },
+            //     team, 2, IS_ONLINE, "barrel"
+            // );
         }
         else if (name == "takedmg") {
             player.sendDmgPackage(20);
@@ -267,55 +229,22 @@ class Game {
             player.repairCastle(15);
             playSoundEffect("repair");
         }
-        else if (name == "invincible") {
+        else if (name in ABILITIES_LIST) {
+            console.log("found ability", name, "in", ABILITIES_LIST);
+            if (ABILITIES_LIST[name].affectNewlySpawnedUnits) {
+                player.addAbility(name);
+            }
+            let requiredAbility = ABILITIES_LIST[name].requiredAbility;
+            let needAbility = ABILITIES_LIST[name].needAbility;
             for (var key in this.sprites) {
                 let sprite = this.sprites[key];
                 if (sprite.team == team) {
-                    sprite.startInvincibleDate = Date.now();
-                }
-            }
-        }
-        else if (name == "target") {
-            for (var key in this.sprites) {
-                let sprite = this.sprites[key];
-                if (sprite.team == team && sprite.range != 0 && sprite.abilities.includes("targetfire")) {
-                    sprite.activeEffects.add("target");
-                }
-            }
-        }
-        else if (name == "sprint") {
-            player.addAbility("sprint");
-            for (var key in this.sprites) {
-                let sprite = this.sprites[key];
-                if (sprite.team == team) {
-                    sprite.activateAbility("sprint");
-                }
-            }
-        }
-        else if (name == "rage") {
-            player.addAbility("rage");
-            for (var key in this.sprites) {
-                let sprite = this.sprites[key];
-                if (sprite.team == team && sprite.abilities.includes("rage")) {
-                    sprite.activateAbility("rage");
-                }
-            }
-        }
-        else if (name == "shield") {
-            player.addAbility("shield");
-            for (var key in this.sprites) {
-                let sprite = this.sprites[key];
-                if (sprite.team == team && sprite.abilities.includes("shield")) {
-                    sprite.activateAbility("shield");
-                }
-            }
-        }
-        else if (name == "bigFlame") {
-            player.addAbility("bigFlame");
-            for (var key in this.sprites) {
-                let sprite = this.sprites[key];
-                if (sprite.team == team && sprite.abilities.includes("bigFlame")) {
-                    sprite.activateAbility("bigFlame");
+                    if (needAbility == false) {
+                        sprite.activateAbility(name);
+                    }
+                    else if (sprite.abilities.includes(requiredAbility)) {
+                        sprite.activateAbility(name);
+                    }
                 }
             }
         }
@@ -378,7 +307,6 @@ class Game {
         this.drawEffects();
         this.drawProjectiles();
         local_UI.drawEverything(fps);
-        //this.drawUI(fps);
         this.goldIntervalCheck();
         this.syncIntervalCheck();
         this.checkAbilities();
@@ -387,8 +315,6 @@ class Game {
         }
         this.checkIfPlayersDead();
         this.spawnSprites();
-        //stuff to do at the end
-        //this.lastTimestamp = Date.now();
         window.requestAnimationFrame(this.tick.bind(this));
     }
     addToBuyQueue(unit, team) {
@@ -479,7 +405,7 @@ class Game {
         console.log("could not find a sprite with id", spriteId);
         return undefined;
     }
-    shootProjectile(pos, vel, team, dmg, isOnline, type = "arrow") {
+    shootProjectile(pos, vel, team, dmg, isOnline, type) {
         // console.log("arrow:", pos, vel)
         if (isOnline) {
             if (mySide == 0) {
@@ -532,8 +458,12 @@ class Game {
         return ({ sprite: bestCandidate, len: bestCanLen });
     }
     // === sprites === \\
-    addSprite(name, team, posShift = 0) {
+    addSprite(name, team, posShift = 0, alternativeXpos = 0) {
         // console.log("yeye", posShift, getDirection(team))
+        if (alternativeXpos != 0) {
+            this.sprites.push(new Sprite(alternativeXpos, BASE_POS[team].y, name, team, false, false));
+            return;
+        }
         this.sprites.push(new Sprite(BASE_POS[team].x + posShift * getDirection(team), BASE_POS[team].y, name, team, false, false));
         if (mySide == 1) {
             this.buyQueue[team].shift();
