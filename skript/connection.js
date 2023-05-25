@@ -1,3 +1,4 @@
+"use strict";
 // @ts-ignore
 const uuid = PubNub.generateUUID();
 var myChannel = "none";
@@ -182,4 +183,3 @@ pubnub.addListener({
         //console.log(event);
     }
 });
-//# sourceMappingURL=connection.js.map

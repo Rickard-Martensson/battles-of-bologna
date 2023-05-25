@@ -1,3 +1,4 @@
+"use strict";
 var GAME_VOLUME = .3;
 var VOLUME = GAME_VOLUME;
 //===AUDIO===\\
@@ -8,7 +9,7 @@ function setupAudio() {
 }
 function playAudio(song = "title") {
     // musicPlayer.pause()
-    if (song != curAudio) {
+    if (song != curAudio && musicPlayer != null) {
         musicPlayer.src = Sounds[song].src;
         musicPlayer.play();
         musicPlayer.loop = true;
@@ -53,4 +54,3 @@ function playSoundEffect(sound) {
     audio.loop = false;
     audio.play();
 }
-//# sourceMappingURL=audio.js.map

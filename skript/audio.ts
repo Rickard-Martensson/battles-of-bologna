@@ -3,14 +3,18 @@ var VOLUME = GAME_VOLUME
 
 //===AUDIO===\\
 var curAudio = "none"
-var musicPlayer;
+
+
+var musicPlayer: HTMLAudioElement | null;
 
 function setupAudio() {
     musicPlayer = elemId("music")
 }
+
+
 function playAudio(song = "title") {
     // musicPlayer.pause()
-    if (song != curAudio) {
+    if (song != curAudio && musicPlayer != null) {
         musicPlayer.src = Sounds[song].src
 
         musicPlayer.play();
@@ -21,12 +25,11 @@ function playAudio(song = "title") {
         }
     }
 
-
 }
 
 
 
-let curSoundsPlaying = [];
+let curSoundsPlaying: any[] = [];
 
 function playSoundEffect(sound: string) {
     var i = curSoundsPlaying.length

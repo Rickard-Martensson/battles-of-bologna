@@ -1,3 +1,4 @@
+"use strict";
 let keySet = new Set(["q", "w", "e", "a", "s", "d", "u", "i", "o", "j", "k", "l"]);
 let forbiddenSet = new Set(["enter", "tab", "capslock", "control", "alt", "shift", "meta", "altgraph", "arrowleft", "arrowright", "arrowup", "arrowdown", "insert", "delete"]);
 let konamiSet = new Set(["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "a", "b"]);
@@ -75,4 +76,3 @@ function getMousePos(canvas, evt) {
         y: (evt.clientY - rect.top),
     };
 }
-//# sourceMappingURL=gameController.js.map

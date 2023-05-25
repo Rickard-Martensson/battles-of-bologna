@@ -1,3 +1,4 @@
+"use strict";
 var canvas;
 var background1;
 var background2;
@@ -279,4 +280,3 @@ function startGame2(mySide) {
     IS_ONLINE = 1;
     startGame();
 }
-//# sourceMappingURL=startup.js.map

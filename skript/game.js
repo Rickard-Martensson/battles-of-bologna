@@ -1,13 +1,6 @@
+"use strict";
 const bild = document.getElementById('');
 class Scenery {
-    pos;
-    name;
-    img;
-    imageSize;
-    distFactor;
-    speed;
-    id;
-    DRAW_SIZE;
     constructor(x, y, name, isHurry) {
         this.pos = { x: x, y: y };
         this.name = name;
@@ -43,24 +36,6 @@ class Scenery {
     }
 }
 class Game {
-    players;
-    sprites;
-    projectiles;
-    buyQueue;
-    lastQueueShift;
-    activeAbilites;
-    killStatus;
-    mousePos;
-    lastTimestamp;
-    tickLengthArray;
-    startTime;
-    lastGoldTime;
-    lastSyncTime;
-    lastTriedPing;
-    gameOver;
-    isHurry;
-    daysPast;
-    effects;
     constructor(name1, name2, class1, class2, diff1, diff2) {
         this.players = [
             new Player(name1, 0, "castle_img", 32, 60, class1),
@@ -620,4 +595,3 @@ class Game {
         }
     }
 }
-//# sourceMappingURL=game.js.map

@@ -1,17 +1,6 @@
+"use strict";
 const ARROW_CONSTS = {};
 class Effect {
-    pos;
-    name;
-    frame;
-    dateLastFrame;
-    // DRAW_SIZE = 30; // sprites ritas med storlek 24, och har bredd 32. denna ritas med 37.5, har bredd 50.
-    team;
-    framerate;
-    DRAW_SIZE;
-    imgSize;
-    framesPerRow;
-    totalFrames;
-    totalRows;
     constructor(pos, name, framerate, team, size) {
         this.pos = { x: pos.x, y: pos.y };
         this.name = name;
@@ -48,22 +37,6 @@ class Effect {
     }
 }
 class Projectile {
-    pos;
-    vel;
-    team;
-    type;
-    dmg;
-    ARROW_LEN;
-    ARROW_COLORS_2;
-    ARROW_SIZE;
-    DRAW_SIZE;
-    startPos;
-    deathFrame;
-    lastFrame;
-    dead;
-    frame;
-    angle;
-    isDying;
     constructor(pos, vel, team, dmg, isUpdate = false, newData = false, type = "arrow") {
         this.pos = { x: pos.x, y: pos.y };
         this.vel = { vx: vel.vx, vy: vel.vy };
@@ -430,9 +403,6 @@ class Projectile {
     }
 }
 class ProtoSprite {
-    pos;
-    direction;
-    team;
     constructor(x, dir, team) {
         this.pos.x = x;
         this.direction = dir;
@@ -440,57 +410,6 @@ class ProtoSprite {
     }
 }
 class Sprite {
-    pos;
-    name;
-    imageName;
-    uniqeId;
-    frameDelay;
-    currentFrame;
-    animTimeMult;
-    direction;
-    team;
-    currentAnimation;
-    currentSpeed;
-    speed;
-    state;
-    isWalking;
-    DRAW_SIZE;
-    // ATTACK
-    lastAtkCycleDate;
-    lastStartOfAtkCycleDate;
-    lastDmgdTime;
-    hasLowOpactity;
-    drawInvisible;
-    invincible;
-    // activeEffects: Set<string>;
-    activeEffList;
-    animations;
-    // animations: { [key in SpriteCurAnim]: SpriteAnimation };
-    atkDelay;
-    img;
-    abilities;
-    dmg;
-    range;
-    atkSpeed;
-    meleDmg;
-    hp;
-    meleRange;
-    // rows
-    atkEnemyRow;
-    defEnemyRow;
-    atkFriendRow;
-    defFriendRow;
-    // abilities
-    drawSpriteYOffset;
-    startJumpDate;
-    imageSize;
-    size;
-    jumpState;
-    hasJumped;
-    armor;
-    isCurSpecAnim;
-    deathDate;
-    siege;
     constructor(x, y, name, team, isUpdate, newData) {
         //console.log(x, y, name, team, isUpdate, "newdata:", newData)
         if (isUpdate) {
@@ -1109,4 +1028,3 @@ class Sprite {
 // let WALK_START_DATE = -1;
 // let WALK_FRAME_COUNT = 0;
 // let WALK_UNIT: number;
-//# sourceMappingURL=sprite.js.map

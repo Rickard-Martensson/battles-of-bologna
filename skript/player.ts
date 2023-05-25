@@ -75,6 +75,8 @@ class Player {
         this.posAbilityX = 0;
 
         this.DRAW_SIZE = 64;
+        this.posAbilityXModuli = 64; // idk
+
     }
 
     togglePosAbility(booly: boolean) {
@@ -120,7 +122,7 @@ class Player {
         return data
     }
 
-    updateData(newData) {
+    updateData(newData: { [x: string]: any; upgsResearched: any; }) {
         for (var i in newData) {
             this[i] = newData[i];
             //console.log("i", i, "newdata", newData[i]);
@@ -132,7 +134,7 @@ class Player {
         }
     }
 
-    addAbility(name) {
+    addAbility(name: string) {
         if (!this.activeAbilities.includes(name)) {
             this.activeAbilities.push(name)
         }
@@ -141,14 +143,14 @@ class Player {
         }
     }
 
-    checkAbility(name) {
+    checkAbility(name: string) {
         if (this.activeAbilities.includes(name)) {
             return true
         }
         return false
     }
 
-    removeAbility(name) {
+    removeAbility(name: string) {
         if (this.activeAbilities.includes(name)) {
             const index = this.activeAbilities.indexOf(name);
             if (index > -1) {
@@ -209,7 +211,7 @@ class Player {
         }
     }
 
-    checkCooldown(folder, btn) {
+    checkCooldown(folder: number, btn: number) {
         for (const cool of this.btnCoolDowns) {
             if (cool.folder == folder && cool.btn == btn) {
                 return false;
@@ -218,11 +220,11 @@ class Player {
         return true;
     }
 
-    addCooldown(folder, btn, time, id) {
+    addCooldown(folder: number, btn: number, time: string | number | undefined, id: number) {
         this.btnCoolDowns.push({ folder: folder, btn: btn, time: time, id: id })
     }
 
-    decreaseCoolDowns(game) {
+    decreaseCoolDowns(game: this) {
         for (var cool of this.btnCoolDowns) {
             if (cool.time != 1) {
                 cool.time -= 1;
@@ -235,19 +237,19 @@ class Player {
         this.btnCoolDowns = this.btnCoolDowns.filter(a => a.time != -1)
     }
 
-    checkIfResearched(upgrade) {
+    checkIfResearched(upgrade: null) {
         if (upgrade == null) {
             return true;
         }
         return (this.upgsResearched.has(upgrade));
     }
 
-    addUpgrade(upgrade) {
+    addUpgrade(upgrade: string) {
         this.upgsResearched.add(upgrade);
         this.syncMyself()
     }
 
-    repairCastle(hp) {
+    repairCastle(hp: number) {
         this.lastDmgdTime = Date.now();
         this.prevHp = this.hp;
         this.hp += hp;
@@ -257,13 +259,13 @@ class Player {
         if (IS_ONLINE) { this.syncMyself("hp"); }
     }
 
-    stealGoldPerTurn(amount) {
+    stealGoldPerTurn(amount: any) {
         send("stealGold", { team: this.team, victim: getOtherTeam(this.team), amount: amount })
     }
 
 
 
-    takeDmg(dmg) {
+    takeDmg(dmg: number) {
         this.lastDmgdTime = Date.now()
         const HPBARTIME = 300
         if (Date.now() - this.prevHpDate < HPBARTIME) {
@@ -285,11 +287,11 @@ class Player {
         //if (IS_ONLINE) { this.syncMyself("hp") }
     }
 
-    sendPackage(type, data) {
+    sendPackage(type: any, data: any) {
 
     }
 
-    sendDmgPackage(dmg) {
+    sendDmgPackage(dmg: number) {
         if (IS_ONLINE && mySide == 0) {
             console.log("player", this.team, "sent dmg package");
             send("castleDmg", { team: this.team, dmg: dmg, sender: 1, goldDmg: -1 })
@@ -302,7 +304,7 @@ class Player {
 
     }
 
-    onlineChangeGold(totGoldChange, perTurnChange, isSteal) {
+    onlineChangeGold(totGoldChange: number, perTurnChange: number, isSteal: boolean) {
         if (IS_ONLINE && (Number(mySide == 0))) {
             send("changeGold", { team: this.team, total: totGoldChange, perTurn: perTurnChange, isSteal: isSteal })
         }
@@ -320,7 +322,7 @@ class Player {
         // }
     }
 
-    localGoldChange(totGoldChange, perTurnChange, isSteal) {
+    localGoldChange(totGoldChange: number, perTurnChange: number, isSteal: boolean) {
         this.gold += totGoldChange
         this.changeGoldPerTurn(perTurnChange, false)
         // console.log("yoyo", isSteal, perTurnChange)
@@ -329,14 +331,14 @@ class Player {
         }
     }
 
-    changeGold(amount) {
+    changeGold(amount: number) {
         /**
          * 
          */
         this.gold += amount
     }
 
-    changeGoldPerTurn(amount, shouldSync = true) {
+    changeGoldPerTurn(amount: number, shouldSync = true) {
         if (this.goldPerTurn + amount >= GOLD_UPG_MAX) {
             this.upgsResearched.add("maxGold")
         }
@@ -350,7 +352,7 @@ class Player {
 
 
 
-    tryBuy(amount, shouldSync = true, reqEmptyQueue = false) {
+    tryBuy(amount: number, shouldSync = true, reqEmptyQueue = false) {
         if (reqEmptyQueue && game.buyQueue[this.team].length > 4) {
             return false;
         }
@@ -373,7 +375,7 @@ class Player {
     giveGoldPerTurn() {
         local_UI.justGaveGold[this.team] = Date.now();
         // this.changeGold(this.goldPerTurn);
-        this.localGoldChange(this.goldPerTurn, 0, 0);
+        this.localGoldChange(this.goldPerTurn, 0, false);
 
         playSoundEffect("buy")
 

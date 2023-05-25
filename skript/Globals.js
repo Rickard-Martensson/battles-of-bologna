@@ -1,3 +1,4 @@
+"use strict";
 //==========================================================================================================================================================================================================================================================================================================================================================================\\
 const IMAGE_DIRECTORY = [
     ["buttonBack_img", "./bilder/ui/btnBack.png"],
@@ -217,11 +218,6 @@ var player1Name = "alice";
 var player2Name = "bob";
 var playerClan = [ClanTypes.kingdom, ClanTypes.kingdom];
 class SpriteAnimation {
-    size;
-    row;
-    frames;
-    frameRate;
-    isALoop;
     //size of each square, how many rows down in spritesheet, number of frames, frameRate, isAloop(false on atk animations)
     constructor(size, row, frames, frameRate, isALoop) {
         this.size = size;
@@ -438,9 +434,9 @@ const CLAN_INFO = {
 const BTN_FOLDER = {
     [ClanTypes.kingdom]: {
         0: {
-            0: { txt: "", action: "hidden", data: -1, img: null, info: "" },
-            1: { txt: "", action: "hidden", data: -1, img: null, info: "" },
-            2: { txt: "", action: "hidden", data: -1, img: null, info: "" },
+            0: { txt: "", action: "hidden", data: -1, img: "", info: "" },
+            1: { txt: "", action: "hidden", data: -1, img: "", info: "" },
+            2: { txt: "", action: "hidden", data: -1, img: "", info: "" },
             3: { txt: "units", action: "folder", data: 1, img: "soldier_img", info: "buy units" },
             4: { txt: "upgrades", action: "folder", data: 2, img: "soldier_img", icon: "castleUpg", info: "upgrade your castle" },
             5: { txt: "abilities", action: "folder", data: 3, img: "soldier_img", icon: "target", info: "research and use abilities" },
@@ -475,9 +471,9 @@ const BTN_FOLDER = {
     },
     [ClanTypes.viking]: {
         0: {
-            0: { txt: "", action: "hidden", data: -1, img: null, info: "" },
-            1: { txt: "", action: "hidden", data: -1, img: null, info: "" },
-            2: { txt: "", action: "hidden", data: -1, img: null, info: "" },
+            0: { txt: "", action: "hidden", data: -1, img: "", info: "" },
+            1: { txt: "", action: "hidden", data: -1, img: "", info: "" },
+            2: { txt: "", action: "hidden", data: -1, img: "", info: "" },
             3: { txt: "units", action: "folder", data: 1, img: "viking_img", info: "buy units to fight for you" },
             4: { txt: "upgrades", action: "folder", data: 2, img: "soldier_img", icon: "churchUpg", info: "upgrade your church, income and\nunlock new units" },
             5: { txt: "abilities", action: "folder", data: 3, img: "soldier_img", icon: "rage", info: "research and use abilities" },
@@ -512,9 +508,9 @@ const BTN_FOLDER = {
     },
     [ClanTypes.eastern]: {
         0: {
-            0: { txt: "", action: "hidden", data: -1, img: null, info: "" },
-            1: { txt: "", action: "hidden", data: -1, img: null, info: "" },
-            2: { txt: "", action: "hidden", data: -1, img: null, info: "" },
+            0: { txt: "", action: "hidden", data: -1, img: "", info: "" },
+            1: { txt: "", action: "hidden", data: -1, img: "", info: "" },
+            2: { txt: "", action: "hidden", data: -1, img: "", info: "" },
             3: { txt: "units", action: "folder", data: 1, img: "rocketeer_img", info: "buy units to fight for you" },
             4: { txt: "upgrades", action: "folder", data: 2, img: "soldier_img", icon: "pagodaUpg", info: "upgrade your pagoda, income and\nunlock new units" },
             5: { txt: "abilities", action: "folder", data: 3, img: "soldier_img", icon: "bigFlame", info: "research and use abilities" },
@@ -549,9 +545,9 @@ const BTN_FOLDER = {
     },
     [ClanTypes.wip]: {
         0: {
-            0: { txt: "", action: "hidden", data: -1, img: null, info: "" },
-            1: { txt: "", action: "hidden", data: -1, img: null, info: "" },
-            2: { txt: "", action: "hidden", data: -1, img: null, info: "" },
+            0: { txt: "", action: "hidden", data: -1, img: "", info: "" },
+            1: { txt: "", action: "hidden", data: -1, img: "", info: "" },
+            2: { txt: "", action: "hidden", data: -1, img: "", info: "" },
             3: { txt: "units", action: "folder", data: 1, img: "rocketeer_img", info: "buy units" },
             4: { txt: "upgrades", action: "folder", data: 2, img: "soldier_img", icon: "pagodaUpg", info: "upgrade castle" },
             5: { txt: "abilities", action: "folder", data: 3, img: "soldier_img", icon: "bigFlame", info: "research and use abilities" },
@@ -666,4 +662,3 @@ const ABILITIES_LIST = {
         posAbility: false,
     },
 };
-//# sourceMappingURL=Globals.js.map

@@ -1,39 +1,9 @@
+"use strict";
 const BUY_QUEUE_MAX = 5;
 const GOLD_UPG_MAX = 45;
 var GAME_OVER = false;
 const PLAYER_HP_MAX = 50;
 class Player {
-    //basic info
-    name;
-    gold;
-    goldPerTurn;
-    repairCost;
-    team;
-    currentFolder;
-    clan;
-    // Hp
-    hp;
-    prevHp;
-    prevHpDate;
-    lastDmgdTime;
-    isHurry;
-    btnLvl;
-    btnCoolDowns;
-    upgsResearched;
-    buyQueue;
-    lastQueueShift;
-    activeAbilities;
-    pos;
-    img;
-    imageSize;
-    castleLvl;
-    lastCastleAtk;
-    lastCastleBalAtk;
-    DRAW_SIZE;
-    posAbilityActive;
-    posAbilityX;
-    posAbilityTime;
-    posAbilityXModuli;
     constructor(name, team, img, x, y, clan) {
         this.name = name;
         this.gold = START_GOLD;
@@ -72,6 +42,7 @@ class Player {
         this.posAbilityTime = -1;
         this.posAbilityX = 0;
         this.DRAW_SIZE = 64;
+        this.posAbilityXModuli = 64; // idk
     }
     togglePosAbility(booly) {
         this.posAbilityActive = booly;
@@ -328,7 +299,7 @@ class Player {
     giveGoldPerTurn() {
         local_UI.justGaveGold[this.team] = Date.now();
         // this.changeGold(this.goldPerTurn);
-        this.localGoldChange(this.goldPerTurn, 0, 0);
+        this.localGoldChange(this.goldPerTurn, 0, false);
         playSoundEffect("buy");
     }
     changeFolder(folder) {
@@ -364,4 +335,3 @@ class Player {
         ctx.drawImage(Images[this.img], this.imageSize * this.isHurry, this.imageSize * this.castleLvl, this.imageSize, this.imageSize, (this.pos.x - this.DRAW_SIZE / 2) * S, (this.pos.y - this.DRAW_SIZE / 2) * S, this.DRAW_SIZE * S, this.DRAW_SIZE * S);
     }
 }
-//# sourceMappingURL=player.js.map

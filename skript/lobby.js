@@ -1,3 +1,4 @@
+"use strict";
 class Lobby {
     constructor() {
     }
@@ -131,4 +132,3 @@ function promptJoin() {
 //         channels: [thisLobbyCode],
 //     })
 // }
-//# sourceMappingURL=lobby.js.map

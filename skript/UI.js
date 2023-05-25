@@ -1,28 +1,8 @@
+"use strict";
 const CHAT_MSG_ROW_PAD = 4;
 const CHAT_MSG_NAME_PAD = 20;
 const MAX_CHAT = 6;
 class UIHandler {
-    players;
-    isOnline;
-    timeSinceGold;
-    activeButtons;
-    disabledButtons;
-    mousePos;
-    currentButton;
-    sceneryCount;
-    scenery;
-    justGaveGold;
-    chats;
-    deSynced;
-    winner;
-    curMsg;
-    lastTypingBlink;
-    isTyping;
-    isHurry;
-    isTouch;
-    activeParticles;
-    dateQueueShow;
-    chatmsgs;
     constructor(players, isOnline) {
         this.players = players; // [0], [0,1] eller [1] , eller [] för spectate
         this.isOnline = ((isOnline) ? true : false);
@@ -693,4 +673,3 @@ class UIHandler {
     }
 }
 //let local_UI = new UI([1], true);
-//# sourceMappingURL=UI.js.map
