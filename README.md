@@ -8,4 +8,8 @@
 preview2:
 ![](bilder/trash/bob_ingame_2.png)
 
-Startup: ctrl + shift + b.
+Startup:
+
+    tsc -w
+
+in terminal. then every time you save, every ts file get converted into a js file and so on.

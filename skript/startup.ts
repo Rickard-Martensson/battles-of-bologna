@@ -50,7 +50,7 @@ window.onload = function () {
 
 window.onclick = function () {
     if (!hasInteractedBefore) {
-        console.log("hehe starting up!")
+        console.log("hehe ssssssssssssfef up!")
         showTitleScreen();
 
         setupAudio();
