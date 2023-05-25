@@ -5,7 +5,10 @@ var VOLUME = GAME_VOLUME;
 var curAudio = "none";
 var musicPlayer;
 function setupAudio() {
-    musicPlayer = elemId("music");
+    var elemMusic = elemId("music");
+    if (elemMusic instanceof HTMLAudioElement) {
+        musicPlayer = elemMusic;
+    }
 }
 function playAudio(song = "title") {
     // musicPlayer.pause()

@@ -8,7 +8,11 @@ var curAudio = "none"
 var musicPlayer: HTMLAudioElement | null;
 
 function setupAudio() {
-    musicPlayer = elemId("music")
+    var elemMusic = elemId("music");
+    if (elemMusic instanceof HTMLAudioElement) {
+        musicPlayer = elemMusic;
+
+    }
 }
 
 
