@@ -1,3 +1,5 @@
+
+// @ts-ignore
 const uuid = PubNub.generateUUID();
 var myChannel = "none";
 var amHost = "false";
@@ -11,6 +13,9 @@ let lastRecievedPing = Date.now()
 // IS_ONLINE är användbar
 // IS_ONLINE && mySide == 0 också bra
 
+
+
+// @ts-ignore pubnub is a javascript library, so typescript wont work
 const pubnub = new PubNub({
     publishKey: 'pub-c-c2440a24-55ff-432f-b85b-a1c4b8c6dcf5',
     subscribeKey: 'sub-c-cbe33554-2762-11eb-8c1e-e6d4bf858fd7',
@@ -138,9 +143,9 @@ pubnub.addListener({
             LAST_GLOBAL_UPDATE = Date.now()
             let team = content.team;
             let unit = content.unit;
-            let posShift = content.posShift
+            let spawnPos = content.spawnPos
             //console.log(unit, team, "unit & team")
-            game.addSprite(unit, team, posShift);
+            game.addSprite(unit, team, spawnPos);
         }
 
         // end("addSpriteQueue", { team: team, unit: unitName });

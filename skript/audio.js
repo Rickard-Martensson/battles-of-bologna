@@ -42,6 +42,10 @@ function playSoundEffect(sound) {
     curSoundsPlaying.push(thisSound);
     // console.log("currently playing", curSoundsPlaying, Sounds[sound])
     // console.log("sound", sound)
+    // if (audioSrc.)
+    if (!(sound in Sounds)) {
+        console.log("could not find sound effect", sound, "in list", Sounds);
+    }
     let audioSrc = Sounds[sound].src;
     var vol = Sounds[sound].vol;
     var audio = new Audio(audioSrc);

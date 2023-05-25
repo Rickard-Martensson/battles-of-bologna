@@ -14,6 +14,7 @@ class Player {
     // Hp
     hp;
     prevHp;
+    prevHpDate;
     lastDmgdTime;
     isHurry;
     btnLvl;
@@ -44,6 +45,7 @@ class Player {
         //===HP===\\
         this.hp = PLAYER_HP_MAX;
         this.prevHp = PLAYER_HP_MAX;
+        this.prevHpDate = Date.now();
         this.lastDmgdTime = Date.now();
         this.isHurry = 0;
         this.btnLvl = 0;
@@ -161,9 +163,12 @@ class Player {
             let dmg = 1;
             this.lastCastleBalAtk = Date.now();
             let pos = { x: this.pos.x, y: this.pos.y };
-            let vel = { vx: 40 * (1 - 2 * this.team), vy: -15 * (5) };
+            let vel = {
+                vx: 5 * 10 * getDirection(this.team),
+                vy: -65
+            };
             // console.log("nah")
-            game.shootProjectile(pos, vel, this.team, dmg, IS_ONLINE, "ballista");
+            game.shootProjectile(pos, vel, this.team, dmg, IS_ONLINE, CLAN_INFO[this.clan].siege_proj_type);
         }
     }
     upgAbility() {
@@ -230,7 +235,13 @@ class Player {
     }
     takeDmg(dmg) {
         this.lastDmgdTime = Date.now();
-        this.prevHp = this.hp;
+        const HPBARTIME = 300;
+        if (Date.now() - this.prevHpDate < HPBARTIME) {
+        }
+        else {
+            this.prevHp = this.hp;
+        }
+        this.prevHpDate = Date.now();
         this.hp = (this.hp <= 0) ? 0 : this.hp - dmg;
         if (this.hp < PLAYER_HP_MAX * 0.4 && this.isHurry == 0) {
             this.isHurry = 1;
@@ -253,14 +264,19 @@ class Player {
         }
     }
     onlineChangeGold(totGoldChange, perTurnChange, isSteal) {
-        if ((Number(mySide == 0) ^ IS_ONLINE) != 1) { // antingen online och spelare 0, eller offline o vilket som helst.
-            if (IS_ONLINE) {
-                send("changeGold", { team: this.team, total: totGoldChange, perTurn: perTurnChange, isSteal: isSteal });
-            }
-            else {
-                this.localGoldChange(totGoldChange, perTurnChange, isSteal);
-            }
+        if (IS_ONLINE && (Number(mySide == 0))) {
+            send("changeGold", { team: this.team, total: totGoldChange, perTurn: perTurnChange, isSteal: isSteal });
         }
+        else if (!IS_ONLINE) {
+            this.localGoldChange(totGoldChange, perTurnChange, isSteal);
+        }
+        // if ((Number(mySide == 0) ^ IS_ONLINE) != 1) { // antingen online och spelare 0, eller offline o vilket som helst.
+        //     if (IS_ONLINE) {
+        //         send("changeGold", { team: this.team, total: totGoldChange, perTurn: perTurnChange, isSteal: isSteal })
+        //     }
+        //     else {
+        //     }
+        // }
     }
     localGoldChange(totGoldChange, perTurnChange, isSteal) {
         this.gold += totGoldChange;

@@ -42,8 +42,6 @@ class Scenery {
         }
     }
 }
-class ActiveAbility {
-}
 class Game {
     players;
     sprites;
@@ -78,7 +76,7 @@ class Game {
         this.projectiles = [
         //new Projectile(80, 100, 20, -40),
         ];
-        this.buyQueue = { 0: [], 1: [] };
+        this.buyQueue = { [Teams.blue]: [], [Teams.red]: [] };
         this.lastQueueShift = [Date.now(), Date.now()];
         this.activeAbilites = [];
         this.killStatus = undefined;
@@ -100,7 +98,7 @@ class Game {
     timeUntilNextGold() {
         return this.lastGoldTime + GOLD_INTERVAL * 1000 - Date.now();
     }
-    sendGameState(team = 0) {
+    sendGameState(team = Teams.blue) {
         let sprites = [];
         for (var i in this.sprites) {
             let dataOfSprite = this.sprites[i].getData();
@@ -229,6 +227,30 @@ class Game {
             player.repairCastle(15);
             playSoundEffect("repair");
         }
+        else if (name == "lightning") {
+            let enemySprites = [];
+            let enemyRangedSprites = [];
+            for (var key in this.sprites) {
+                let sprite = this.sprites[key];
+                if (sprite.team != team) {
+                    if (sprite.range != 0) {
+                        enemyRangedSprites.push(sprite);
+                    }
+                    enemySprites.push(sprite);
+                }
+            }
+            if (enemyRangedSprites.length < 3) {
+                enemyRangedSprites = enemySprites;
+            }
+            let randomEnemies = enemyRangedSprites.sort(() => .5 - Math.random()).slice(0, 3);
+            playSoundEffect("thunder");
+            randomEnemies.forEach(enemy => {
+                enemy.activateAbility("electrocuted");
+                game.addEffect(enemy.pos.x, 82, "lightning_blue", 35, 0, 1);
+                enemy.takeDmg(2);
+            });
+            game.players[getOtherTeam(team)].addAbility("electrocuted");
+        }
         else if (name in ABILITIES_LIST) {
             console.log("found ability", name, "in", ABILITIES_LIST);
             if (ABILITIES_LIST[name].affectNewlySpawnedUnits) {
@@ -318,8 +340,7 @@ class Game {
         window.requestAnimationFrame(this.tick.bind(this));
     }
     addToBuyQueue(unit, team) {
-        let row = (unit == "knight") ? 1 : 0;
-        this.buyQueue[team].push({ unit: unit, row: row });
+        this.buyQueue[team].push(unit);
     }
     spawnSprites() {
         for (var player in this.players) {
@@ -327,21 +348,42 @@ class Game {
         }
     }
     checkBuyQueue(team) {
-        if ((Number(mySide == 0) ^ IS_ONLINE) != 1 && (this.buyQueue[team].length > 0 && Date.now() - this.lastQueueShift[team] > 0.2 * 1000)) {
-            let len = game.distToNextSprite2(team, { x: BASE_POS[team].x - getDirection(team), y: BASE_POS[team].y }, this.buyQueue[team][0].row).len;
-            if (len < 8) { }
+        if ((Number(mySide == 0) ^ IS_ONLINE) != 1 && (this.buyQueue[team].length > 0)) {
+            // let len = game.distToNextSprite(team, { x: BASE_POS[team].x - getDirection(team), y: BASE_POS[team].y }, this.buyQueue[team][0].row).len;
+            let firstUnitName = this.buyQueue[team][0];
+            let firstUnitMeleRange = STATS[firstUnitName].meleRange;
+            let firstUnitRow = 0;
+            if (firstUnitName == "knight") {
+                firstUnitRow = 1;
+            }
+            else if (STATS[firstUnitName].siege == true) {
+                firstUnitRow = 2;
+            }
+            let protoSprite = { pos: { x: BASE_POS[team].startx }, team: team, direction: getDirection(team) };
+            let nextSprite = game.distToNextSprite(protoSprite, team, firstUnitRow, false, false);
+            let spawnPos = BASE_POS[team].maxx;
+            let dir = getDirection(team);
+            if (nextSprite.sprite != null) {
+                spawnPos = nextSprite.sprite.pos.x - (nextSprite.sprite.size + firstUnitMeleRange) * dir;
+                if (spawnPos * dir < BASE_POS[team].minx * dir) {
+                    // console.log("too close", spawnPos, dir, BASE_POS[team].minx, dir)
+                    return;
+                }
+                else if (spawnPos * dir > BASE_POS[team].maxx * dir) {
+                    // console.log("too far away", spawnPos, dir, BASE_POS[team].maxx, dir)
+                    spawnPos = BASE_POS[team].maxx;
+                }
+            }
+            // if (spawnPos = nextSprite.sprite.pos.x - nextSprite.sprite.size - firstUnitMeleRange;
+            this.lastQueueShift[team] = Date.now();
+            let firstUnit = this.buyQueue[team].shift();
+            // console.log("unit, name", firstUnit, firstUnitName, len)
+            // let posShift = (len >= 18) ? 8 : 0
+            if (IS_ONLINE) {
+                send("sendUnit", { team: team, unit: firstUnitName, spawnPos: spawnPos });
+            }
             else {
-                this.lastQueueShift[team] = Date.now();
-                let firstUnit = this.buyQueue[team].shift();
-                let firstUnitName = firstUnit.unit;
-                // console.log("unit, name", firstUnit, firstUnitName, len)
-                let posShift = (len >= 18) ? 8 : 0;
-                if (IS_ONLINE) {
-                    send("sendUnit", { team: team, unit: firstUnitName, posShift: posShift });
-                }
-                else {
-                    game.addSprite(firstUnitName, team, posShift);
-                }
+                game.addSprite(firstUnitName, team, spawnPos);
             }
         }
         else {
@@ -352,7 +394,7 @@ class Game {
         for (var key in this.players) {
             let player = this.players[key];
             if (player.hp <= 0 && !this.gameOver) {
-                local_UI.setLoser(key);
+                local_UI.setLoser(Number(key));
                 this.gameOver = true;
             }
         }
@@ -416,41 +458,63 @@ class Game {
             this.projectiles.push(new Projectile(pos, vel, team, dmg, false, false, type));
         }
     }
-    distToNextSprite2(team, pos, row = 0) {
-        let bestCandidate = null;
-        let bestCanLen = Infinity;
-        let dir = getDirection(team);
-        for (var i in this.sprites) {
-            let loopSprite = this.sprites[i];
-            if (team == loopSprite.team) {
-                if ((dir * pos.x < dir * loopSprite.pos.x) && (row == loopSprite.row)) {
-                    // console.log("loopy", dir * pos.x, dir * loopSprite)
-                    let dist = Math.abs(pos.x - loopSprite.pos.x);
-                    if (dist < bestCanLen) {
-                        bestCanLen = dist;
-                        bestCandidate = loopSprite;
-                    }
-                }
-            }
-        }
-        // console.log("out:", bestCandidate, bestCanLen)
-        return ({ sprite: bestCandidate, len: bestCanLen });
-    }
-    distToNextSprite(sprite, team, reverseDirection = false) {
+    // distToNextSprite2(team: Teams, pos: { x: number; y: number; }, row: number = 0) {
+    //     let bestCandidate = null;
+    //     let bestCanLen = Infinity;
+    //     let dir = getDirection(team)
+    //     for (var i in this.sprites) {
+    //         let loopSprite = this.sprites[i];
+    //         if (team == loopSprite.team) {
+    //             if ((dir * pos.x < dir * loopSprite.pos.x) && (row == loopSprite.attackRow)) {
+    //                 // console.log("loopy", dir * pos.x, dir * loopSprite)
+    //                 let dist = Math.abs(pos.x - loopSprite.pos.x)
+    //                 if (dist < bestCanLen) {
+    //                     bestCanLen = dist;
+    //                     bestCandidate = loopSprite;
+    //                 }
+    //             }
+    //         }
+    //     }
+    //     // console.log("out:", bestCandidate, bestCanLen)
+    //     return ({ sprite: bestCandidate, len: bestCanLen });
+    // }
+    /**
+     * returns the closest sprite & the length to given a Sprite.
+     * Will include the size in calculation, ie
+     * a Huge sprite far away might be closer than a small sprite with a closer pos.x
+     *
+     * will return the dif in pos.x - size of enemy.
+     *
+     * will only look forward (according to sprite.direction) unless reverseDirection = true
+     * will ignore sprites of incorrect team
+     *
+     * if no sprite found, returns bestCandidate = null, Len = Infinity
+     *
+     * @param sprite - given Sprite
+     * @param team - team of searched sprit
+     * @param row
+     *
+     */
+    distToNextSprite(sprite, team, row, reverseDirection = false, ignoreRows = false) {
         let bestCandidate = null;
         let bestCanLen = Infinity;
         let spriteDir = sprite.direction;
+        let spriteTeam = sprite.team;
         if (reverseDirection) {
             spriteDir *= -1;
         }
         for (var i in this.sprites) {
             let loopSprite = this.sprites[i];
-            if (team == loopSprite.team) { //jafan
-                if (spriteDir * sprite.pos.x < spriteDir * loopSprite.pos.x) {
-                    let loopDist = Math.abs(sprite.pos.x - loopSprite.pos.x);
-                    if (loopDist < bestCanLen) {
-                        bestCanLen = loopDist;
-                        bestCandidate = loopSprite;
+            if (team == loopSprite.team) { // kollar så att den sökta spriten är i rätt lag
+                if (((spriteTeam == loopSprite.team) && row == loopSprite.defFriendRow) ||
+                    ((spriteTeam != loopSprite.team) && row == loopSprite.defEnemyRow) ||
+                    ignoreRows) { // kollar så att vår sprite kan interagera med
+                    if (spriteDir * sprite.pos.x < spriteDir * loopSprite.pos.x) {
+                        let loopDist = Math.abs(sprite.pos.x - loopSprite.pos.x) - loopSprite.size;
+                        if (loopDist < bestCanLen) {
+                            bestCanLen = loopDist;
+                            bestCandidate = loopSprite;
+                        }
                     }
                 }
             }
@@ -458,13 +522,13 @@ class Game {
         return ({ sprite: bestCandidate, len: bestCanLen });
     }
     // === sprites === \\
-    addSprite(name, team, posShift = 0, alternativeXpos = 0) {
+    addSprite(name, team, spawnPos = 0, alternativeXpos = 0) {
         // console.log("yeye", posShift, getDirection(team))
         if (alternativeXpos != 0) {
             this.sprites.push(new Sprite(alternativeXpos, BASE_POS[team].y, name, team, false, false));
             return;
         }
-        this.sprites.push(new Sprite(BASE_POS[team].x + posShift * getDirection(team), BASE_POS[team].y, name, team, false, false));
+        this.sprites.push(new Sprite(spawnPos, BASE_POS[team].y, name, team, false, false));
         if (mySide == 1) {
             this.buyQueue[team].shift();
         }
@@ -477,15 +541,28 @@ class Game {
                 player.castleTryAttack();
             }
         }
+        let drawQueue = [];
         for (var i in this.sprites) {
             let sprite = this.sprites[i];
             //console.log("sprite:", sprite)
             sprite.canMove(this);
             sprite.move();
-            sprite.draw();
+            if (sprite.atkFriendRow == 0) {
+                sprite.draw();
+            }
+            else {
+                drawQueue.push({ sprite: sprite, row: sprite.atkFriendRow });
+            }
             sprite.checkIfAtEnemyCastle(this);
             sprite.checkDead(game, Number(i));
         }
+        drawQueue.sort((a, b) => a.row - b.row);
+        drawQueue.forEach(e => {
+            e.sprite.draw();
+        });
+        // drawQueue.forEach(e => {
+        //     e.
+        // });
     }
     addEffect(x, y, name, framerate, team, size) {
         let effect = new Effect({ x: x, y: y }, name, framerate, team, size);
@@ -503,8 +580,8 @@ class Game {
         for (var i in this.projectiles) {
             this.projectiles[i].move();
             this.projectiles[i].draw();
-            this.projectiles[i].checkHit(this);
-            this.projectiles[i].checkDead(i);
+            this.projectiles[i].checkHit();
+            this.projectiles[i].checkDead(Number(i));
         }
     }
     syncIntervalCheck() {

@@ -20,6 +20,7 @@ class Effect {
         this.dateLastFrame = Date.now();
         this.team = team;
         //
+        console.log("hehe", EFFECT_DIRECTORY, EFFECT_DIRECTORY[name], EFFECT_DIRECTORY[name].drawSize.x);
         this.DRAW_SIZE = { x: EFFECT_DIRECTORY[name].drawSize.x * size, y: EFFECT_DIRECTORY[name].drawSize.y * size };
         this.imgSize = EFFECT_DIRECTORY[name].imgSize;
         this.framesPerRow = EFFECT_DIRECTORY[name].framesPerRow;
@@ -83,10 +84,16 @@ class Projectile {
             this.lastFrame = Date.now();
         }
         else if (this.type == "ballista") {
-            this.DRAW_SIZE = 14;
+            this.DRAW_SIZE = 12;
             this.startPos = this.pos.x;
             this.deathFrame = 0;
             this.lastFrame = Date.now();
+        }
+        else if (this.type == "cannon") {
+            this.DRAW_SIZE = 10;
+            this.startPos = this.pos.x;
+            this.vel.vx *= 2;
+            game.addEffect(this.pos.x + getDirection(this.team) * 10, this.pos.y + 5, "cannon_explosion", 60, this.team, 1);
         }
         else if (this.type == "spear") {
             this.ARROW_LEN = [0.9, 7];
@@ -105,12 +112,16 @@ class Projectile {
         }
         this.dead = false;
         // this.colors = ['#DDDDDD', '#6F2B1F', '#8B3F2B', '#8B3F2B', '#8B3F2B', '#8B3F2B', '#FFFFFF']
+        console.log("this type", this.type);
         if (isUpdate) {
             this.updateData(newData);
         }
         else {
             if (this.type == "rocket") {
                 playSoundEffect("firework");
+            }
+            else if (this.type == "cannon") {
+                playSoundEffect("cannon");
             }
             else {
                 playSoundEffect("arrow");
@@ -174,13 +185,29 @@ class Projectile {
             }
         }
     }
+    checkHitCannon() {
+        if (this.team == 0 && this.pos.x > 285) {
+            playSoundEffect("cannon_hit");
+            game.players[getOtherTeam(this.team)].takeDmg(this.dmg);
+            this.dead = true;
+            game.addEffect(this.pos.x, this.pos.y, "explosion", 60, this.team, 1);
+        }
+        else if (this.team == 1 && this.pos.x < 35) {
+            playSoundEffect("ballista_hit");
+            game.players[getOtherTeam(this.team)].takeDmg(this.dmg);
+            this.dead = true;
+            game.addEffect(this.pos.x, this.pos.y, "explosion", 60, this.team, 1);
+        }
+    }
     checkHitBallista() {
         if (this.deathFrame == 0) {
             if (this.team == 0 && this.pos.x > 270) {
+                playSoundEffect("cannon_hit");
                 game.players[getOtherTeam(this.team)].takeDmg(this.dmg);
                 this.ballistaDeathAnim();
             }
             else if (this.team == 1 && this.pos.x < 50) {
+                playSoundEffect("cannon_hit");
                 game.players[getOtherTeam(this.team)].takeDmg(this.dmg);
                 this.ballistaDeathAnim();
             }
@@ -191,7 +218,8 @@ class Projectile {
                     if (dist(this.pos, target.pos) < 5) {
                         console.log("hejhej");
                         target.ballistaDeathAnim(); // kom på nåt sätt så den inte kör hela tiden
-                        playSoundEffect("arrow_hit");
+                        // playSoundEffect("arrow_hit")
+                        playSoundEffect("cannon_hit");
                         this.ballistaDeathAnim();
                     }
                 }
@@ -207,7 +235,7 @@ class Projectile {
             }
         }
     }
-    checkHit(_index) {
+    checkHit() {
         if (this.type == "ballista") {
             this.checkHitBallista();
             return;
@@ -218,6 +246,10 @@ class Projectile {
         }
         else if (this.type == "barrel") {
             this.checkHitBarrel();
+            return;
+        }
+        else if (this.type == "cannon") {
+            this.checkHitCannon();
             return;
         }
         else if (this.pos.y > HEIGHT - 5) {
@@ -291,6 +323,11 @@ class Projectile {
         // }
         ctx.drawImage(Images["rocket_projectile"], imageSize * (frame + this.team * 4), imageSize * (angle), imageSize, imageSize, (this.pos.x - this.DRAW_SIZE / 2) * S, (this.pos.y - this.DRAW_SIZE / 2) * S, this.DRAW_SIZE * S, this.DRAW_SIZE * S);
     }
+    drawCannon() {
+        let frame = 1;
+        let imageSize = 16;
+        ctx.drawImage(Images["ballista_projectile"], imageSize * frame, imageSize * 4, imageSize, imageSize, (this.pos.x - this.DRAW_SIZE / 2) * S, (this.pos.y - this.DRAW_SIZE / 2) * S, this.DRAW_SIZE * S, this.DRAW_SIZE * S);
+    }
     drawBallista() {
         let castelHeight = 59;
         let frame = 1;
@@ -346,6 +383,10 @@ class Projectile {
             this.drawBallista();
             return;
         }
+        else if (this.type == "cannon") {
+            this.drawCannon();
+            return;
+        }
         else if (this.type == "rocket") {
             this.drawRocket();
             return;
@@ -388,6 +429,16 @@ class Projectile {
         }
     }
 }
+class ProtoSprite {
+    pos;
+    direction;
+    team;
+    constructor(x, dir, team) {
+        this.pos.x = x;
+        this.direction = dir;
+        this.team = team;
+    }
+}
 class Sprite {
     pos;
     name;
@@ -424,7 +475,11 @@ class Sprite {
     meleDmg;
     hp;
     meleRange;
-    row;
+    // rows
+    atkEnemyRow;
+    defEnemyRow;
+    atkFriendRow;
+    defFriendRow;
     // abilities
     drawSpriteYOffset;
     startJumpDate;
@@ -435,6 +490,7 @@ class Sprite {
     armor;
     isCurSpecAnim;
     deathDate;
+    siege;
     constructor(x, y, name, team, isUpdate, newData) {
         //console.log(x, y, name, team, isUpdate, "newdata:", newData)
         if (isUpdate) {
@@ -479,13 +535,22 @@ class Sprite {
                 var abilityName = game.players[this.team].activeAbilities[abilityIdx];
                 this.activateAbility(abilityName);
             }
-            // if (game.players[this.team].checkAbility("sprint")) {
-            //     this.activateAbility("sprint")
-            // }
-            // if (game.players[this.team].checkAbility("rage")) {
-            //     this.activateAbility("rage")
-            // }
-            // this.speed *= 5
+            this.atkFriendRow = 0;
+            this.defFriendRow = 0;
+            this.atkEnemyRow = 0;
+            this.defEnemyRow = 0;
+            if (this.abilities.includes("changeRow")) {
+                this.atkFriendRow = 1;
+                this.defFriendRow = 1;
+                this.atkEnemyRow = 0;
+                this.defEnemyRow = 0;
+            }
+            else if (this.siege == true) {
+                this.atkFriendRow = 2;
+                this.defFriendRow = 2;
+                this.atkEnemyRow = 0;
+                this.defEnemyRow = 0;
+            }
         }
     }
     updateData(newData) {
@@ -572,6 +637,10 @@ class Sprite {
         else if (name == "bigFlame") {
             this.range *= 1.8;
         }
+        else if (name == "electrocuted") {
+            // this.atkDelay *= 3;
+            this.atkSpeed *= 4;
+        }
         else {
             console.log("this effect:", name, "is not known, and cannot be added");
             return;
@@ -612,6 +681,10 @@ class Sprite {
         else if (name == "bigFlame") {
             this.range /= 1.8;
         }
+        else if (name == "electrocuted") {
+            // this.atkDelay /= 3;
+            this.atkSpeed /= 4;
+        }
         else {
             console.log("this effect:", name, "is not known, and cannot be removed");
             return;
@@ -620,6 +693,7 @@ class Sprite {
     }
     move() {
         let firstXpos = this.pos.x;
+        //======= jump magic ========\\
         if (this.jumpState == 1) {
             this.state = SpriteCurState.special;
             this.currentAnimation = SpriteCurAnim.special;
@@ -637,7 +711,8 @@ class Sprite {
                 this.pos.y = 100 + JUMP_HEIGHT * 4 * (s - 0) * (s - 1);
                 if (s > 1) {
                     this.jumpState = 0;
-                    this.row = 0;
+                    this.defEnemyRow = 0;
+                    this.atkEnemyRow = 0;
                     this.pos.y = 100;
                     this.state = SpriteCurState.walk;
                     this.currentAnimation = SpriteCurAnim.walk;
@@ -664,11 +739,19 @@ class Sprite {
         }
     }
     spriteShootProjectile(shouldTargetNext = false) {
-        if (this.abilities.includes("ballista")) {
-            game.shootProjectile({ x: this.pos.x, y: this.pos.y - 5 }, {
+        if (this.siege == true) {
+            let projectileType = "ballista";
+            let x_pos = this.pos.x;
+            let v_y = 0;
+            console.log(this.abilities);
+            if (this.abilities.includes("cannon")) {
+                projectileType = "cannon";
+                // y_pos += 3
+            }
+            game.shootProjectile({ x: x_pos, y: this.pos.y - 2 }, {
                 vx: this.range * 10 * this.direction,
-                vy: this.range * -10
-            }, this.team, this.dmg, IS_ONLINE, "ballista");
+                vy: -65
+            }, this.team, this.dmg, IS_ONLINE, projectileType);
             return;
         }
         else if (this.abilities.includes("spear")) {
@@ -715,7 +798,7 @@ class Sprite {
             return;
         }
         else if (this.hasActiveEffect("target") || (shouldTargetNext && this.abilities.includes("targetCloseRange"))) {
-            let nextEnemy = game.distToNextSprite(this, this.getOtherTeam());
+            let nextEnemy = game.distToNextSprite(this, this.getOtherTeam(), 0, false, true);
             if (nextEnemy.len < 80) {
                 let { vel_x, vel_y } = calcProjectilePower(this.pos, nextEnemy.sprite.pos, ARCHER_TRAJECTORY);
                 game.shootProjectile({ x: this.pos.x, y: this.pos.y - 5 }, { vx: vel_x * this.direction, vy: -vel_y }, this.team, this.dmg, IS_ONLINE, "arrow");
@@ -778,14 +861,25 @@ class Sprite {
                 victim.takeDmg(this.dmg);
                 playSoundEffect("damage");
                 if (this.abilities.includes("whirlwind")) {
-                    let behindSprite = game.distToNextSprite(this, this.getOtherTeam(), true);
+                    let behindSprite = game.distToNextSprite(this, this.getOtherTeam(), 0, true, false);
                     const BEHIND_EXTRA_RANGE = 5;
-                    console.log("hehe wirlld", behindSprite.len, this.meleRange, BEHIND_EXTRA_RANGE);
+                    // console.log("hehe wirlld", behindSprite.len, this.meleRange, BEHIND_EXTRA_RANGE)
                     if (behindSprite.len < this.meleRange + BEHIND_EXTRA_RANGE) {
                         behindSprite.sprite.takeDmg(this.dmg);
-                        console.log("BEHIND ATTACK!!!");
                     }
                     // (nextEnemy.len + MELE_RANGE_BUFFER < this.meleRange)
+                }
+                else if (this.abilities.includes("thor")) {
+                    if (!victim.hasActiveEffect("electrocuted")) {
+                        game.addEffect(victim.pos.x + getDirection(this.team) * 8, 82, "lightning_blue", 35, 0, 1);
+                        victim.activateAbility("electrocuted");
+                        let secondVictim = game.distToNextSprite(victim, victim.team, 0, true, true);
+                        if (secondVictim.len < 10) {
+                            secondVictim.sprite.activateAbility("electrocuted");
+                            secondVictim.sprite.takeDmg(this.dmg);
+                        }
+                        playSoundEffect("thunder");
+                    }
                 }
             }
             this.lastStartOfAtkCycleDate = null; //efter denhär så står spriten bara still o vibear
@@ -806,10 +900,9 @@ class Sprite {
             this.lastDmgdTime = Date.now();
         }
     }
+    // checks if a unit is dead
     checkDead(game, index) {
-        // if (Date.now() - this.hasLowOpactity > INVINCIBLE_DURATION * 1000) {
-        //     this.hasLowOpactity = null
-        // }
+        // checks if a unit is dead. 
         if (this.hp <= 0) {
             if (this.deathDate == -1) {
                 this.deathDate = Date.now();
@@ -834,6 +927,7 @@ class Sprite {
                 game.players[enemyPlayer].attackCastle(this.hp);
                 //game.players[this.team].onlineChangeGold(0, 1, true)
             }
+            this.deathDate = 100000; // betyder att den tas bort direkt!
             this.hp = 0;
             //remove gold, add gold
         }
@@ -845,7 +939,7 @@ class Sprite {
         else if (this.team == 1) {
             return 0;
         }
-        return -1;
+        // return -1;
     }
     setState(newState, speed, txt) {
         //if (this.name == "archer") { console.log(newState, txt) }
@@ -853,7 +947,7 @@ class Sprite {
             newState = "idle";
         }
         if (newState == "walk") {
-            if (this.range != 0 && this.abilities.includes("ballista") && this.distFromOwnCastle() > BALLISTA_SIEGE_RANGE) {
+            if (this.range != 0 && this.siege == true && this.distFromOwnCastle() > BALLISTA_SIEGE_RANGE) {
                 // if (this.state)
                 // ändra row här
                 this.attack(undefined);
@@ -901,21 +995,36 @@ class Sprite {
         this.jumpState = 1;
         this.currentFrame = 0;
         this.frameDelay = 0;
-        this.row = -1;
+        this.atkEnemyRow = 2;
+        this.defEnemyRow = 2;
         this.startJumpDate = Date.now();
     }
+    // rows
+    // row 0 - den raden alla är i vanligtvis.
+    // row 1 - units som springer förbi andra. alltså knights till exempel
+    // row -1 - här är det inga som attackerar varandra förhoppningsvis
+    // row 2 - här flyger man kanske.
+    inRangeDist(otherSprite) {
+        if (otherSprite == null) {
+            return Infinity;
+        }
+        return this.meleRange + otherSprite.size + PERSONAL_SPACE;
+    }
     canMove(game) {
-        let nextFriend = game.distToNextSprite(this, this.team);
-        let nextEnemy = game.distToNextSprite(this, this.getOtherTeam());
-        if (nextFriend.len < nextEnemy.len && this.row == 0) {
+        let nextFriendSameRow = game.distToNextSprite(this, this.team, this.atkFriendRow);
+        let nextEnemySameRow = game.distToNextSprite(this, this.getOtherTeam(), this.atkEnemyRow);
+        if (this.name == "knight") {
+            console.log(this.atkEnemyRow, this.atkFriendRow, this.defEnemyRow);
+        }
+        if (nextFriendSameRow.len < nextEnemySameRow.len) { // next unit is a friend, including size in calc.
             // ifall den står bakom en friendly
-            if (nextFriend.len < this.meleRange + PERSONAL_SPACE && nextFriend.sprite.row == 0) {
+            if ((nextFriendSameRow.len < this.meleRange)) {
                 //eventuellt gör en attack här ifall spriten är ranged. Ja det kommer här:
-                if (nextFriend.len < this.meleRange) {
+                if (nextFriendSameRow.len < this.meleRange - 0.1) {
                     this.setState("idle", -1, "idlar");
                 }
                 else {
-                    this.setState("walk", Math.min(nextFriend.sprite.currentSpeed, this.speed), "stalk");
+                    this.setState("walk", Math.min(nextFriendSameRow.sprite.currentSpeed, this.speed), "stalk");
                 }
             }
             else {
@@ -926,37 +1035,32 @@ class Sprite {
                 // this.setState("walk", -1, "catching up")
             }
         }
-        else {
-            //ifall mitt emot en enemy
-            if (nextEnemy.len + MELE_RANGE_BUFFER < this.meleRange) {
-                if (this.abilities.includes("jump") && this.hasJumped != 1 && this.row == 0) {
+        else { // närmsta unit är en enemy
+            if ((nextEnemySameRow.len < this.meleRange)) {
+                if (this.abilities.includes("jump") && this.hasJumped != 1 && this.defEnemyRow == 0) {
                     this.hasJumped = 1;
                     console.log("this unit should jump now");
                     this.jumpOverUnits();
                 }
-                else if (nextEnemy.sprite.row == this.row) {
+                else if (nextEnemySameRow.sprite.defEnemyRow == this.atkEnemyRow) {
                     this.setState("attack", -1, "movetopos mele");
-                    this.attack(nextEnemy.sprite);
+                    this.attack(nextEnemySameRow.sprite);
                 }
-                else if (this.abilities.includes("changeRow")) {
-                    console.log("what the fucc", this.abilities);
-                    this.row = 0;
+                if (this.abilities.includes("changeRow")) { // ability that makes you change into correct row when you encounter an enemy
+                    this.atkFriendRow = 0;
+                    this.defFriendRow = 0;
+                    this.atkEnemyRow = 0;
+                    this.defEnemyRow = 0;
                 }
             }
             else {
-                // console.log("this fukin state is", this.state)
-                if (!(this.range != 0 && this.abilities.includes("ballista") && this.distFromOwnCastle() > BALLISTA_SIEGE_RANGE && this.state == SpriteCurState.attack)) {
-                    // console.log(this.range != 0, this.abilities.includes("ballista") , this.pos.x > BALLISTA_SIEGE_RANGE , this.state == "attack")
+                if (!(this.range != 0 && this.siege == true && this.distFromOwnCastle() > BALLISTA_SIEGE_RANGE && this.state == SpriteCurState.attack)) {
                     this.setState("walk", -1, "movetopos ranged");
                 }
             }
         }
     }
     getFrame() {
-        // if (this.currentAnimation == SpriteCurAnim.walk && WALK_START_DATE == -1) {
-        //     WALK_UNIT = this.uniqeId
-        //     WALK_START_DATE = Date.now()
-        // }
         var currAnim = this.animations[this.currentAnimation];
         this.frameDelay -= fpsCoefficient; //
         if (this.frameDelay <= 0) {
@@ -984,6 +1088,9 @@ class Sprite {
         }
         return this.currentFrame;
     }
+    /**
+     * Draws sprite onto canvas
+     */
     draw() {
         let fiddledWithAlpha = false;
         let frame = Math.min(this.getFrame(), this.animations[this.currentAnimation].getFrameCount() - 1);
@@ -992,7 +1099,8 @@ class Sprite {
             ctx.globalAlpha = 0.6;
             fiddledWithAlpha = true;
         }
-        ctx.drawImage(Images[this.img], this.imageSize * frame, this.imageSize * (animation + this.drawSpriteYOffset), this.imageSize, this.imageSize, (this.pos.x - this.DRAW_SIZE / 2) * S, (this.pos.y + ROW_OFFSET * this.row - this.DRAW_SIZE / 2) * S, this.DRAW_SIZE * S, this.DRAW_SIZE * S);
+        ctx.drawImage(Images[this.img], this.imageSize * frame, this.imageSize * (animation + this.drawSpriteYOffset), this.imageSize, this.imageSize, (this.pos.x - this.DRAW_SIZE / 2) * S, (this.pos.y + ROW_OFFSET * this.atkFriendRow - this.DRAW_SIZE / 2) * S, // gör så att knight blir lite snyggare
+        this.DRAW_SIZE * S, this.DRAW_SIZE * S);
         if (fiddledWithAlpha) {
             ctx.globalAlpha = 1;
         }

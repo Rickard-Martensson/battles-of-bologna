@@ -127,7 +127,15 @@ function setUnitDarkness(curTime, sunSetDate, sunSetDuration) {
 //precis sånthär som jag hade i åtanke
 //säg till när du har tid o prata!
 
-function getDirection(team: number): number {
+
+
+/**
+ * returns 1 if team is blue/0
+ * returns -1 if team is red/1
+ * @param team 
+ * @returns 
+ */
+function getDirection(team: Teams): number {
     // return ((player.team == 0) ? btnGlob.img + "_blue" : btnGlob.img);
     return (team == 0) ? 1 : -1;
 }

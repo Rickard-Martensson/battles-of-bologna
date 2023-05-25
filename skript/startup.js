@@ -187,7 +187,7 @@ var Sounds = {};
 var soundsLoaded = 0;
 function loadSounds() {
     for (let i = 0; i < SOUND_DICTIONARY.length; i++) {
-        loadSound(SOUND_DICTIONARY[i][0], SOUND_DICTIONARY[i][1], SOUND_DICTIONARY[i][2]);
+        loadSound(String(SOUND_DICTIONARY[i][0]), String(SOUND_DICTIONARY[i][1]), Number(SOUND_DICTIONARY[i][2]));
     }
 }
 function loadSound(name, src, vol) {

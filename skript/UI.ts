@@ -90,7 +90,7 @@ class UIHandler {
         }
     }
 
-    setLoser(key) {
+    setLoser(key: number) {
         if (key == 1) {
             this.winner = 0;
         }
@@ -102,7 +102,7 @@ class UIHandler {
         }
     }
 
-    setDesync(bool) {
+    setDesync(bool: boolean) {
         this.deSynced = bool;
     }
 
@@ -117,7 +117,7 @@ class UIHandler {
         this.lastTypingBlink = Date.now();
     }
 
-    handleChat(name, msg) {
+    handleChat(name: string, msg: string) {
         playSoundEffect("btn_press");
         this.chats.push({ sender: name, msg: msg })
         let chatLen = this.chats.length
@@ -131,7 +131,7 @@ class UIHandler {
         this.curMsg = ""
     }
 
-    addTyping(key) {
+    addTyping(key: string) {
         if (key == "backspace") {
             this.curMsg = this.curMsg.slice(0, -1)
         }
@@ -211,16 +211,26 @@ class UIHandler {
             if (button.icon != undefined) {
                 drawIcon(button.icon, team, { x: x_pos - 5, y: y_pos - 4 }, 1.8);
             }
+
             else if (button.img != undefined) {
+                let img_size = 32;
+                let icon_size = 20;
+                if (button.img == "longship_img") {
+                    img_size *= 1.5
+                    icon_size *= 1.1
+                    x_pos -= 2;
+                    y_pos += 2;
+                    console.log("yeah")
+                }
                 this.drawImage(Images[button.img + (team == 0 ? "_blue" : "")],
-                    32 * 0, //frame
+                    img_size * 0, //frame
                     0 * 0,
-                    32,
-                    32,
-                    (x_pos - 5 - ICON_SIZE / 2) * S,
-                    (y_pos - 3 - ICON_SIZE / 2) * S,
-                    ICON_SIZE * 2 * S,
-                    ICON_SIZE * 2 * S
+                    img_size,
+                    img_size,
+                    (x_pos - 5 - icon_size / 2) * S,
+                    (y_pos - 3 - icon_size / 2) * S,
+                    icon_size * 2 * S,
+                    icon_size * 2 * S
                 );
             }
 
@@ -314,7 +324,7 @@ class UIHandler {
 
     // === background === \\
 
-    changeBackground(timePassed) {
+    changeBackground(timePassed: number) {
         let totalCycleTime = (CYCLE_TIME * 1000)
         let currentTime = timePassed % totalCycleTime
         let curRatioTime = currentTime / totalCycleTime
@@ -475,7 +485,7 @@ class UIHandler {
             return
         }
         else if (btnAction == 'folder') {
-            player.changeFolder(btnData)
+            player.changeFolder(Number(btnData))
         }
         else if (btnAction === 'buyUnit') {
             this.buyUnit(btnData, player, team, cost);
@@ -673,8 +683,8 @@ class UIHandler {
 
     drawHpBars(playerKey, player) {
 
-        let hpBarWidth = 20.8;
-        let hpBarHeight = 3
+        let hpBarWidth = 27.5;
+        let hpBarHeight = 3.6;
         let hpBarImgWidth = 44;
         let hpBarImgHeight = 8;
 
@@ -683,19 +693,20 @@ class UIHandler {
         let dmgFrac = player.hp / PLAYER_HP_MAX;
         let prevDmgFrac = 0
         let timeSinceLastDmg = Date.now() - player.lastDmgdTime
-        if (timeSinceLastDmg < 125) {
+        if (timeSinceLastDmg < 150) {
             invertColors = 1;
         }
-        if (timeSinceLastDmg < 400) {
+        const HPBARTIME = 500
+        if (timeSinceLastDmg < HPBARTIME) {
             prevDmgFrac = Math.max(player.prevHp, player.hp) / PLAYER_HP_MAX;
-            prevDmgFrac -= (prevDmgFrac - dmgFrac) * ((Date.now() - player.lastDmgdTime) / 400)
+            prevDmgFrac -= (prevDmgFrac - dmgFrac) * ((Date.now() - player.prevHpDate) / HPBARTIME)
             dmgFrac = Math.min(player.prevHp, player.hp) / PLAYER_HP_MAX;
 
         }
 
         console.log()
 
-        if (timeSinceLastDmg < 275 && timeSinceLastDmg > 50) {
+        if (timeSinceLastDmg < 300 && timeSinceLastDmg > 50) {
             hpBarJump = -0.5;
 
         }
@@ -850,16 +861,23 @@ class UIHandler {
         else { // om det inte finnsen ikon å ritar vi img istället. viktigt att skilja på för att allt ska få rätt färg
             if (img != undefined) {
                 // console.log("could not draw image", img)
+                let icon_size = 20;
+                let img_size = 32;
+                if (img == "longship_img" || img == "longship_img_blue") {
+                    frame *= 1.25;
+                    icon_size *= 1.25;
+                    img_size *= 1.5;
+                }
 
                 this.drawImage(Images[img],
                     32 * 0, //frame
                     0 * 0,
-                    32,
-                    32,
-                    (button.x + UI_POS_BTN.img.x - ICON_SIZE / 2) * S,
-                    (button.y + UI_POS_BTN.img.y + frame - ICON_SIZE / 2) * S,
-                    ICON_SIZE * S,
-                    ICON_SIZE * S,
+                    img_size,
+                    img_size,
+                    (button.x + UI_POS_BTN.img.x - icon_size / 2) * S,
+                    (button.y + UI_POS_BTN.img.y + frame - icon_size / 2) * S,
+                    icon_size * S,
+                    icon_size * S,
                 );
 
 
