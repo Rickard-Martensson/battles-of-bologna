@@ -51,7 +51,7 @@ class Game {
         this.projectiles = [
         //new Projectile(80, 100, 20, -40),
         ];
-        this.buyQueue = { [Teams.blue]: [], [Teams.red]: [] };
+        this.buyQueue = { [Teams.blue]: [], [Teams.red]: [], [Teams.other]: [] };
         this.lastQueueShift = [Date.now(), Date.now()];
         this.activeAbilites = [];
         this.killStatus = undefined;
@@ -155,6 +155,20 @@ class Game {
                 this.shootProjectile({ x: BASE_POS[team].x, y: BASE_POS[team].y - 40 }, { vx: -(20 + 75 * Math.random()) * factor, vy: -(45 + 25 * Math.random()) }, team, 2, IS_ONLINE, "arrow");
             }
         }
+        else if (name == "big_rocket") {
+            player.posAbilityTime = Date.now();
+            player.posAbilityXModuli = posX;
+            // console.log("targetpoint:", posX)
+            let target = posX;
+            let vel = calcProjectilePower2({ x: BASE_POS[team].x, y: 60 }, { x: target, y: 100 }, 10);
+            // let vel = calcProjectilePower({ x: BASE_POS[team].x, y: BASE_POS[team].y }, { x: targetX, y: 100 }, 20)
+            this.shootProjectile({ x: BASE_POS[team].x, y: 60 }, { vx: vel.vx, vy: vel.vy }, team, 2, IS_ONLINE, "big_rocket_projectile");
+            // this.shootProjectile(
+            //     { x: BASE_POS[team].x, y: BASE_POS[team].y - 40 },
+            //     { vx: targetX * (1 / 20) * factor, vy: -70 },
+            //     team, 2, IS_ONLINE, "barrel"
+            // );
+        }
         else if (name == "viking_barrel") {
             player.posAbilityTime = Date.now();
             player.posAbilityXModuli = posX;
@@ -224,7 +238,7 @@ class Game {
                 game.addEffect(enemy.pos.x, 82, "lightning_blue", 35, 0, 1);
                 enemy.takeDmg(2);
             });
-            game.players[getOtherTeam(team)].addAbility("electrocuted");
+            // game.players[getOtherTeam(team)].addAbility("electrocuted");
         }
         else if (name in ABILITIES_LIST) {
             console.log("found ability", name, "in", ABILITIES_LIST);
@@ -399,7 +413,7 @@ class Game {
             }
         }
         else {
-            sprite.takeDmg();
+            sprite.takeDmg(dmg);
         }
     }
     damageSpriteFromId(spriteId, dmg) {
@@ -504,6 +518,10 @@ class Game {
             return;
         }
         this.sprites.push(new Sprite(spawnPos, BASE_POS[team].y, name, team, false, false));
+        if (STATS[name].abilities.includes("thor")) {
+            game.addEffect(spawnPos + getDirection(team) * 0, 82, "lightning_blue", 35, 0, 1);
+            playSoundEffect("thunder");
+        }
         if (mySide == 1) {
             this.buyQueue[team].shift();
         }

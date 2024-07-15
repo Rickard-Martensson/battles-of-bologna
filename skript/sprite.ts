@@ -73,6 +73,17 @@ class Effect {
 
 }
 
+enum projectileType {
+    "arrow",
+    "barrel",
+    "ballista",
+    "cannon",
+    "rocket",
+    "big_rocket",
+    "cannonball",
+    "spear",
+}
+
 
 
 class Projectile {
@@ -133,9 +144,12 @@ class Projectile {
             //this.ARROW_COLORS_3 = ['#DDDDDD', '#6F2B1F', '#8B3F2B', '#8B3F2B', '#FFFFFF'];
             this.ARROW_SIZE = .7;
         }
-        else if (this.type == "rocket") {
+        else if (this.type == "rocket" || this.type == "big_rocket_projectile") {
             const TAU = Math.PI * 2
             this.DRAW_SIZE = 10;
+            if (this.type == "big_rocket_projectile") {
+                this.DRAW_SIZE = 20;
+            }
             this.frame = 0;
             this.angle = TAU / 4 + this.vel.vx;
             this.deathFrame = 0
@@ -148,7 +162,7 @@ class Projectile {
 
         if (isUpdate) { this.updateData(newData) }
         else {
-            if (this.type == "rocket") {
+            if (this.type == "rocket" || this.type == "big_rocket_projectile") {
                 playSoundEffect("firework");
             }
             else if (this.type == "cannon") {
@@ -193,6 +207,16 @@ class Projectile {
 
     }
 
+    moveBigRocket() {
+        this.pos.x += this.vel.vx * fpsCoefficient / 100;
+        this.pos.y += this.vel.vy * fpsCoefficient / 100;
+
+
+        this.vel.vy += (-110 * Math.sin(this.angle) + GRAVITY) * fpsCoefficient / 100;
+        this.vel.vx += (1 - 2 * this.team) * (5 + 45 * Math.cos(this.angle)) * fpsCoefficient / 100;
+        this.angle -= 1.3 * fpsCoefficient / 100;
+    }
+
     move() {
         if (this.type == "ballista") {
             this.moveBal();
@@ -200,6 +224,10 @@ class Projectile {
         }
         else if (this.type == "rocket") {
             this.moveRocket();
+            return
+        }
+        else if (this.type == "big_rocket_projectile") {
+            this.moveBigRocket();
             return
         }
         this.pos.x += this.vel.vx * fpsCoefficient / 100;
@@ -211,10 +239,16 @@ class Projectile {
 
     checkHitRocket() {
         if (this.pos.y > HEIGHT - 5) {
-            this.dead = true;
+            this.dead = true; //
 
             playSoundEffect("explode");
-            game.addEffect(this.pos.x, HEIGHT, "explosion", 60, this.team, 1)
+            if (this.type == "big_rocket_projectile") {
+                game.addEffect(this.pos.x, HEIGHT, "explosion", 60, this.team, 2)
+            }
+            else {
+                game.addEffect(this.pos.x, HEIGHT, "explosion", 60, this.team, 1)
+
+            }
 
             for (var i in game.sprites) {
                 if (this.team != game.sprites[i].team) {
@@ -300,7 +334,7 @@ class Projectile {
             this.checkHitBallista()
             return;
         }
-        else if (this.type == "rocket") {
+        else if (this.type == "rocket" || this.type == "big_rocket_projectile") {
             this.checkHitRocket();
             return;
         }
@@ -522,7 +556,7 @@ class Projectile {
             this.drawCannon();
             return
         }
-        else if (this.type == "rocket") {
+        else if (this.type == "rocket" || this.type == "big_rocket_projectile") {
             this.drawRocket()
             return
         }
@@ -598,6 +632,7 @@ class Sprite {
     lastStartOfAtkCycleDate: any;
     lastDmgdTime: number;
     hasLowOpactity: any;
+    drawModifiers: String[];
     drawInvisible: boolean;
     invincible: boolean;
     // activeEffects: Set<string>;
@@ -983,7 +1018,7 @@ class Sprite {
         }
         else if (this.hasActiveEffect("target") || (shouldTargetNext && this.abilities.includes("targetCloseRange"))) {
             let nextEnemy = game.distToNextSprite(this, this.getOtherTeam(), 0, false, true)
-            if (nextEnemy.len < 80) {
+            if (nextEnemy.len < 80 && nextEnemy.sprite != null) {
                 let { vel_x, vel_y } = calcProjectilePower(this.pos, nextEnemy.sprite.pos, ARCHER_TRAJECTORY);
                 game.shootProjectile(
                     { x: this.pos.x, y: this.pos.y - 5 },
@@ -1066,7 +1101,7 @@ class Sprite {
                     let behindSprite = game.distToNextSprite(this, this.getOtherTeam(), 0, true, false)
                     const BEHIND_EXTRA_RANGE = 5
                     // console.log("hehe wirlld", behindSprite.len, this.meleRange, BEHIND_EXTRA_RANGE)
-                    if (behindSprite.len < this.meleRange + BEHIND_EXTRA_RANGE) {
+                    if (behindSprite.sprite != null && behindSprite.len < this.meleRange + BEHIND_EXTRA_RANGE) {
                         behindSprite.sprite.takeDmg(this.dmg)
                     }
 
@@ -1077,12 +1112,12 @@ class Sprite {
                         game.addEffect(victim.pos.x + getDirection(this.team) * 8, 82, "lightning_blue", 35, 0, 1);
                         victim.activateAbility("electrocuted")
                         let secondVictim = game.distToNextSprite(victim, victim.team, 0, true, true)
-                        if (secondVictim.len < 10) {
+                        if (secondVictim.len < 10 && secondVictim.sprite != null) {
                             secondVictim.sprite.activateAbility("electrocuted")
                             secondVictim.sprite.takeDmg(this.dmg)
                         }
 
-                        playSoundEffect("thunder")
+                        playSoundEffect("thunder");
                     }
 
                 }
@@ -1150,7 +1185,7 @@ class Sprite {
     getOtherTeam(): Teams {
         if (this.team == 0) { return 1; }
         else if (this.team == 1) { return 0; }
-        // return -1;
+        return 2;
     }
 
     setState(newState: string, speed: number, txt: string) {
@@ -1321,6 +1356,7 @@ class Sprite {
      * Draws sprite onto canvas
      */
     draw(): void {
+        let shouldDrawWhiter = this.hasActiveEffect("electrocuted") && Math.floor(Date.now() / 200) % 2 === 0;
         let fiddledWithAlpha = false
         let frame = Math.min(this.getFrame(), this.animations[this.currentAnimation].getFrameCount() - 1)
         let animation = this.animations[this.currentAnimation].getRow()
@@ -1340,6 +1376,31 @@ class Sprite {
             this.DRAW_SIZE * S,
             this.DRAW_SIZE * S
         );
+
+        if (shouldDrawWhiter) {
+            // Save the current state of the canvas
+            ctx.save();
+
+            // Change the blending mode to 'lighter' and draw the sprite again
+            ctx.globalCompositeOperation = 'lighter';
+            ctx.globalAlpha *= 0.25
+            ctx.drawImage(Images[this.img],
+                this.imageSize * frame,
+                this.imageSize * (animation + this.drawSpriteYOffset),
+                this.imageSize,
+                this.imageSize,
+                (this.pos.x - this.DRAW_SIZE / 2) * S,
+                (this.pos.y + ROW_OFFSET * this.atkFriendRow - this.DRAW_SIZE / 2) * S,
+                this.DRAW_SIZE * S,
+                this.DRAW_SIZE * S
+            );
+
+            ctx.globalAlpha *= 4
+
+            // Restore the canvas state to default
+            ctx.restore();
+        }
+
         if (fiddledWithAlpha) { ctx.globalAlpha = 1; }
 
     }

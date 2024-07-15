@@ -27,8 +27,8 @@ const IMAGE_DIRECTORY = [
     ["longship_img", "./bilder/sprites/longship.png"],
     ["longship_img_blue", "./bilder/sprites/longship.png"],
     ["barrel_projectile", "./bilder/sprites/viking_barrel.png"],
-    ["thor_img_blue", "./bilder/sprites/thor_blue.png"],
-    ["thor_img", "./bilder/sprites/thor_blue.png"],
+    ["thor_img_blue", "./bilder/sprites/thor_blue2.png"],
+    ["thor_img", "./bilder/sprites/thor2.png"],
     // eastern
     ["rocketeer_img", "./bilder/sprites/rocketeer.png"],
     ["rocketeer_img_blue", "./bilder/sprites/rocketeer_blue.png"],
@@ -38,7 +38,9 @@ const IMAGE_DIRECTORY = [
     ["fireman_img_blue", "./bilder/sprites/fireguy_blue.png"],
     ["cannoneer_img", "./bilder/sprites/cannoneer2.png"],
     ["cannoneer_img_blue", "./bilder/sprites/cannoneer2_blue.png"],
-    //
+    ["warbear_img", "./bilder/sprites/warbear.png"],
+    ["warbear_img_blue", "./bilder/sprites/warbear_blue.png"],
+    // // 
     ["exitButton", "./bilder/ui/ExitButton.png"],
     ["button1", "./bilder/ui/button3.png"],
     // buildings
@@ -123,6 +125,7 @@ const ICON_SS_POS = {
     pagodaRepair: { x: 5, y: 4 },
     shield: { x: 3, y: 4 },
     bigFlame: { x: 2, y: 4 },
+    bigRocket: { x: 6, y: 4 },
 };
 const ICON_SMALL_POS = {
     queue: { x: 0, y: 0 },
@@ -268,6 +271,7 @@ var Teams;
 (function (Teams) {
     Teams[Teams["blue"] = 0] = "blue";
     Teams[Teams["red"] = 1] = "red";
+    Teams[Teams["other"] = 2] = "other";
 })(Teams || (Teams = {}));
 const EFFECT_DIRECTORY_2 = {
     explosion: { imgSize: { x: 50, y: 100 }, drawSize: { x: 30, y: 60 }, framesPerRow: 7, totalFrames: 28 },
@@ -356,6 +360,11 @@ const STATS = {
         abilities: ["ballista", "cannon"], row: 0, img: "cannoneer_img", imageSize: 32, size: 9, siege: true,
         animations: { [SpriteCurAnim.idle]: new SpriteAnimation(32, 0, 8, 60, true), [SpriteCurAnim.walk]: new SpriteAnimation(32, 3, 8, 19.7, true), [SpriteCurAnim.attack]: new SpriteAnimation(32, 1, 11, 22, false), [SpriteCurAnim.special]: new SpriteAnimation(32, 0, 8, 60, true), }
     },
+    warbear: {
+        hp: 20, dmg: 1, meleDmg: -1, meleRange: 6, range: 0, atkSpeed: 2200, atkDelay: 1100, speed: 4,
+        abilities: [], row: 0, img: "warbear_img", imageSize: 32, size: 5,
+        animations: { [SpriteCurAnim.idle]: new SpriteAnimation(32, 0, 1, 60, true), [SpriteCurAnim.walk]: new SpriteAnimation(32, 0, 1, 19.7, true), [SpriteCurAnim.attack]: new SpriteAnimation(32, 0, 1, 18, false), [SpriteCurAnim.special]: new SpriteAnimation(32, 0, 1, 60, true), }
+    },
 };
 const BTN_LAYOUT = {
     0: [
@@ -392,7 +401,7 @@ const BUTTON_DICT = {
 const CLAN_INFO = {
     [ClanTypes.kingdom]: {
         base_img: "castle_img",
-        arrow_delay: [NaN, 10, 5, 5],
+        arrow_delay: [NaN, 8, 4, 4],
         ballista_delay: [NaN, NaN, NaN, 12],
         projectile_type: "arrow",
         siege_proj_type: "ballista",
@@ -402,7 +411,7 @@ const CLAN_INFO = {
     },
     [ClanTypes.viking]: {
         base_img: "stavechurch_img",
-        arrow_delay: [NaN, 16, 8, 8],
+        arrow_delay: [NaN, 12, 6, 6],
         ballista_delay: [NaN, NaN, NaN, 12],
         projectile_type: "spear",
         siege_proj_type: "ballista",
@@ -412,7 +421,7 @@ const CLAN_INFO = {
     },
     [ClanTypes.eastern]: {
         base_img: "pagoda_img",
-        arrow_delay: [NaN, 16, 8, 8],
+        arrow_delay: [NaN, 14, 7, 7],
         ballista_delay: [NaN, NaN, NaN, 12],
         projectile_type: "rocket",
         siege_proj_type: "cannon",
@@ -483,7 +492,7 @@ const BTN_FOLDER = {
             1: { txt: "spearman", cost: 15, action: "buyUnit", data: "spearman", img: "spearman_img", info: "Spearmen are ranged, but \nwith good mele attacks aswell" },
             2: { txt: "brute", cost: 35, action: "buyUnit", data: "brute", upgrade: "upgBrute", img: "brute_img", info: "brutes are rugged mele units\nwho will jump over the first\nenemy they encounter" },
             3: { txt: "back", action: "folder", data: 0, img: "buttonBack_img", info: "go back to the previous folder" },
-            4: { txt: "thor", cost: 50, action: "buyUnit", data: "thor", img: "thor_img", info: "veterans are very strong and \none-hits most units" },
+            4: { txt: "thor", cost: 50, action: "buyUnit", data: "thor", img: "thor_img", info: "Thor is strong and has \na lightning attack, stunning\nenemies" },
             5: { txt: "longship", cost: 30, action: "buyUnit", data: "longship", img: "longship_img", upgrade: "upgBallista", info: "roll a longship onto the battlefield.\nLongships shoot at the enemy castle\nand hide vikings within." }
         },
         2: {
@@ -492,7 +501,7 @@ const BTN_FOLDER = {
             2: { txt: "unlock", txt2: "brute", cost: 50, subText: "50", action: "upgrade", upgrade: "upgBrute", data: "upgBrute", img: "brute_img", info: "unlocks the brute, a strong mele \nunit that can jump over enemies" },
             3: { txt: "upgrade", txt2: "church", cost: "%upgcastle%", action: "upgrade", upgrade: "upgCastle", data: "upgCastle", img: "knight_img", icon: "churchUpg", info: "upgrades the stave church in \nthree levels, making it shoot \nprojectiles at enemy troops and \ncastle" },
             4: { txt: "back", action: "folder", data: 0, img: "buttonBack_img", info: "go back to the previous folder" },
-            5: { txt: "unlock", txt2: "veteran", cost: 50, subText: "50", action: "upgrade", upgrade: "upgVeteran", data: "upgVeteran", img: "veteran_img", info: "work in progress \nshould be a viking unit here" },
+            5: { txt: "unlock", txt2: "thor", cost: 50, subText: "50", action: "upgrade", upgrade: "upgThor", data: "upgThor", img: "thor_img", info: "Unlock Thor \na strong Viking unit" },
             // 5: { txt: "Empty", cost: 2, action: "ability", data: "empty", abilityCooldown: 1, lvl: 0, img: "soldier_img", icon: "question", info: "nothing here yet" },
         },
         3: {
@@ -520,7 +529,7 @@ const BTN_FOLDER = {
             1: { txt: "firethrower", cost: 20, action: "buyUnit", data: "fireman", img: "fireman_img", info: "firethrowers carry a \nflamethrower and damage \nmultiple enemies at a time." },
             2: { txt: "rocketeer", cost: 15, action: "buyUnit", data: "rocketeer", upgrade: "upgRocketeer", img: "rocketeer_img", info: "Rocketmen are ranged \nand shoot rockets." },
             3: { txt: "back", action: "folder", data: 0, img: "buttonBack_img", info: "go back to the previous folder" },
-            4: { txt: "cannon2", cost: 50, action: "buyUnit", data: "cannoneer", img: "cannoneer_img", info: "veterans are very strong and \none-hits most units" },
+            4: { txt: "warbear", cost: 50, action: "buyUnit", data: "warbear", upgrade: "upgWarbear", img: "warbear_img", info: "warbears are very tanky" },
             5: { txt: "cannon", cost: 50, action: "buyUnit", data: "cannoneer", upgrade: "upgBallista", img: "cannoneer_img", info: "veterans are very strong and \none-hits most units" },
         },
         2: {
@@ -529,14 +538,14 @@ const BTN_FOLDER = {
             2: { txt: "unlock", txt2: "rocketeer", cost: 50, subText: "50", action: "upgrade", upgrade: "upgRocketeer", data: "upgRocketeer", img: "rocketeer_img", info: "unlocks the rocketeer, a strong \nunit that can shoot rockets and\ndeal splash damage from afar" },
             3: { txt: "upgrade", txt2: "pagoda", cost: "%upgcastle%", action: "upgrade", upgrade: "upgCastle", data: "upgCastle", img: "knight_img", icon: "pagodaUpg", info: "upgrades the stave church in \nthree levels, making it shoot \nprojectiles at enemy troops and \ncastle" },
             4: { txt: "back", action: "folder", data: 0, img: "buttonBack_img", info: "go back to the previous folder" },
-            5: { txt: "unlock", txt2: "veteran", cost: 50, subText: "50", action: "upgrade", upgrade: "upgVeteran", data: "upgVeteran", img: "veteran_img", info: "work in progress \nshould be a viking unit here" },
+            5: { txt: "unlock", txt2: "warbears", cost: 50, subText: "50", action: "upgrade", upgrade: "upgWarbear", data: "upgWarbear", img: "warbear_img", info: "unlock warbears\ntankiest unit in game" },
             // 5: { txt: "Empty", cost: 2, action: "ability", data: "empty", abilityCooldown: 1, lvl: 0, img: "soldier_img", icon: "question", info: "nothing here yet" },
         },
         3: {
             // 0: { txt: "Take Dmg", cost: 1, action: "ability", data: "takedmg", abilityCooldown: 0, lvl: 2, img: "soldier_img", info: "makes your own tower take dmg \ngood if youre debugging" },
-            0: { txt: "Empty", cost: 2, action: "ability", data: "empty", abilityCooldown: 1, lvl: 2, img: "soldier_img", icon: "question", info: "nothing here yet" },
+            0: { txt: "Launch big", txt2: "Rocket", cost: 4, action: "posAbility", data: "big_rocket", abilityCooldown: 1, lvl: 2, img: "bigRocket", icon: "bigRocket", info: "Launch a big rocket\nanywhere on the battlefireld" },
             1: { txt: "Empty", cost: 2, action: "ability", data: "empty", abilityCooldown: 1, lvl: 3, img: "soldier_img", icon: "question", info: "nothing here yet" },
-            2: { txt: "Empty", cost: 2, action: "ability", data: "empty", abilityCooldown: 12, lvl: 4, img: "archer_img", icon: "question", info: "nothing here yet" },
+            2: { txt: "feed!", txt2: "warbears", cost: 2, action: "ability", data: "empty", abilityCooldown: 12, lvl: 4, img: "archer_img", icon: "question", info: "heal your warbears to full hp" },
             3: { txt: "bigger", txt2: "flame", cost: 4, action: "ability", data: "bigFlame", abilityCooldown: 8, lvl: 1, img: "soldier_img", icon: "bigFlame", info: "temporarly increases the range\nof your firethrowers" },
             4: { txt: "warrior", txt2: "shield", cost: 2, action: "ability", data: "shield", abilityCooldown: 8, lvl: 0, img: "soldier_img", icon: "shield", info: "Makes your warriors immobile,\nbut they take less damage" },
             5: { txt: "back", action: "folder", data: 0, img: "buttonBack_img", info: "go back to the previous folder" },

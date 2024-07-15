@@ -3,8 +3,12 @@ var background1;
 var background2;
 var hasInteractedBefore = false
 
-var ctx: { drawImage: (arg0: HTMLImageElement, arg1: number, arg2: number, arg3: number, arg4: number, arg5: number, arg6: number, arg7: number, arg8: number) => void; globalAlpha: number; fillStyle: string; fillRect: (arg0: number, arg1: number, arg2: number, arg3: number) => void; strokeStyle: string; lineWidth: number; lineJoin: string; strokeRect: (arg0: number, arg1: number, arg2: number, arg3: number) => void; textAlign: string; font: string; fillText: (arg0: string | number, arg1: number, arg2: number) => void; imageSmoothingEnabled: boolean; clearRect: (arg0: number, arg1: number, arg2: number, arg3: number) => void; filter: string; beginPath: () => void; moveTo: (arg0: number, arg1: number) => void; lineTo: (arg0: number, arg1: number) => void; stroke: () => void; translate: (arg0: number, arg1: number) => void; webkitImageSmoothingEnabled: boolean; mozImageSmoothingEnabled: boolean; scale: (arg0: number, arg1: number) => void; };
-var titleScreen;
+var ctx: {
+    restore(): unknown;
+    save(): unknown;
+    globalCompositeOperation: string; drawImage: (arg0: HTMLImageElement, arg1: number, arg2: number, arg3: number, arg4: number, arg5: number, arg6: number, arg7: number, arg8: number) => void; globalAlpha: number; fillStyle: string; fillRect: (arg0: number, arg1: number, arg2: number, arg3: number) => void; strokeStyle: string; lineWidth: number; lineJoin: string; strokeRect: (arg0: number, arg1: number, arg2: number, arg3: number) => void; textAlign: string; font: string; fillText: (arg0: string | number, arg1: number, arg2: number) => void; imageSmoothingEnabled: boolean; clearRect: (arg0: number, arg1: number, arg2: number, arg3: number) => void; filter: string; beginPath: () => void; moveTo: (arg0: number, arg1: number) => void; lineTo: (arg0: number, arg1: number) => void; stroke: () => void; translate: (arg0: number, arg1: number) => void; webkitImageSmoothingEnabled: boolean; mozImageSmoothingEnabled: boolean; scale: (arg0: number, arg1: number) => void;
+};
+var titleScreen: HTMLElement | null;
 var isBootup = false; // wether the bootupscreen is active, aka if the user has clicked
 
 var buttonClass;

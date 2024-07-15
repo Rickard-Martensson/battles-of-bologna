@@ -224,7 +224,7 @@ class Player {
         this.btnCoolDowns.push({ folder: folder, btn: btn, time: time, id: id })
     }
 
-    decreaseCoolDowns(game: this) {
+    decreaseCoolDowns(game: Game) {
         for (var cool of this.btnCoolDowns) {
             if (cool.time != 1) {
                 cool.time -= 1;
